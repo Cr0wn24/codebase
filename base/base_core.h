@@ -138,7 +138,7 @@
 #  define ARCH_ARM64 0
 #endif
 
-static_assert(ARCH_ARM64 || ARCH_X64);
+static_assert(ARCH_ARM64 || ARCH_X64, "This architecture is not supported");
 
 #define PRIU8 PRIu8
 #define PRIU16 PRIu16

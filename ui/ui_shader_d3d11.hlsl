@@ -1,3 +1,4 @@
+struct VS_INPUT_UI
 {
   float2 min : MIN;
   float2 max : MAX;

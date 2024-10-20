@@ -140,6 +140,13 @@ function String16 str16(U16 *data, U64 size);
 // NOTE(hampus): String32
 
 function String32 str32(U32 *data, U64 size);
+function String32 str32_range(U32 *start, U32 *opl);
+function String32 str32_copy(Arena *arena, String32 string);
+function String32 str32_prefix(String32 string, U64 size);
+function String32 str32_postfix(String32 string, U64 size);
+function String32 str32_skip(String32 string, U64 size);
+function String32 str32_chop(String32 string, U64 size);
+function B32 str32_match(String32 a, String32 b);
 
 //////////////////////////////
 // NOTE(hampus): Encoding & decoding

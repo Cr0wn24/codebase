@@ -257,7 +257,7 @@ struct UI_FreeBox
   UI_FreeBox *next;
 };
 
-#define StackValues                            \
+#define stack_values                           \
   X(RectColor00, rect_color00, Vec4F32)        \
   X(RectColor10, rect_color10, Vec4F32)        \
   X(RectColor01, rect_color01, Vec4F32)        \
@@ -326,7 +326,7 @@ struct UI_Box
 
   // hampus: Styling values
 #define X(name_upper, name_lower, type) type name_lower;
-  StackValues
+  stack_values
 #undef X
 };
 
@@ -371,7 +371,7 @@ struct UI_SeedNode
     type val;                           \
     B32 auto_pop;                       \
   };
-StackValues
+stack_values
 #undef X
 //////////////////////////////
 // NOTE(hampus): Text action types
@@ -477,7 +477,7 @@ struct UI_State
   Array<String8, UI_Icon_COUNT> ui_icon_to_string_table;
 
 #define X(name_upper, name_lower, type) ui_##name_upper##Node *name_lower##_stack;
-  StackValues
+  stack_values
 #undef X
 };
 
@@ -523,7 +523,7 @@ function B32 ui_box_is_active(UI_Box *box);
 function B32 ui_box_is_focus(UI_Box *box);
 function B32 ui_box_is_nil(UI_Box *box);
 function UI_Box *ui_box_from_key(UI_Key key);
-function UI_Box *ui_box_make_from_key(UI_BoxFlags flags, UI_Key key);
+function UI_Box *ui_box_makerom_key(UI_BoxFlags flags, UI_Key key);
 function String8 ui_get_display_part_from_string(String8 string);
 function String8 ui_get_hash_part_from_string(String8 string);
 function UI_Box *ui_box_make(UI_BoxFlags flags, String8 string);
@@ -622,7 +622,7 @@ function void ui_pop_fixed_rect(void);
   function ui_##name_upper##Node *ui_pop_##name_lower(void);      \
   function type ui_top_##name_lower(void);
 
-StackValues
+stack_values
 #undef X
 
 //////////////////////////////

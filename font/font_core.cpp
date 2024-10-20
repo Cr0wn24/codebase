@@ -147,8 +147,8 @@ f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp)
       }
       glyph_node->region_uv.min = v2f32((F32)atlas_region.min.x / (F32)atlas->dim.x,
                                         (F32)atlas_region.min.y / (F32)atlas->dim.y);
-      glyph_node->region_uv.max = v2f32(((F32)atlas_region.min.x + raster_result.dim.x) / (F32)atlas->dim.x,
-                                        ((F32)atlas_region.min.y + raster_result.dim.y) / (F32)atlas->dim.y);
+      glyph_node->region_uv.max = v2f32(((F32)atlas_region.min.x + (F32)raster_result.dim.x) / (F32)atlas->dim.x,
+                                        ((F32)atlas_region.min.y + (F32)raster_result.dim.y) / (F32)atlas->dim.y);
     }
 
     sll_stack_push_n(f_state->glyph_lookup_table[slot_idx], glyph_node, hash_next);

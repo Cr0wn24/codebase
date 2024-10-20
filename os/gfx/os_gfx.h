@@ -106,7 +106,8 @@ enum OS_Key
   OS_Key_COUNT,
 };
 
-enum OS_KeyModifiers
+typedef U32 OS_KeyModifiers;
+enum
 {
   OS_KeyModifier_Ctrl = (1 << 0),
   OS_KeyModifier_Shift = (1 << 1),
@@ -148,7 +149,7 @@ enum OS_EventKind
 struct OS_Event
 {
   OS_EventKind kind;
-  U8 key;
+  OS_Key key;
   OS_KeyModifiers key_modifiers;
   U32 cp;
   Vec2F32 scroll;

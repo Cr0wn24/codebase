@@ -1,6 +1,8 @@
+#pragma warning(push, 0)
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
 #include "third_party/stb/stb_truetype.h"
+#pragma warning(pop)
 
 // TODO(hampus): Caching of indices for codepoints
 // TODO(hampus): Caching of scaling
@@ -38,9 +40,9 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
   FP_RasterResult result = {};
   stbtt_fontinfo *stb_font = (stbtt_fontinfo *)ptr_from_int(font.u64[0]);
 
-  F32 scale = stbtt_ScaleForMappingEmToPixels(stb_font, size * 1.33f);
+  F32 scale = stbtt_ScaleForMappingEmToPixels(stb_font, (F32)size * 1.33f);
 
-  U64 stb_glyph_idx = stbtt_FindGlyphIndex(stb_font, safe_s32_from_u64(cp));
+  U64 stb_glyph_idx = (U64)stbtt_FindGlyphIndex(stb_font, safe_s32_from_u64(cp));
 
   // hampus: Get dimensions of the bitmap
 
@@ -50,7 +52,7 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
                           scale, scale,
                           &bitmap_rect.x0, &bitmap_rect.y0,
                           &bitmap_rect.x1, &bitmap_rect.y1);
-  Vec2U64 bitmap_dim = v2u64(bitmap_rect.x1 - bitmap_rect.x0, bitmap_rect.y1 - bitmap_rect.y0);
+  Vec2U64 bitmap_dim = v2u64((U64)(bitmap_rect.x1 - bitmap_rect.x0), (U64)(bitmap_rect.y1 - bitmap_rect.y0));
 
   U64 bitmap_size = bitmap_dim.x * bitmap_dim.y;
 
@@ -74,14 +76,14 @@ fp_metrics_from_font_size(FP_Handle font, U32 size)
 {
   FP_Metrics result = {};
   stbtt_fontinfo *stb_font = (stbtt_fontinfo *)ptr_from_int(font.u64[0]);
-  F32 scale = stbtt_ScaleForMappingEmToPixels(stb_font, size * 1.33f);
-  int ascent = 0;
-  int descent = 0;
-  int line_gap = 0;
+  F32 scale = stbtt_ScaleForMappingEmToPixels(stb_font, (F32)size * 1.33f);
+  S32 ascent = 0;
+  S32 descent = 0;
+  S32 line_gap = 0;
   stbtt_GetFontVMetrics(stb_font, &ascent, &descent, &line_gap);
-  result.ascent = floor_f32(ascent * scale);
-  result.descent = floor_f32(descent * scale);
-  result.line_height = floor_f32((ascent - descent + line_gap) * scale);
+  result.ascent = floor_f32((F32)ascent * scale);
+  result.descent = floor_f32((F32)descent * scale);
+  result.line_height = floor_f32(((F32)ascent - (F32)descent + (F32)line_gap) * scale);
   return result;
 }
 
@@ -90,14 +92,14 @@ f_metrics_from_font_size_cp(FP_Handle font, U32 size, U32 cp)
 {
   FP_Metrics result = {};
   stbtt_fontinfo *stb_font = (stbtt_fontinfo *)ptr_from_int(font.u64[0]);
-  F32 scale = stbtt_ScaleForMappingEmToPixels(stb_font, size * 1.33f);
-  int advance = 0;
-  int left_side_bearing = 0;
+  F32 scale = stbtt_ScaleForMappingEmToPixels(stb_font, (F32)size * 1.33f);
+  S32 advance = 0;
+  S32 left_side_bearing = 0;
   stbtt_GetCodepointHMetrics(stb_font, safe_s32_from_u64(cp), &advance, &left_side_bearing);
   RectS32 glyph_bounding_box = {};
   stbtt_GetCodepointBox(stb_font, safe_s32_from_u64(cp), &glyph_bounding_box.x0, &glyph_bounding_box.y0, &glyph_bounding_box.x1, &glyph_bounding_box.y1);
-  result.advance = round_f32(advance * scale);
-  result.bearing.x = floor_f32(left_side_bearing * scale);
-  result.bearing.y = floor_f32(glyph_bounding_box.y1 * scale);
+  result.advance = round_f32((F32)advance * scale);
+  result.bearing.x = floor_f32((F32)left_side_bearing * scale);
+  result.bearing.y = floor_f32((F32)glyph_bounding_box.y1 * scale);
   return result;
 }

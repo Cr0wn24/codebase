@@ -1,8 +1,10 @@
+#pragma warning(push, 0)
 #define STBI_ONLY_PNG
 #define STBI_ONLY_BMP
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 #include "third_party/stb/stb_image.h"
+#pragma warning(pop)
 
 #pragma comment(lib, "dxguid")
 #pragma comment(lib, "dxgi")
@@ -37,17 +39,17 @@ r_init(void)
   // hampus: Enable useful debug break on errors
 #ifndef N_DEBUG
   {
-    ID3D11Device_QueryInterface(r_d3d11_state->device, &IID_ID3D11InfoQueue, (void **)&r_d3d11_state->info);
-    ID3D11InfoQueue_SetBreakOnSeverity(r_d3d11_state->info, D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-    ID3D11InfoQueue_SetBreakOnSeverity(r_d3d11_state->info, D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
-    ID3D11InfoQueue_Release(r_d3d11_state->info);
+    r_d3d11_state->device->QueryInterface(IID_ID3D11InfoQueue, (void **)&r_d3d11_state->info);
+    r_d3d11_state->info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+    r_d3d11_state->info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
+    r_d3d11_state->info->Release();
   }
 
   {
-    hr = DXGIGetDebugInterface1(0, &IID_IDXGIInfoQueue, (void **)&r_d3d11_state->dxgi_info);
-    IDXGIInfoQueue_SetBreakOnSeverity(r_d3d11_state->dxgi_info, DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-    IDXGIInfoQueue_SetBreakOnSeverity(r_d3d11_state->dxgi_info, DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, TRUE);
-    IDXGIInfoQueue_Release(r_d3d11_state->dxgi_info);
+    hr = DXGIGetDebugInterface1(0, IID_IDXGIInfoQueue, (void **)&r_d3d11_state->dxgi_info);
+    r_d3d11_state->dxgi_info->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+    r_d3d11_state->dxgi_info->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, TRUE);
+    r_d3d11_state->dxgi_info->Release();
   }
 #endif
 }
@@ -57,19 +59,19 @@ r_make_render_window_context(OS_Handle window)
 {
   R_Handle result = {};
 
-  OS_Win32_Window *win32_window = ptr_from_int(window.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(window.u64[0]);
   R_D3D11_Window *d3d11_window = push_array<R_D3D11_Window>(r_d3d11_state->arena, 1);
   d3d11_window->window = window;
 
   HRESULT hr = {};
 
-  hr = ID3D11Device_QueryInterface(r_d3d11_state->device, &IID_IDXGIDevice, (void **)&r_d3d11_state->dxgi_device);
+  hr = r_d3d11_state->device->QueryInterface(IID_IDXGIDevice, (void **)&r_d3d11_state->dxgi_device);
   assert_hr(hr);
 
-  hr = IDXGIDevice_GetAdapter(r_d3d11_state->dxgi_device, &r_d3d11_state->dxgi_adapter);
+  hr = r_d3d11_state->dxgi_device->GetAdapter(&r_d3d11_state->dxgi_adapter);
   assert_hr(hr);
 
-  hr = IDXGIAdapter_GetParent(r_d3d11_state->dxgi_adapter, &IID_IDXGIFactory2, (void **)&r_d3d11_state->factory);
+  hr = r_d3d11_state->dxgi_adapter->GetParent(IID_IDXGIFactory2, (void **)&r_d3d11_state->factory);
   assert_hr(hr);
 
   {
@@ -85,10 +87,10 @@ r_make_render_window_context(OS_Handle window)
       desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     };
 
-    hr = IDXGIFactory2_CreateSwapChainForHwnd(r_d3d11_state->factory, (IUnknown *)r_d3d11_state->device, win32_window->hwnd, &desc, 0, 0, &d3d11_window->swap_chain);
+    hr = r_d3d11_state->factory->CreateSwapChainForHwnd(r_d3d11_state->device, win32_window->hwnd, &desc, 0, 0, &d3d11_window->swap_chain);
     assert_hr(hr);
 
-    IDXGIFactory_MakeWindowAssociation(r_d3d11_state->factory, win32_window->hwnd, DXGI_MWA_NO_ALT_ENTER);
+    r_d3d11_state->factory->MakeWindowAssociation(win32_window->hwnd, DXGI_MWA_NO_ALT_ENTER);
   }
 
   result.u64[0] = int_from_ptr(d3d11_window);
@@ -139,38 +141,38 @@ r_make_pipeline(R_PipelineDesc desc)
   R_ShaderDesc *shader_desc = &desc.shader;
 
   ASSERT(shader_desc->vs_entry_point_name.size < 256);
-  U8 vs_target_buffer_cstr[256] = {};
-  cstr_format(vs_target_buffer_cstr, array_count(vs_target_buffer_cstr), "%S_5_0", shader_desc->vs_entry_point_name);
+  Array<U8, 256> vs_target_buffer_cstr = {};
+  cstr_format(vs_target_buffer_cstr.val, array_count(vs_target_buffer_cstr), (char *)"%S_5_0", shader_desc->vs_entry_point_name);
 
   char *vs_entry_point_cstr = cstr_from_str8(scratch.arena, shader_desc->vs_entry_point_name);
 
   ID3DBlob *vblob = 0;
-  hr = D3DCompile((LPCSTR)shader_desc->vs_source.data, shader_desc->vs_source.size, 0, 0, 0, (LPCSTR)vs_entry_point_cstr, (LPCSTR)vs_target_buffer_cstr, flags, 0, &vblob, &error);
+  hr = D3DCompile((LPCSTR)shader_desc->vs_source.data, shader_desc->vs_source.size, 0, 0, 0, (LPCSTR)vs_entry_point_cstr, (LPCSTR)vs_target_buffer_cstr.val, flags, 0, &vblob, &error);
   if(FAILED(hr))
   {
-    const char *message = ID3D10Blob_GetBufferPointer(error);
+    const char *message = (const char *)error->GetBufferPointer();
     OutputDebugStringA(message);
     ASSERT(!"Failed to compile vertex shader!");
   }
 
   ASSERT(shader_desc->ps_entry_point_name.size < 256);
-  U8 ps_target_buffer_cstr[256] = {};
-  cstr_format(ps_target_buffer_cstr, array_count(ps_target_buffer_cstr), "%S_5_0", shader_desc->ps_entry_point_name);
+  Array<U8, 256> ps_target_buffer_cstr = {};
+  cstr_format(ps_target_buffer_cstr.val, array_count(ps_target_buffer_cstr), (char *)"%S_5_0", shader_desc->ps_entry_point_name);
 
   char *ps_entry_point_cstr = cstr_from_str8(scratch.arena, shader_desc->ps_entry_point_name);
 
   ID3DBlob *pblob = 0;
 
-  hr = D3DCompile((LPCSTR)shader_desc->ps_source.data, shader_desc->ps_source.size, 0, 0, 0, (LPCSTR)ps_entry_point_cstr, (LPCSTR)ps_target_buffer_cstr, flags, 0, &pblob, &error);
+  hr = D3DCompile((LPCSTR)shader_desc->ps_source.data, shader_desc->ps_source.size, 0, 0, 0, (LPCSTR)ps_entry_point_cstr, (LPCSTR)ps_target_buffer_cstr.val, flags, 0, &pblob, &error);
   if(FAILED(hr))
   {
-    const char *message = ID3D10Blob_GetBufferPointer(error);
+    const char *message = (const char *)error->GetBufferPointer();
     OutputDebugStringA(message);
     ASSERT(!"Failed to compile pixel shader!");
   }
 
-  ID3D11Device_CreateVertexShader(r_d3d11_state->device, ID3D10Blob_GetBufferPointer(vblob), ID3D10Blob_GetBufferSize(vblob), 0, &pipeline->vshader);
-  ID3D11Device_CreatePixelShader(r_d3d11_state->device, ID3D10Blob_GetBufferPointer(pblob), ID3D10Blob_GetBufferSize(pblob), 0, &pipeline->pshader);
+  r_d3d11_state->device->CreateVertexShader(vblob->GetBufferPointer(), vblob->GetBufferSize(), 0, &pipeline->vshader);
+  r_d3d11_state->device->CreatePixelShader(pblob->GetBufferPointer(), pblob->GetBufferSize(), 0, &pipeline->pshader);
 
   R_InputLayoutDesc *input_layout_desc = &desc.input_layout;
 
@@ -179,7 +181,7 @@ r_make_pipeline(R_PipelineDesc desc)
   {
     R_InputLayoutAttribute *attrib = &input_layout_desc->attribs[attrib_idx];
     DXGI_FORMAT format = {};
-    D3D11_INPUT_CLASSIFICATION slot_class = 0;
+    D3D11_INPUT_CLASSIFICATION slot_class = {};
     switch(attrib->kind)
     {
       case R_AttributeKind_Float:
@@ -226,10 +228,10 @@ r_make_pipeline(R_PipelineDesc desc)
     d3d11_input_layout_desc[attrib_idx].InstanceDataStepRate = safe_u32_from_u64(attrib->step_rate);
   }
 
-  ID3D11Device_CreateInputLayout(r_d3d11_state->device, d3d11_input_layout_desc, safe_u32_from_u64(input_layout_desc->attribs_count), ID3D10Blob_GetBufferPointer(vblob), ID3D10Blob_GetBufferSize(vblob), &pipeline->layout);
+  r_d3d11_state->device->CreateInputLayout(d3d11_input_layout_desc, safe_u32_from_u64(input_layout_desc->attribs_count), vblob->GetBufferPointer(), vblob->GetBufferSize(), &pipeline->layout);
 
-  ID3D10Blob_Release(pblob);
-  ID3D10Blob_Release(vblob);
+  vblob->Release();
+  pblob->Release();
 
   {
     D3D11_SAMPLER_DESC sampler_desc =
@@ -257,25 +259,23 @@ r_make_pipeline(R_PipelineDesc desc)
         invalid_case;
     }
 
-    ID3D11Device_CreateSamplerState(r_d3d11_state->device, &sampler_desc, &pipeline->sampler_state);
+    r_d3d11_state->device->CreateSamplerState(&sampler_desc, &pipeline->sampler_state);
   }
 
   {
-    D3D11_BLEND_DESC blend_desc =
+    D3D11_BLEND_DESC blend_desc = {};
+    blend_desc.RenderTarget[0] =
     {
-      .RenderTarget[0] =
-      {
-        .BlendEnable = TRUE,
-        .SrcBlend = D3D11_BLEND_SRC_ALPHA,
-        .DestBlend = D3D11_BLEND_INV_SRC_ALPHA,
-        .BlendOp = D3D11_BLEND_OP_ADD,
-        .SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA,
-        .DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA,
-        .BlendOpAlpha = D3D11_BLEND_OP_ADD,
-        .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
-      },
+      .BlendEnable = TRUE,
+      .SrcBlend = D3D11_BLEND_SRC_ALPHA,
+      .DestBlend = D3D11_BLEND_INV_SRC_ALPHA,
+      .BlendOp = D3D11_BLEND_OP_ADD,
+      .SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA,
+      .DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA,
+      .BlendOpAlpha = D3D11_BLEND_OP_ADD,
+      .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
     };
-    ID3D11Device_CreateBlendState(r_d3d11_state->device, &blend_desc, &pipeline->blend_state);
+    r_d3d11_state->device->CreateBlendState(&blend_desc, &pipeline->blend_state);
   }
 
   {
@@ -284,7 +284,7 @@ r_make_pipeline(R_PipelineDesc desc)
       .FillMode = D3D11_FILL_SOLID,
       .CullMode = D3D11_CULL_NONE,
     };
-    ID3D11Device_CreateRasterizerState(r_d3d11_state->device, &rasterizer_desc, &pipeline->rasterizer_state);
+    r_d3d11_state->device->CreateRasterizerState(&rasterizer_desc, &pipeline->rasterizer_state);
   }
 
   {
@@ -297,11 +297,25 @@ r_make_pipeline(R_PipelineDesc desc)
       .StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK,
       .StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK,
     };
-    ID3D11Device_CreateDepthStencilState(r_d3d11_state->device, &depth_stencil_desc, &pipeline->depth_stencil_state);
+    r_d3d11_state->device->CreateDepthStencilState(&depth_stencil_desc, &pipeline->depth_stencil_state);
   }
 
   result.u64[0] = int_from_ptr(pipeline);
   return result;
+}
+
+function void
+r_destroy_pipeline(R_Handle handle)
+{
+  R_D3D11_Pipeline *d3d11_pipeline = (R_D3D11_Pipeline *)ptr_from_int(handle.u64[0]);
+  d3d11_pipeline->blend_state->Release();
+  d3d11_pipeline->depth_stencil_state->Release();
+  d3d11_pipeline->rasterizer_state->Release();
+  d3d11_pipeline->sampler_state->Release();
+  d3d11_pipeline->layout->Release();
+  d3d11_pipeline->pshader->Release();
+  d3d11_pipeline->vshader->Release();
+  sll_stack_push(r_d3d11_state->first_free_pipeline, d3d11_pipeline);
 }
 
 function R_Handle
@@ -338,10 +352,18 @@ r_make_buffer(R_BufferDesc desc)
     }
     break;
   }
-  ID3D11Device_CreateBuffer(r_d3d11_state->device, &d3d11_desc, 0, &buffer->buffer);
+  r_d3d11_state->device->CreateBuffer(&d3d11_desc, 0, &buffer->buffer);
   buffer->size = desc.size;
   result.u64[0] = int_from_ptr(buffer);
   return result;
+}
+
+function void
+r_destroy_buffer(R_Handle handle)
+{
+  R_D3D11_Buffer *buffer = r_d3d11_state->first_free_buffer;
+  buffer->buffer->Release();
+  sll_stack_push(r_d3d11_state->first_free_buffer, buffer);
 }
 
 function R_Handle
@@ -372,16 +394,18 @@ r_make_tex2d_from_bitmap(void *data, U32 width, U32 height)
     .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
   };
 
+  UINT mem_pitch = width * sizeof(U32);
+
   D3D11_SUBRESOURCE_DATA resource_data =
   {
     .pSysMem = data,
-    .SysMemPitch = width * sizeof(U32),
+    .SysMemPitch = mem_pitch,
   };
 
   ID3D11Texture2D *texture = 0;
   ID3D11ShaderResourceView *texture_view = 0;
-  ID3D11Device_CreateTexture2D(r_d3d11_state->device, &desc, &resource_data, &texture);
-  ID3D11Device_CreateShaderResourceView(r_d3d11_state->device, (ID3D11Resource *)texture, 0, &texture_view);
+  r_d3d11_state->device->CreateTexture2D(&desc, &resource_data, &texture);
+  r_d3d11_state->device->CreateShaderResourceView((ID3D11Resource *)texture, 0, &texture_view);
   d3d11_texture->view = texture_view;
   d3d11_texture->texture = texture;
 
@@ -406,13 +430,20 @@ r_make_tex2d_from_memory(String8 data)
 }
 
 function void
+r_destroy_tex2d(R_Handle texture)
+{
+  R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)ptr_from_int(texture.u64[0]);
+  d3d11_texture->view->Release();
+  sll_stack_push(r_d3d11_state->first_free_texture, d3d11_texture);
+}
+function void
 r_update_tex2d_contents(R_Handle texture, void *memory)
 {
   R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)ptr_from_int(texture.u64[0]);
   D3D11_MAPPED_SUBRESOURCE mapped;
-  ID3D11DeviceContext_Map(r_d3d11_state->context, (ID3D11Resource *)d3d11_texture->texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+  r_d3d11_state->context->Map((ID3D11Resource *)d3d11_texture->texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
   memory_copy((U8 *)mapped.pData, (U8 *)memory, (d3d11_texture->width * d3d11_texture->height * 4));
-  ID3D11DeviceContext_Unmap(r_d3d11_state->context, (ID3D11Resource *)d3d11_texture->texture, 0);
+  r_d3d11_state->context->Unmap((ID3D11Resource *)d3d11_texture->texture, 0);
 }
 
 function void
@@ -428,15 +459,15 @@ r_begin_pass(Vec4F32 clear_color)
   {
     if(d3d11_window->render_target_view)
     {
-      ID3D11DeviceContext_ClearState(r_d3d11_state->context);
-      ID3D11RenderTargetView_Release(d3d11_window->render_target_view);
-      ID3D11DepthStencilView_Release(d3d11_window->depth_stencil_view);
+      r_d3d11_state->context->ClearState();
+      d3d11_window->render_target_view->Release();
+      d3d11_window->depth_stencil_view->Release();
       d3d11_window->render_target_view = 0;
     }
 
     if(client_area_dim.width != 0 && client_area_dim.height != 0)
     {
-      hr = IDXGISwapChain1_ResizeBuffers(d3d11_window->swap_chain, 0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+      hr = d3d11_window->swap_chain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
       if(FAILED(hr))
       {
         ASSERT(!"Failed to resize swap chain!");
@@ -444,13 +475,13 @@ r_begin_pass(Vec4F32 clear_color)
 
       // NOTE(hampus): Create RenderTarget view for new backbuffer texture
       ID3D11Texture2D *backbuffer = 0;
-      IDXGISwapChain1_GetBuffer(d3d11_window->swap_chain, 0, &IID_ID3D11Texture2D, (void **)&backbuffer);
+      d3d11_window->swap_chain->GetBuffer(0, IID_ID3D11Texture2D, (void **)&backbuffer);
       D3D11_RENDER_TARGET_VIEW_DESC render_target_view_desc =
       {
         .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
         .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D};
-      ID3D11Device_CreateRenderTargetView(r_d3d11_state->device, (ID3D11Resource *)backbuffer, &render_target_view_desc, &d3d11_window->render_target_view);
-      ID3D11Texture2D_Release(backbuffer);
+      r_d3d11_state->device->CreateRenderTargetView((ID3D11Resource *)backbuffer, &render_target_view_desc, &d3d11_window->render_target_view);
+      backbuffer->Release();
 
       D3D11_TEXTURE2D_DESC depth_desc =
       {
@@ -466,12 +497,12 @@ r_begin_pass(Vec4F32 clear_color)
 
       // NOTE(hampus): Create new depth stencil texture & DepthStencil view
       ID3D11Texture2D *depth = 0;
-      ID3D11Device_CreateTexture2D(r_d3d11_state->device, &depth_desc, 0, &depth);
-      ID3D11Device_CreateDepthStencilView(r_d3d11_state->device, (ID3D11Resource *)depth, 0, &d3d11_window->depth_stencil_view);
-      ID3D11Texture2D_Release(depth);
+      r_d3d11_state->device->CreateTexture2D(&depth_desc, 0, &depth);
+      r_d3d11_state->device->CreateDepthStencilView((ID3D11Resource *)depth, 0, &d3d11_window->depth_stencil_view);
+      depth->Release();
     }
-    r_d3d11_state->current_width = (DWORD)client_area_dim.width;
-    r_d3d11_state->current_height = (DWORD)client_area_dim.height;
+    r_d3d11_state->current_width = (S32)client_area_dim.width;
+    r_d3d11_state->current_height = (S32)client_area_dim.height;
   }
 
   D3D11_VIEWPORT viewport =
@@ -484,13 +515,13 @@ r_begin_pass(Vec4F32 clear_color)
     .MaxDepth = 1,
   };
 
-  ID3D11DeviceContext_RSSetViewports(r_d3d11_state->context, 1, &viewport);
+  r_d3d11_state->context->RSSetViewports(1, &viewport);
 
   if(d3d11_window->render_target_view)
   {
-    ID3D11DeviceContext_ClearRenderTargetView(r_d3d11_state->context, d3d11_window->render_target_view, clear_color.v);
-    ID3D11DeviceContext_ClearDepthStencilView(r_d3d11_state->context, d3d11_window->depth_stencil_view,
-                                              D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
+    r_d3d11_state->context->ClearRenderTargetView(d3d11_window->render_target_view, clear_color.v);
+    r_d3d11_state->context->ClearDepthStencilView(d3d11_window->depth_stencil_view,
+                                                  D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
   }
 }
 
@@ -502,13 +533,13 @@ r_end_pass(void)
 function void
 r_draw(U64 vertex_count)
 {
-  ID3D11DeviceContext_Draw(r_d3d11_state->context, safe_u32_from_u64(vertex_count), 0);
+  r_d3d11_state->context->Draw(safe_u32_from_u64(vertex_count), 0);
 }
 
 function void
 r_instanced_draw(U64 vertex_count_per_instance, U64 instance_count)
 {
-  ID3D11DeviceContext_DrawInstanced(r_d3d11_state->context, safe_u32_from_u64(vertex_count_per_instance), safe_u32_from_u64(instance_count), 0, 0);
+  r_d3d11_state->context->DrawInstanced(safe_u32_from_u64(vertex_count_per_instance), safe_u32_from_u64(instance_count), 0, 0);
 }
 
 function void
@@ -521,7 +552,7 @@ r_commit(void)
   if(d3d11_window->render_target_view)
   {
     BOOL vsync = TRUE;
-    hr = IDXGISwapChain1_Present(d3d11_window->swap_chain, vsync ? 1 : 0, 0);
+    hr = d3d11_window->swap_chain->Present((UINT)(vsync ? 1 : 0), (UINT)0);
     if(hr == DXGI_STATUS_OCCLUDED)
     {
       // NOTE(hampus): Window is minimized, cannot vsync - instead sleep a bit
@@ -545,19 +576,19 @@ r_apply_pipeline(R_Handle pipeline)
   R_D3D11_Pipeline *d3d11_pipeline = (R_D3D11_Pipeline *)ptr_from_int(pipeline.u64[0]);
   R_D3D11_Window *d3d11_window = r_d3d11_state->current_window_context;
 
-  ID3D11DeviceContext_VSSetShader(r_d3d11_state->context, d3d11_pipeline->vshader, 0, 0);
+  r_d3d11_state->context->VSSetShader(d3d11_pipeline->vshader, 0, 0);
 
-  ID3D11DeviceContext_IASetInputLayout(r_d3d11_state->context, d3d11_pipeline->layout);
-  ID3D11DeviceContext_IASetPrimitiveTopology(r_d3d11_state->context, d3d11_pipeline->topology);
+  r_d3d11_state->context->IASetInputLayout(d3d11_pipeline->layout);
+  r_d3d11_state->context->IASetPrimitiveTopology(d3d11_pipeline->topology);
 
-  ID3D11DeviceContext_RSSetState(r_d3d11_state->context, d3d11_pipeline->rasterizer_state);
+  r_d3d11_state->context->RSSetState(d3d11_pipeline->rasterizer_state);
 
-  ID3D11DeviceContext_PSSetSamplers(r_d3d11_state->context, 0, 1, &d3d11_pipeline->sampler_state);
-  ID3D11DeviceContext_PSSetShader(r_d3d11_state->context, d3d11_pipeline->pshader, 0, 0);
+  r_d3d11_state->context->PSSetSamplers(0, 1, &d3d11_pipeline->sampler_state);
+  r_d3d11_state->context->PSSetShader(d3d11_pipeline->pshader, 0, 0);
 
-  ID3D11DeviceContext_OMSetBlendState(r_d3d11_state->context, d3d11_pipeline->blend_state, 0, ~0U);
-  ID3D11DeviceContext_OMSetDepthStencilState(r_d3d11_state->context, d3d11_pipeline->depth_stencil_state, 0);
-  ID3D11DeviceContext_OMSetRenderTargets(r_d3d11_state->context, 1, &d3d11_window->render_target_view, d3d11_window->depth_stencil_view);
+  r_d3d11_state->context->OMSetBlendState(d3d11_pipeline->blend_state, 0, ~0U);
+  r_d3d11_state->context->OMSetDepthStencilState(d3d11_pipeline->depth_stencil_state, 0);
+  r_d3d11_state->context->OMSetRenderTargets(1, &d3d11_window->render_target_view, d3d11_window->depth_stencil_view);
 }
 
 function void
@@ -567,21 +598,21 @@ r_apply_vertex_buffer(R_Handle buffer, U64 stride)
   ID3D11Buffer *vertex_buffer = d3d11_buffer->buffer;
   UINT offset = 0;
   UINT stride_u32 = safe_u32_from_u64(stride);
-  ID3D11DeviceContext_IASetVertexBuffers(r_d3d11_state->context, 0, 1, &vertex_buffer, &stride_u32, &offset);
+  r_d3d11_state->context->IASetVertexBuffers(0, 1, &vertex_buffer, &stride_u32, &offset);
 }
 
 function void
 r_apply_uniform_buffer(R_Handle buffer)
 {
   R_D3D11_Buffer *d3d11_buffer = (R_D3D11_Buffer *)ptr_from_int(buffer.u64[0]);
-  ID3D11DeviceContext_VSSetConstantBuffers(r_d3d11_state->context, 0, 1, &d3d11_buffer->buffer);
+  r_d3d11_state->context->VSSetConstantBuffers(0, 1, &d3d11_buffer->buffer);
 }
 
 function void
 r_apply_tex2d(R_Handle tex2d)
 {
   R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)ptr_from_int(tex2d.u64[0]);
-  ID3D11DeviceContext_PSSetShaderResources(r_d3d11_state->context, 0, 1, &d3d11_texture->view);
+  r_d3d11_state->context->PSSetShaderResources(0, 1, &d3d11_texture->view);
 }
 
 function void
@@ -592,13 +623,24 @@ r_apply_window_context(R_Handle window_context)
 }
 
 function void
+r_apply_scissor_rect(RectF32 rect)
+{
+  D3D11_RECT d3d11_rect = {};
+  d3d11_rect.left = (LONG)rect.x0;
+  d3d11_rect.top = (LONG)rect.y0;
+  d3d11_rect.right = (LONG)rect.x1;
+  d3d11_rect.bottom = (LONG)rect.y1;
+  r_d3d11_state->context->RSSetScissorRects(1, &d3d11_rect);
+}
+
+function void
 r_fill_buffer(R_Handle buffer, R_FillBufferDesc desc)
 {
   R_D3D11_Buffer *d3d11_buffer = (R_D3D11_Buffer *)ptr_from_int(buffer.u64[0]);
   U64 clamped_size = min(d3d11_buffer->size, desc.data.size);
   ID3D11Buffer *vertex_buffer = d3d11_buffer->buffer;
   D3D11_MAPPED_SUBRESOURCE mapped = {};
-  ID3D11DeviceContext_Map(r_d3d11_state->context, (ID3D11Resource *)vertex_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+  r_d3d11_state->context->Map((ID3D11Resource *)vertex_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
   memory_copy((U8 *)mapped.pData, (U8 *)desc.data.data, clamped_size);
-  ID3D11DeviceContext_Unmap(r_d3d11_state->context, (ID3D11Resource *)vertex_buffer, 0);
+  r_d3d11_state->context->Unmap((ID3D11Resource *)vertex_buffer, 0);
 }

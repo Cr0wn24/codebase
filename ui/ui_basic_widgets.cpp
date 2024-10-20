@@ -24,6 +24,16 @@ ui_text(char *fmt, ...)
   va_end(args);
 }
 
+function void
+ui_text(const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  String8 string = str8_push(ui_frame_arena(), (char *)fmt, args);
+  ui_text(string);
+  va_end(args);
+}
+
 function UI_Comm
 ui_button(String8 string)
 {
@@ -383,7 +393,7 @@ ui_push_scrollable_container(String8 string, Axis2 axis)
   ui_next_pref_size(axis_flip(axis), ui_fill());
   ui_next_pref_size(axis, ui_children_sum(1));
   ui_next_child_layout_axis(axis);
-  UI_Box *content_box = ui_box_make((UI_BoxFlag_AllowOverflowX << axis), str8_lit("ContentBox"));
+  UI_Box *content_box = ui_box_make((UI_BoxFlags)(UI_BoxFlag_AllowOverflowX << axis), str8_lit("ContentBox"));
   ui_push_parent(content_box);
   return view_box;
 }

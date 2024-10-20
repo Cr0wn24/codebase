@@ -1,5 +1,5 @@
-META_EMBED_FILE("../res/fontello.ttf", fontello_ttf_data)
-META_EMBED_FILE("../res/Roboto-Bold.ttf", roboto_regular_ttf_data)
+META_EMBED_FILE("../assets/fontello.ttf", fontello_ttf_data)
+META_EMBED_FILE("../assets/Roboto-Bold.ttf", roboto_regular_ttf_data)
 
 //////////////////////////////
 // NOTE(hampus): Helpers
@@ -8,14 +8,14 @@ function Arena *
 ui_frame_arena(void)
 {
   Arena *arena = ui_state->frame_arenas[ui_state->build_idx % array_count(ui_state->frame_arenas)];
-  return (arena);
+  return arena;
 }
 
 function String8
 ui_str8_from_icon(UI_Icon icon)
 {
   String8 string = ui_state->ui_icon_to_string_table[icon];
-  return (string);
+  return string;
 }
 
 //////////////////////////////
@@ -25,21 +25,20 @@ function B32
 ui_key_match(UI_Key a, UI_Key b)
 {
   B32 key = memory_match(&a, &b, sizeof(UI_Key));
-  return (key);
+  return key;
 }
 
 function UI_Key
 ui_key_zero(void)
 {
   UI_Key key = {};
-  return (key);
+  return key;
 }
 
 function U64
 ui_hash_from_seed_string(U64 seed, String8 string)
 {
   U64 hash = 0;
-
   if(string.size != 0)
   {
     hash = seed;
@@ -56,7 +55,7 @@ ui_key_from_string(U64 seed, String8 string)
 {
   UI_Key key = {};
   key.u64[0] = ui_hash_from_seed_string(seed, string);
-  return (key);
+  return key;
 }
 
 //////////////////////////////
@@ -258,10 +257,7 @@ ui_text_action_list_from_events(Arena *arena, OS_EventList *event_list)
 }
 
 function UI_TextOp
-ui_text_of_from_state_and_action(Arena *arena,
-                                 String8 edit_str,
-                                 UI_TextEditState *state,
-                                 UI_TextAction *action)
+ui_text_of_from_state_and_action(Arena *arena, String8 edit_str, UI_TextEditState *state, UI_TextAction *action)
 {
   UI_TextOp result = {};
 
@@ -469,8 +465,7 @@ ui_init(void)
   {
     U32 cp = (U32)(0xE801 + i);
     String32 string32 = {&cp, 1};
-    ui_state->ui_icon_to_string_table[i] =
-    str8_from_str32(ui_state->arena, string32);
+    ui_state->ui_icon_to_string_table[i] = str8_from_str32(ui_state->arena, string32);
   }
 }
 
@@ -521,7 +516,7 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
   ui_state->prev_hot_key = ui_state->hot_key;
   ui_state->prev_active_key = ui_state->active_key;
 #define X(name_upper, name_lower, type) ui_state->name_lower##_stack = 0;
-  StackValues
+  stack_values
 #undef X
   arena_clear(ui_frame_arena());
 
@@ -692,15 +687,13 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
   ui_push_seed(12345);
 
   Vec2U64 window_client_area = os_client_area_from_window(window);
-  RectF32 clip_rect = {0, 0, (F32)window_client_area.x,
-                       (F32)window_client_area.y};
+  RectF32 clip_rect = r4f32(0, 0, (F32)window_client_area.x, (F32)window_client_area.y);
 
   // hampus: Make roots
 
   ui_next_pref_width(ui_px(clip_rect.x1, 1));
   ui_next_pref_height(ui_px(clip_rect.y1, 1));
-  ui_state->root = ui_box_make(
-  UI_BoxFlag_AllowOverflowX | UI_BoxFlag_AllowOverflowY, str8_lit("Root"));
+  ui_state->root = ui_box_make(UI_BoxFlag_AllowOverflowX | UI_BoxFlag_AllowOverflowY, str8_lit("Root"));
 
   ui_push_parent(ui_state->root);
 
@@ -798,8 +791,7 @@ ui_box_free(UI_Box *box)
 function B32
 ui_box_is_hot(UI_Box *box)
 {
-  B32 result = ui_key_match(box->key, ui_state->hot_key) &&
-               !ui_key_match(ui_state->hot_key, ui_key_zero());
+  B32 result = ui_key_match(box->key, ui_state->hot_key) && !ui_key_match(ui_state->hot_key, ui_key_zero());
   return result;
 }
 
@@ -866,7 +858,7 @@ ui_box_from_key(UI_Key key)
 }
 
 function UI_Box *
-ui_box_make_from_key(UI_BoxFlags flags, UI_Key key)
+ui_box_makerom_key(UI_BoxFlags flags, UI_Key key)
 {
   UI_Box *box = ui_box_from_key(key);
   ASSERT(box->last_build_touched_idx != ui_state->build_idx);
@@ -886,7 +878,7 @@ ui_box_make_from_key(UI_BoxFlags flags, UI_Key key)
 
 #define X(name_upper, name_lower, type) \
   box->name_lower = ui_state->name_lower##_stack->val;
-  StackValues
+  stack_values
 #undef X
 
   box->flags = flags | box->box_flags;
@@ -896,7 +888,7 @@ ui_box_make_from_key(UI_BoxFlags flags, UI_Key key)
 #define X(name_upper, name_lower, type)      \
   if(ui_state->name_lower##_stack->auto_pop) \
     ui_pop_##name_lower();
-  StackValues
+  stack_values
 #undef X
 
   return box;
@@ -931,7 +923,7 @@ ui_box_make(UI_BoxFlags flags, String8 string)
 {
   UI_Key key =
   ui_key_from_string(ui_top_seed(), ui_get_hash_part_from_string(string));
-  UI_Box *box = ui_box_make_from_key(flags, key);
+  UI_Box *box = ui_box_makerom_key(flags, key);
   box->string = string;
   return box;
 }
@@ -942,6 +934,17 @@ ui_box_make(UI_BoxFlags flags, char *fmt, ...)
   va_list args;
   va_start(args, fmt);
   String8 string = str8_push(ui_frame_arena(), fmt, args);
+  UI_Box *box = ui_box_make(flags, string);
+  va_end(args);
+  return box;
+}
+
+function UI_Box *
+ui_box_make(UI_BoxFlags flags, const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  String8 string = str8_push(ui_frame_arena(), (char *)fmt, args);
   UI_Box *box = ui_box_make(flags, string);
   va_end(args);
   return box;
@@ -1331,8 +1334,7 @@ ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
         {
           F32 advance = f_advance_from_tag_size_string(
           root->font_tag, root->font_size, root->string);
-          root->fixed_size[Axis2_X] =
-          floor_f32(advance + root->text_padding[Axis2_X] * root->font_size);
+          root->fixed_size[Axis2_X] = floor_f32((F32)advance + root->text_padding[Axis2_X] * (F32)root->font_size);
         }
         else if(axis == Axis2_Y)
         {
@@ -1887,5 +1889,5 @@ ui_pop_fixed_rect(void)
     return ui_state->name_lower##_stack->val;                                             \
   }
 
-StackValues
+stack_values
 #undef X

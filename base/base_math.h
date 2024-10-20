@@ -421,7 +421,10 @@ union Vec2U64
   };
   U64 v[2];
 
-  Vec2U64 operator+(Vec2U64 v);
+  B32 operator==(Vec2U64 other);
+  B32 operator!=(Vec2U64 other);
+  Vec2U64
+  operator+(Vec2U64 v);
 };
 
 union Vec3U64

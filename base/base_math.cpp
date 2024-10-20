@@ -270,6 +270,20 @@ v2u64(U64 x, U64 y)
   return ((Vec2U64){x, y});
 }
 
+B32
+Vec2U64::operator==(Vec2U64 other)
+{
+  B32 result = x == other.x && y == other.y;
+  return result;
+}
+
+B32
+Vec2U64::operator!=(Vec2U64 other)
+{
+  B32 result = !(*this == other);
+  return result;
+}
+
 Vec2U64
 Vec2U64::operator+(Vec2U64 other)
 {

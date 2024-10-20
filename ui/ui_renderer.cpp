@@ -8,12 +8,13 @@ ui_renderer_init(void)
 
   R_ShaderDesc shader_desc = {};
 #if R_BACKEND_GLES
-  META_EMBED_FILE("../src/ui/ui_vertex_shader_gles.glsl", vertex_shader_source);
-  META_EMBED_FILE("../src/ui/ui_fragment_shader_gles.glsl", fragment_shader_source);
+  META_EMBED_FILE("ui_vertex_shader_gles.glsl", vertex_shader_source);
+  META_EMBED_FILE("ui_fragment_shader_gles.glsl", fragment_shader_source);
   shader_desc.vs_source = vertex_shader_source;
   shader_desc.ps_source = fragment_shader_source;
 #elif R_BACKEND_D3D11
-  String8 hlsl = str8_lit("");
+  META_EMBED_FILE("ui_shader_d3d11.hlsl", hlsl_shader_source);
+  String8 hlsl = hlsl_shader_source;
   shader_desc.vs_source = hlsl;
   shader_desc.ps_source = hlsl;
   shader_desc.vs_entry_point_name = str8_lit("vs");

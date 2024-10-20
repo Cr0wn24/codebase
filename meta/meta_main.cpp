@@ -351,6 +351,7 @@ os_entry_point(String8List args)
       }
     }
   }
+  str8_list_push(arena, &layer_paths, code_path);
 
   SourceFileList source_files_list = {};
   String8 project_path = {};
@@ -405,7 +406,15 @@ os_entry_point(String8List args)
                   {
                     TempArena scratch = get_scratch(0, 0);
                     String8 generated_variable_name = variable_name_token.string;
-                    String8 file_data = os_read_file(scratch.arena, file_path);
+                    String8 full_file_path = {};
+                    {
+                      String8List path_list = {};
+                      str8_list_push(scratch.arena, &path_list, str8_chop_last_slash(n->path));
+                      str8_list_push(scratch.arena, &path_list, str8_lit("\\"));
+                      str8_list_push(scratch.arena, &path_list, file_path);
+                      full_file_path = str8_join(scratch.arena, &path_list);
+                    }
+                    String8 file_data = os_read_file(scratch.arena, full_file_path);
                     if(file_data.size != 0)
                     {
                       String8 generated_directory_path = str8_append(scratch.arena, directory, str8_lit("\\generated"));

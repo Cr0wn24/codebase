@@ -1,11 +1,12 @@
 #ifndef RENDER_CORE_D3D11_H
 #define RENDER_CORE_D3D11_H
 
-#define COBJMACROS
+#pragma warning(push, 0)
 #include <d3d11.h>
 #include <dxgi1_3.h>
 #include <d3dcompiler.h>
 #include <dxgidebug.h>
+#pragma warning(pop)
 
 #define R_BACKEND_D3D11 1
 

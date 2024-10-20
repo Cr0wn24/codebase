@@ -11,7 +11,7 @@ global OS_EventList *os_win32_event_list;
 function OS_Win32_Window *
 os_win32_window_from_handle(OS_Handle handle)
 {
-  OS_Win32_Window *result = ptr_from_int(handle.u64[0]);
+  OS_Win32_Window *result = (OS_Win32_Window *)ptr_from_int(handle.u64[0]);
   return result;
 }
 
@@ -65,7 +65,7 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
     {
       event_node = push_array<OS_EventNode>(event_arena, 1);
       event_node->v.kind = OS_EventKind_MouseMove;
-      event_node->v.mouse = v2s32(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+      event_node->v.mouse = v2f32((F32)GET_X_LPARAM(lparam), (F32)GET_Y_LPARAM(lparam));
     }
     break;
     case WM_CHAR:
@@ -150,10 +150,10 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
       mouse_pos.x = (F32)point.x;
       mouse_pos.y = (F32)point.y;
       Vec2U64 client_area = {};
-      RECT rect;
+      RECT rect = {};
       GetClientRect(hwnd, &rect);
-      client_area.x = rect.right - rect.left;
-      client_area.y = rect.bottom - rect.top;
+      client_area.x = (U64)(rect.right - rect.left);
+      client_area.y = (U64)(rect.bottom - rect.top);
       B32 mouse_inside_window = mouse_pos.x >= 0 && mouse_pos.y >= 0 && mouse_pos.x < (F32)client_area.x && mouse_pos.y < (F32)client_area.y;
       if(!os_win32_gfx_state->resizing && mouse_inside_window)
       {
@@ -176,21 +176,21 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
       B32 alt_key_was_down = (lparam & (1 << 20)) != 0;
 
       local B32 key_table_initialized = false;
-      local U8 key_table[255];
+      local OS_Key key_table[255];
 
       if(!key_table_initialized)
       {
         for(U64 i = 0; i < 10; ++i)
         {
-          key_table[0x30 + i] = (char)(OS_Key_0 + i);
+          key_table[0x30 + i] = (OS_Key)(OS_Key_0 + i);
         }
         for(U64 i = 0; i < 26; ++i)
         {
-          key_table[0x41 + i] = (char)(OS_Key_A + i);
+          key_table[0x41 + i] = (OS_Key)(OS_Key_A + i);
         }
         for(U64 i = 0; i < 12; ++i)
         {
-          key_table[VK_F1 + i] = (char)(OS_Key_F1 + i);
+          key_table[VK_F1 + i] = (OS_Key)(OS_Key_F1 + i);
         }
 
         key_table[VK_BACK] = OS_Key_Backspace;
@@ -218,7 +218,7 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
         key_table_initialized = true;
       }
 
-      U8 key = key_table[vk_code];
+      OS_Key key = key_table[vk_code];
       if(key != 0)
       {
         event_node = push_array<OS_EventNode>(event_arena, 1);
@@ -296,7 +296,7 @@ os_window_open(String8 title, U32 width, U32 height)
                               window_class.lpszClassName, (LPCWSTR)title_u16,
                               WS_OVERLAPPEDWINDOW,
                               CW_USEDEFAULT, CW_USEDEFAULT,
-                              width, height,
+                              (S32)width, (S32)height,
                               0, 0, instance, 0);
 
   win32_window->hwnd = hwnd;
@@ -318,11 +318,11 @@ function Vec2U64
 os_client_area_from_window(OS_Handle handle)
 {
   Vec2U64 result = {};
-  OS_Win32_Window *win32_window = ptr_from_int(handle.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(handle.u64[0]);
   RECT rect = {};
   GetClientRect(win32_window->hwnd, &rect);
-  result.x = rect.right - rect.left;
-  result.y = rect.bottom - rect.top;
+  result.x = (U64)(rect.right - rect.left);
+  result.y = (U64)(rect.bottom - rect.top);
   return result;
 }
 
@@ -357,7 +357,7 @@ os_window_rect_from_window(OS_Handle handle)
 function void
 os_window_equip_repaint(OS_Handle window, OS_WindowRepaintProc *proc, void *user_data)
 {
-  OS_Win32_Window *win32_window = ptr_from_int(window.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(window.u64[0]);
   win32_window->repaint = proc;
   win32_window->repaint_user_data = user_data;
 }
@@ -365,23 +365,23 @@ os_window_equip_repaint(OS_Handle window, OS_WindowRepaintProc *proc, void *user
 function void
 os_window_maximize(OS_Handle window)
 {
-  OS_Win32_Window *win32_window = ptr_from_int(window.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(window.u64[0]);
   ShowWindow(win32_window->hwnd, SW_MAXIMIZE);
 }
 
 function void
 os_window_toggle_fullscreen(OS_Handle window)
 {
-  OS_Win32_Window *win32_window = ptr_from_int(window.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(window.u64[0]);
   local WINDOWPLACEMENT prev_placement = {sizeof(prev_placement)};
-  DWORD window_style = GetWindowLong(win32_window->hwnd, GWL_STYLE);
+  LONG window_style = GetWindowLong(win32_window->hwnd, GWL_STYLE);
   if(window_style & WS_OVERLAPPEDWINDOW)
   {
     MONITORINFO monitor_info = {sizeof(monitor_info)};
     if(GetWindowPlacement(win32_window->hwnd, &prev_placement) &&
        GetMonitorInfo(MonitorFromWindow(win32_window->hwnd, MONITOR_DEFAULTTOPRIMARY), &monitor_info))
     {
-      SetWindowLong(win32_window->hwnd, GWL_STYLE, window_style & ~WS_OVERLAPPEDWINDOW);
+      SetWindowLong(win32_window->hwnd, GWL_STYLE, (LONG)(window_style & ~WS_OVERLAPPEDWINDOW));
 
       SetWindowPos(win32_window->hwnd, HWND_TOP,
                    monitor_info.rcMonitor.left, monitor_info.rcMonitor.top,
@@ -392,7 +392,7 @@ os_window_toggle_fullscreen(OS_Handle window)
   }
   else
   {
-    SetWindowLong(win32_window->hwnd, GWL_STYLE, window_style | WS_OVERLAPPEDWINDOW);
+    SetWindowLong(win32_window->hwnd, GWL_STYLE, (LONG)(window_style | WS_OVERLAPPEDWINDOW));
     SetWindowPlacement(win32_window->hwnd, &prev_placement);
     SetWindowPos(win32_window->hwnd, 0, 0, 0, 0, 0,
                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
@@ -419,7 +419,7 @@ os_events_from_window(Arena *arena, OS_Handle window)
 function Vec2F32
 os_window_dpi(OS_Handle handle)
 {
-  OS_Win32_Window *win32_window = ptr_from_int(handle.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(handle.u64[0]);
   UINT dpi = GetDpiForWindow(win32_window->hwnd);
   Vec2F32 result = {};
   result.x = (F32)dpi;
@@ -430,7 +430,7 @@ os_window_dpi(OS_Handle handle)
 function Vec2F32
 os_mouse_pos(OS_Handle window)
 {
-  OS_Win32_Window *win32_window = ptr_from_int(window.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(window.u64[0]);
   Vec2F32 result = {};
   POINT point = {};
   GetCursorPos(&point);
@@ -468,7 +468,7 @@ os_set_cursor_visibility(B32 show)
   }
   if(showing != show)
   {
-    ShowCursor(show);
+    ShowCursor((BOOL)show);
   }
 }
 
