@@ -20,7 +20,7 @@ ui_str8_from_icon(UI_Icon icon)
 
 //////////////////////////////
 // NOTE(hampus): Keying
-asdasdasd
+
 function B32
 ui_key_match(UI_Key a, UI_Key b)
 {
