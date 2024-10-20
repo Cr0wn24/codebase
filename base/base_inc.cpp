@@ -1,0 +1,6 @@
+#include "base/base_core.cpp"
+#include "base/base_math.cpp"
+#include "base/base_string.cpp"
+#include "base/base_memory.cpp"
+#include "base/base_thread_ctx.cpp"
+#include "base/base_atlas.cpp"
