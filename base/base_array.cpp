@@ -72,7 +72,8 @@ void
 dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count)
 {
   U64 clamped_dst_idx = min(array_count(array), idx);
-  U64 clamped_size = min(array_count(array) - clamped_dst_idx, count);
+  U64 clamped_count = min(array_count(array) - clamped_dst_idx, count) * sizeof(T);
+  U64 clamped_size = clamped_count * sizeof(T);
   T *dst = &array.base[clamped_dst_idx];
   memory_copy(dst, val, clamped_size);
 }
