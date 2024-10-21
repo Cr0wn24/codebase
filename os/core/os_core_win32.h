@@ -32,4 +32,6 @@ struct OS_Win32_State
   LARGE_INTEGER frequency;
 };
 
+DWORD os_win32_thread_proc(LPVOID data);
+
 #endif // OS_CORE_WIN32_H

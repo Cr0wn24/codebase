@@ -30,14 +30,6 @@ struct Arena
   U64 commit_pos;
 };
 
-struct DynamicArray
-{
-  U8 *base;
-  U64 size;
-  U64 commit_size;
-  U64 cap;
-};
-
 struct TempArena
 {
   Arena *arena;
@@ -59,21 +51,6 @@ function void arena_pop_amount(Arena *arena, U64 amount);
 
 function void arena_align(Arena *arena, U64 power);
 function void arena_align_no_zero(Arena *arena, U64 power);
-
-//////////////////////////////
-// NOTE(hampus): Dynamic Array
-
-#define dynamic_array_get(arr, idx, type) (type *)dynamic_array_get_(arr, (idx) * sizeof(type))
-#define dynamic_array_resize(arr, new_size, type) dynamic_array_resize_(arr, (new_size) * sizeof(type))
-#define dynamic_array_size(arr, type) (((arr)->size) / sizeof(type))
-#define dynamic_array_move_memory(arr, dst_idx, src_idx, size, type) dynamic_array_move_memory_(arr, (dst_idx) * sizeof(type), (src_idx) * sizeof(type), (size) * sizeof(type))
-#define dynamic_array_insert(arr, dst_idx, src_data, src_size, type) dynamic_array_insert_(arr, (dst_idx) * sizeof(type), (U8 *)(src_data), (src_size) * sizeof(type))
-
-function DynamicArray dynamic_array_alloc(void);
-function U8 *dynamic_array_get_(DynamicArray *array, U64 idx);
-function void dynamic_array_resize_(DynamicArray *array, U64 new_size);
-function void dynamic_array_move_memory_(DynamicArray *array, U64 dst_idx, U64 src_idx, U64 size);
-function void dynamic_array_insert_(DynamicArray *array, U64 dst_idx, U8 *src_data, U64 src_size);
 
 //////////////////////////////
 // NOTE(hampus): Ring

@@ -786,7 +786,9 @@ function U64 u64_from_s64(S64 s64);
 function U32 u32_from_u64(U64 u64);
 function S64 s64_from_u64(U64 u64);
 function U32 u32_from_s32(S32 s32);
+function S32 s32_from_u32(U32 u32);
 function S32 s32_from_u64(U64 u64);
+function U64 u64_from_s32(S32 s32);
 
 //////////////////////////////
 // NOTE(hampus): Integer functions

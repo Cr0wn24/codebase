@@ -8,6 +8,7 @@ os_net_get_error_string(void)
   U64 size = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                             0, safe_u32_from_s32(error_id), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 1024, 0);
   String8 result = str8(buffer, size);
+  return result;
 }
 
 function struct sockaddr_in

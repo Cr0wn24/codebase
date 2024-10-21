@@ -21,13 +21,6 @@ ui_str8_from_icon(UI_Icon icon)
 //////////////////////////////
 // NOTE(hampus): Keying
 
-function B32
-ui_key_match(UI_Key a, UI_Key b)
-{
-  B32 key = memory_match(&a, &b, sizeof(UI_Key));
-  return key;
-}
-
 function UI_Key
 ui_key_zero(void)
 {
@@ -64,7 +57,7 @@ ui_key_from_string(U64 seed, String8 string)
 function B32
 ui_ctx_menu_begin(UI_Key key)
 {
-  B32 is_open = ui_key_match(key, ui_state->ctx_menu_key);
+  B32 is_open = key == ui_state->ctx_menu_key;
 
   ui_push_parent(ui_state->ctx_menu_root);
   ui_push_seed(key.u64[0]);
@@ -119,7 +112,7 @@ ui_ctx_menu_close(void)
 function B32
 ui_ctx_menu_is_open(void)
 {
-  B32 result = !ui_key_match(ui_key_zero(), ui_state->ctx_menu_key);
+  B32 result = ui_state->ctx_menu_key != ui_key_zero();
   return result;
 }
 
@@ -633,12 +626,11 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
 
   if(!ui_box_is_nil(ui_state->ctx_menu_root))
   {
-    if(!ui_key_match(ui_state->ctx_menu_key, ui_key_zero()))
+    if(ui_state->ctx_menu_key != ui_key_zero())
     {
       if(left_mouse_pressed)
       {
-        B32 inside_ctx_menu = ui_tree_contains_click(ui_state->ctx_menu_root,
-                                                     ui_state->mouse_pos);
+        B32 inside_ctx_menu = ui_tree_contains_click(ui_state->ctx_menu_root, ui_state->mouse_pos);
 
         if(!inside_ctx_menu)
         {
@@ -722,10 +714,10 @@ ui_end_build(void)
   ui_pop_parent(); // pop normal root
   ui_pop_parent(); // pop root
 
-  if(!ui_key_match(ui_key_zero(), ui_state->ctx_menu_key))
+  if(ui_state->ctx_menu_key != ui_key_zero())
   {
     Vec2F32 anchor_pos = {};
-    if(!ui_key_match(ui_key_zero(), ui_state->ctx_menu_anchor_key))
+    if(ui_state->ctx_menu_anchor_key != ui_key_zero())
     {
       UI_Box *anchor = ui_box_from_key(ui_state->ctx_menu_anchor_key);
       if(!ui_box_is_nil(anchor))
@@ -791,21 +783,21 @@ ui_box_free(UI_Box *box)
 function B32
 ui_box_is_hot(UI_Box *box)
 {
-  B32 result = ui_key_match(box->key, ui_state->hot_key) && !ui_key_match(ui_state->hot_key, ui_key_zero());
+  B32 result = box->key == ui_state->hot_key && ui_state->hot_key != ui_key_zero();
   return result;
 }
 
 function B32
 ui_box_is_active(UI_Box *box)
 {
-  B32 result = ui_key_match(box->key, ui_state->active_key) && !ui_key_match(box->key, ui_key_zero());
+  B32 result = box->key == ui_state->active_key && ui_state->active_key != ui_key_zero();
   return result;
 }
 
 function B32
 ui_box_is_focus(UI_Box *box)
 {
-  B32 result = ui_key_match(box->key, ui_state->focus_key) && !ui_key_match(box->key, ui_key_zero());
+  B32 result = box->key == ui_state->focus_key && ui_state->focus_key != ui_key_zero();
   return result;
 }
 
@@ -827,12 +819,12 @@ ui_box_from_key(UI_Key key)
 {
   UI_Box *box = &ui_nil_box;
   U64 slot_idx = key.u64[0] % array_count(ui_state->box_map);
-  if(!ui_key_match(key, ui_key_zero()))
+  if(key != ui_key_zero())
   {
     box = ui_state->box_map[slot_idx];
     while(!ui_box_is_nil(box))
     {
-      if(ui_key_match(box->key, key))
+      if(box->key == key)
       {
         break;
       }
@@ -1002,7 +994,7 @@ function B32
 ui_box_is_part_of_ctx_menu(UI_Box *box)
 {
   B32 result = false;
-  if(!ui_key_match(ui_state->ctx_menu_key, ui_key_zero()))
+  if(ui_state->ctx_menu_key != ui_key_zero())
   {
     UI_Box *ctx_menu_root = ui_state->ctx_menu_root;
     for(UI_Box *parent = box->parent; !ui_box_is_nil(parent); parent = parent->parent)
@@ -1040,7 +1032,7 @@ ui_comm_from_box__touch(UI_Box *box)
   // should keep scrolling the box.
 
   UI_Comm result = {};
-  ASSERT(!ui_key_match(box->key, ui_key_zero()) && "Tried to gather input from a keyless box!");
+  ASSERT(box->key != ui_key_zero() && "Tried to gather input from a keyless box!");
   result.box = box;
   if(box->flags & UI_BoxFlag_Disabled)
   {
@@ -1085,10 +1077,10 @@ ui_comm_from_box__touch(UI_Box *box)
             // NOTE(hampus): We are comparing to the prev_active_key because we will
             // zero the current active key in ui_begin_build() if there was a tap
             // release
-            if(ui_key_match(box->key, ui_state->prev_active_key) || ui_key_match(box->key, ui_state->active_key))
+            if(box->key == ui_state->prev_active_key || box->key == ui_state->active_key)
             {
               result.clicked = true;
-              if(ui_key_match(box->key, ui_state->active_key))
+              if(box->key == ui_state->active_key)
               {
                 box->active_state = 1;
                 ui_state->active_key = ui_key_zero();
@@ -1168,7 +1160,7 @@ ui_comm_from_box__mouse(UI_Box *box)
     return result;
   }
 
-  ASSERT(!ui_key_match(box->key, ui_key_zero()) && "Tried to gather input from a keyless box!");
+  ASSERT(box->key != ui_key_zero() && "Tried to gather input from a keyless box!");
 
   Vec2F32 mouse_pos = ui_state->mouse_pos;
 
@@ -1192,7 +1184,7 @@ ui_comm_from_box__mouse(UI_Box *box)
     {
       if(mouse_over)
       {
-        if(ui_key_match(ui_state->hot_key, ui_key_zero()))
+        if(ui_state->hot_key == ui_key_zero())
         {
           ui_state->hot_key = box->key;
         }
@@ -1215,7 +1207,7 @@ ui_comm_from_box__mouse(UI_Box *box)
             {
               result.released = true;
               dll_remove(event_list->first, event_list->last, node);
-              if(ui_key_match(box->key, ui_state->prev_active_key))
+              if(box->key == ui_state->prev_active_key)
               {
                 result.clicked = true;
               }

@@ -7,6 +7,19 @@
 struct UI_Key
 {
   U64 u64[1];
+  B32
+  operator==(UI_Key other)
+  {
+    B32 result = other.u64[0] == u64[0];
+    return result;
+  }
+
+  B32
+  operator!=(UI_Key other)
+  {
+    B32 result = !(*this == other);
+    return result;
+  }
 };
 
 //////////////////////////////
@@ -490,7 +503,6 @@ function String8 ui_str8_from_icon(UI_Icon icon);
 //////////////////////////////
 // NOTE(hampus): Keying
 
-function B32 ui_key_match(UI_Key a, UI_Key b);
 function UI_Key ui_key_zero(void);
 function UI_Key ui_key_from_string(U64 seed, String8 string);
 function U64 ui_hash_from_seed_string(U64 seed, String8 string);

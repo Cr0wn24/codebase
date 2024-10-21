@@ -83,7 +83,11 @@ distance_2f32(Vec2F32 v)
 function Vec3F32
 v3f32(F32 x, F32 y, F32 z)
 {
-  return ((Vec3F32){x, y, z});
+  Vec3F32 result = {};
+  result.x = x;
+  result.y = y;
+  result.z = z;
+  return result;
 }
 
 Vec3F32
