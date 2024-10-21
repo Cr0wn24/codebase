@@ -990,7 +990,9 @@ num_digits(U64 x)
 {
   U64 result = 0;
   U64 accumulator = 10;
-  for(U64 i = 0; i < 100; ++i)
+
+  U64 i = 0;
+  for(; i < 19; ++i)
   {
     if(x < accumulator)
     {
@@ -998,6 +1000,10 @@ num_digits(U64 x)
       break;
     }
     accumulator *= 10;
+  }
+  if(i == 18)
+  {
+    result = 20;
   }
   return result;
 }
