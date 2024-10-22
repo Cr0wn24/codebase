@@ -67,6 +67,7 @@ union Vec2F32
   Vec2F32 operator+(Vec2F32 v);
   Vec2F32 &operator+=(Vec2F32 v);
   Vec2F32 operator-(Vec2F32 v);
+  Vec2F32 &operator-=(Vec2F32 v);
   Vec2F32 operator*(F32 t);
   Vec2F32 &operator*=(F32 t);
   Vec2F32 operator/(F32 t);

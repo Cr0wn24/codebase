@@ -35,6 +35,13 @@ Vec2F32::operator-(Vec2F32 other)
   return result;
 }
 
+Vec2F32 &
+Vec2F32::operator-=(Vec2F32 other)
+{
+  *this = *this - other;
+  return *this;
+}
+
 Vec2F32
 Vec2F32::operator*(F32 t)
 {
