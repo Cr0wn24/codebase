@@ -13,8 +13,8 @@
 struct ThreadCtx
 {
   Arena *permanent_arena;
-  Array<Arena *, THREAD_SCRATCH_ARENA_POOL_SIZE> scratch_arenas;
-  Array<U8, THREAD_CONTEXT_NAME_SIZE> name;
+  StaticArray<Arena *, THREAD_SCRATCH_ARENA_POOL_SIZE> scratch_arenas;
+  StaticArray<U8, THREAD_CONTEXT_NAME_SIZE> name;
 };
 
 //////////////////////////////

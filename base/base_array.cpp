@@ -4,30 +4,30 @@ function void os_memory_decommit(void *ptr, U64 size);
 function void os_memory_release(void *ptr, U64 size);
 
 template <typename T>
-Slice<T>
-slice_make(T *val, U64 count)
+Array<T>
+array_make(T *val, U64 count)
 {
-  Slice<T> result = {};
+  Array<T> result = {};
   result.val = val;
   result.count = count;
   return result;
 }
 
 template <typename T>
-Slice<T>
-slice_make(Arena *arena, U64 count)
+Array<T>
+array_make(Arena *arena, U64 count)
 {
-  Slice<T> result = {};
+  Array<T> result = {};
   result.val = (T *)arena_push(arena, count * sizeof(T));
   result.count = count;
   return result;
 }
 
 template <typename T>
-Slice<T>
-slice_make_no_zero(Arena *arena, U64 count)
+Array<T>
+array_make_no_zero(Arena *arena, U64 count)
 {
-  Slice<T> result = {};
+  Array<T> result = {};
   result.val = (T *)arena_push_no_zero(arena, count * sizeof(T));
   result.count = count;
   return result;
@@ -35,7 +35,7 @@ slice_make_no_zero(Arena *arena, U64 count)
 
 template <typename T, U64 N>
 U64
-array_count(Array<T, N> array)
+array_count(StaticArray<T, N> array)
 {
   U64 result = N;
   return result;
@@ -43,7 +43,7 @@ array_count(Array<T, N> array)
 
 template <typename T>
 U64
-array_count(Slice<T> array)
+array_count(Array<T> array)
 {
   U64 result = array.count;
   return result;

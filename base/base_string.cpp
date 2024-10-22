@@ -339,7 +339,7 @@ str8_list_push(String8List *list, String8 string, String8Node *node)
 function void
 str8_list_push(Arena *arena, String8List *list, String8 string)
 {
-  String8Node *node = push_array<String8Node>(arena,1);
+  String8Node *node = push_array<String8Node>(arena, 1);
   str8_list_push(list, string, node);
 }
 
@@ -457,7 +457,7 @@ str32(U32 *data, U64 size)
 }
 
 function B32
-str32_contains_only(String32 string, Slice<U32> slice)
+str32_contains_only(String32 string, Array<U32> slice)
 {
   B32 result = true;
   for(U64 idx = 0; idx < string.size; ++idx)

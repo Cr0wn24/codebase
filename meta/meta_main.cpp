@@ -427,11 +427,11 @@ os_entry_point(String8List args)
                         n->file_stream_handle = os_file_stream_open(editor_main_generated_file_path);
                       }
 
-                      Array<U8, kilobytes(16)> buffer = {};
+                      StaticArray<U8, kilobytes(16)> buffer = {};
                       U64 buffer_used_size = 0;
 
                       {
-                        String8 string = str8_push(scratch.arena, "\nglobal Array<U8, %" PRIU64 "> %S_data =\n{\n", file_data.size, generated_variable_name);
+                        String8 string = str8_push(scratch.arena, "\nglobal StaticArray<U8, %" PRIU64 "> %S_data =\n{\n", file_data.size, generated_variable_name);
                         os_file_stream_write(n->file_stream_handle, string);
                       }
 

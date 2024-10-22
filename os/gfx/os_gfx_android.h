@@ -54,11 +54,11 @@ struct OS_Android_MoveAction
 struct OS_Android_MotionState
 {
   OS_Android_MotionFlags flags;
-  Array<OS_Android_GestureState, OS_Android_Gesture_COUNT> gesture_states;
+  StaticArray<OS_Android_GestureState, OS_Android_Gesture_COUNT> gesture_states;
   S64 down_timestamp_us;
   S64 up_timestamp_us;
   Vec2F32 down_pos;
-  Array<OS_Android_MoveAction, 20> move_actions;
+  StaticArray<OS_Android_MoveAction, 20> move_actions;
   S64 move_actions_pos;
 };
 

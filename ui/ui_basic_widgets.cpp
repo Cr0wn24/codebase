@@ -98,7 +98,7 @@ ui_check(B32 b32, char *fmt, ...)
 }
 
 function String8
-ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, Slice<U8> buffer, String8 replace_str)
+ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, Array<U8> buffer, String8 replace_str)
 {
   U64 min_range = (U64)(range.min);
   U64 max_range = (U64)(range.max);
@@ -168,7 +168,7 @@ ui_codepoint_index_from_mouse_pos(UI_Box *box, String8 edit_str)
 }
 
 function UI_Comm
-ui_line_edit(UI_TextEditState *edit_state, Slice<U8> buffer, U64 *string_length, String8 string)
+ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length, String8 string)
 {
   UI_Comm comm = {};
   TempArena scratch = get_scratch(0, 0);
@@ -296,7 +296,7 @@ ui_line_edit(UI_TextEditState *edit_state, Slice<U8> buffer, U64 *string_length,
   return (comm);
 }
 function UI_Comm
-ui_line_edit(UI_TextEditState *edit_state, Slice<U8> buffer, U64 *string_length, char *fmt, ...)
+ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length, char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);

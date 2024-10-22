@@ -445,11 +445,11 @@ struct UI_RendererState;
 struct UI_State
 {
   Arena *arena;
-  Array<Arena *, 2> frame_arenas;
+  StaticArray<Arena *, 2> frame_arenas;
 
   UI_RendererState *renderer;
 
-  Array<UI_Box *, 4096> box_map;
+  StaticArray<UI_Box *, 4096> box_map;
   UI_FreeBox *first_free_box;
 
   UI_Key active_key;
@@ -487,7 +487,7 @@ struct UI_State
 
   B32 draw_debug_lines;
 
-  Array<String8, UI_Icon_COUNT> ui_icon_to_string_table;
+  StaticArray<String8, UI_Icon_COUNT> ui_icon_to_string_table;
 
 #define X(name_upper, name_lower, type) ui_##name_upper##Node *name_lower##_stack;
   stack_values

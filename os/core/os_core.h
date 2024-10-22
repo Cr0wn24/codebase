@@ -39,7 +39,7 @@ struct OS_BacktraceEntry
 
 struct OS_Backtrace
 {
-  Array<OS_BacktraceEntry, 64> entries;
+  StaticArray<OS_BacktraceEntry, 64> entries;
   U64 entries_count;
 };
 

@@ -308,7 +308,7 @@ date_match(Date a, Date b)
 function MemorySize
 memory_size_from_bytes(U64 bytes)
 {
-  Array<String8, 4> units =
+  StaticArray<String8, 4> units =
   {
     str8_lit("KB"),
     str8_lit("MB"),

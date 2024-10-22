@@ -405,7 +405,7 @@ function String8
 os_get_executable_path(Arena *arena)
 {
   String8 result = {};
-  Array<WCHAR, 1024> buffer = {};
+  StaticArray<WCHAR, 1024> buffer = {};
   U64 length = GetModuleFileNameW(0, buffer.val, (DWORD)array_count(buffer));
   result = str8_from_str16(arena, str16((U16 *)buffer.val, length));
   return result;

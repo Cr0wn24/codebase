@@ -108,7 +108,7 @@ r_make_pipeline(R_PipelineDesc desc)
   GL_CALL(glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success));
   if(success != GL_TRUE)
   {
-    Array<U8, 512> info_log = {};
+    StaticArray<U8, 512> info_log = {};
     S32 info_log_length = 0;
     GL_CALL(glGetShaderInfoLog(vertex_shader, array_count(info_log), &info_log_length, (GLchar *)info_log.val));
     os_print_debug_string("Vertex shader failed to compile: %S", str8((U8 *)info_log.val, (U64)info_log_length));
@@ -122,7 +122,7 @@ r_make_pipeline(R_PipelineDesc desc)
   GL_CALL(glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success));
   if(success != GL_TRUE)
   {
-    Array<U8, 512> info_log = {};
+    StaticArray<U8, 512> info_log = {};
     S32 info_log_length = 0;
     GL_CALL(glGetShaderInfoLog(fragment_shader, array_count(info_log), &info_log_length, (GLchar *)info_log.val));
     os_print_debug_string("Fragment shader failed to compile: %S", str8(info_log.val, (U64)info_log_length));
@@ -137,7 +137,7 @@ r_make_pipeline(R_PipelineDesc desc)
   GL_CALL(glGetProgramiv(pipeline->shader, GL_LINK_STATUS, &success));
   if(success != GL_TRUE)
   {
-    Array<U8, 512> info_log = {};
+    StaticArray<U8, 512> info_log = {};
     S32 info_log_length = 0;
     GL_CALL(glGetProgramInfoLog(pipeline->shader, array_count(info_log), &info_log_length, (GLchar *)info_log.val));
     GL_CALL(os_print_debug_string("Shader program failed to link: %S", str8(info_log.val, (U64)info_log_length)));

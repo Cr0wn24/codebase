@@ -53,8 +53,8 @@ struct F_State
   Arena *arena;
 
   // TODO(hampus): Make this more dynamic.
-  Array<F_Tag, 6> tag_table;
-  Array<FP_Handle, 6> fp_table;
+  StaticArray<F_Tag, 6> tag_table;
+  StaticArray<FP_Handle, 6> fp_table;
 
   // TODO(hampus): Be able to free from this table.
   // Maybe have this table per font tag.
@@ -62,7 +62,7 @@ struct F_State
   // their own table and then have the data in its own table which
   // the key references. For better cache locality when doing
   // the lookup
-  Array<F_Glyph *, 128> glyph_lookup_table;
+  StaticArray<F_Glyph *, 128> glyph_lookup_table;
   Atlas atlas;
   B32 atlas_texture_dirty;
 };

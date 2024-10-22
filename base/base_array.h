@@ -5,7 +5,7 @@
 #define DYNAMIC_ARRAY_DEFAULT_COMMIT_SIZE kilobytes(64)
 
 template <typename T>
-struct Slice
+struct Array
 {
   T *val;
   U64 count;
@@ -19,16 +19,16 @@ struct Slice
 };
 
 template <typename T>
-Slice<T> slice_make(T *val, U64 count);
+Array<T> array_make(T *val, U64 count);
 
 template <typename T>
-Slice<T> slice_make(Arena *arena, U64 count);
+Array<T> array_make(Arena *arena, U64 count);
 
 template <typename T>
-Slice<T> slice_make_no_zero(Arena *arena, U64 count);
+Array<T> array_make_no_zero(Arena *arena, U64 count);
 
 template <typename T, U64 N>
-struct Array
+struct StaticArray
 {
   T val[N];
 
@@ -46,17 +46,17 @@ struct Array
     return val[idx];
   }
 
-  operator Slice<T>()
+  operator Array<T>()
   {
-    return slice_make<T>(val, N);
+    return array_make<T>(val, N);
   }
 };
 
 template <typename T, U64 N>
-U64 array_count(Array<T, N> array);
+U64 array_count(StaticArray<T, N> array);
 
 template <typename T>
-U64 array_count(Slice<T> array);
+U64 array_count(Array<T> array);
 
 template <typename T>
 struct DynamicArray
@@ -71,6 +71,11 @@ struct DynamicArray
   {
     ASSERT(idx < (pos / sizeof(T)));
     return base[idx];
+  }
+
+  operator Array<T>()
+  {
+    return array_make<T>(base, pos / sizeof(T));
   }
 };
 

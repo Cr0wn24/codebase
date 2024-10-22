@@ -58,7 +58,7 @@ struct R_InputLayoutAttribute
 
 struct R_InputLayoutDesc
 {
-  Array<R_InputLayoutAttribute, 32> attribs;
+  StaticArray<R_InputLayoutAttribute, 32> attribs;
   U64 attribs_count;
 };
 

@@ -141,7 +141,7 @@ r_make_pipeline(R_PipelineDesc desc)
   R_ShaderDesc *shader_desc = &desc.shader;
 
   ASSERT(shader_desc->vs_entry_point_name.size < 256);
-  Array<U8, 256> vs_target_buffer_cstr = {};
+  StaticArray<U8, 256> vs_target_buffer_cstr = {};
   cstr_format(vs_target_buffer_cstr.val, array_count(vs_target_buffer_cstr), (char *)"%S_5_0", shader_desc->vs_entry_point_name);
 
   char *vs_entry_point_cstr = cstr_from_str8(scratch.arena, shader_desc->vs_entry_point_name);
@@ -156,7 +156,7 @@ r_make_pipeline(R_PipelineDesc desc)
   }
 
   ASSERT(shader_desc->ps_entry_point_name.size < 256);
-  Array<U8, 256> ps_target_buffer_cstr = {};
+  StaticArray<U8, 256> ps_target_buffer_cstr = {};
   cstr_format(ps_target_buffer_cstr.val, array_count(ps_target_buffer_cstr), (char *)"%S_5_0", shader_desc->ps_entry_point_name);
 
   char *ps_entry_point_cstr = cstr_from_str8(scratch.arena, shader_desc->ps_entry_point_name);

@@ -64,7 +64,7 @@ struct OS_Android_BacktraceState
 {
   const ucontext_t *signal_ucontext;
   U64 address_count;
-  Array<uintptr_t, MAX_ADDRESS_COUNT> addresses;
+  StaticArray<uintptr_t, MAX_ADDRESS_COUNT> addresses;
   OS_Backtrace *backtrace;
 };
 
