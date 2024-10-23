@@ -80,31 +80,6 @@ dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count)
 
 template <typename T>
 void
-dynamic_array_push_back(DynamicArray<T> &array, T *val, U64 count)
-{
- ASSERT((array.pos + count * sizeof(T)) < array.cap);
- array.pos += count * sizeof(T);
- if(array.pos > array.commit_size)
- {
-  U64 pos_aligned = round_up_to_power_2_u64(array.pos, DYNAMIC_ARRAY_DEFAULT_COMMIT_SIZE);
-  U64 next_commit_pos = min(pos_aligned, array.cap);
-  U64 commit_size = next_commit_pos - array.commit_pos;
-  os_memory_commit(array.memory + array.commit_pos, commit_size);
-  ASAN_POISON_MEMORY_REGION((U8 *)array.memory + array.commit_pos, commit_size);
-  array.commit_pos = next_commit_pos;
- }
- memory_copy(array.base, val, count * sizeof(T));
-}
-
-template <typename T>
-void
-dynamic_array_push_back(DynamicArray<T> &array, T val)
-{
- dynamic_array_push_back(array, &val, 1);
-}
-
-template <typename T>
-void
 dynamic_array_resize(DynamicArray<T> &array, U64 new_count)
 {
  U64 new_size_in_bytes = new_count * sizeof(T);
