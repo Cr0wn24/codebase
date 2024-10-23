@@ -91,11 +91,11 @@ dynamic_array_resize(DynamicArray<T> &array, U64 new_count)
   {
    U64 next_commit_size = min(size_aligned, array.cap);
    U64 commit_size = next_commit_size - array.commit_size;
-   os_memory_commit(array.base + array.commit_size, commit_size);
+   os_memory_commit((U8 *)array.base + array.commit_size, commit_size);
    ASAN_POISON_MEMORY_REGION((U8 *)array.base + array.commit_size, commit_size);
    array.commit_size = next_commit_size;
   }
-  ASAN_UNPOISON_MEMORY_REGION(array.base + array.pos, new_size_in_bytes - array.pos);
+  ASAN_UNPOISON_MEMORY_REGION((U8 *)array.base + array.pos, new_size_in_bytes - array.pos);
  }
  else if(new_size_in_bytes < array.pos)
  {
@@ -103,9 +103,9 @@ dynamic_array_resize(DynamicArray<T> &array, U64 new_count)
   if(next_commit_size < array.commit_size)
   {
    U64 decommit_size = array.commit_size - next_commit_size;
-   os_memory_decommit(array.base + next_commit_size, decommit_size);
+   os_memory_decommit((U8 *)array.base + next_commit_size, decommit_size);
    array.commit_size = next_commit_size;
-   ASAN_POISON_MEMORY_REGION(array.base + next_commit_size, decommit_size);
+   ASAN_POISON_MEMORY_REGION((U8 *)array.base + next_commit_size, decommit_size);
   }
  }
 
