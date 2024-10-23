@@ -102,6 +102,7 @@ struct StringDecode
   (String8) { (U8 *)(s), sizeof(*s) }
 
 function String8 str8(U8 *data, U64 size);
+function String8 str8(Arena *arena, String8 string);
 function String8 str8_range(U8 *start, U8 *opl);
 function String8 str8_cstr(char *data);
 function String8 str8_lower(Arena *arena, String8 string);
