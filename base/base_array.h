@@ -103,12 +103,6 @@ template <typename T>
 void dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count);
 
 template <typename T>
-void dynamic_array_push_back(DynamicArray<T> &array, T *val, U64 count);
-
-template <typename T>
-void dynamic_array_push_back(DynamicArray<T> &array, T val);
-
-template <typename T>
 void dynamic_array_resize(DynamicArray<T> &array, U64 new_count);
 
 template <typename T>

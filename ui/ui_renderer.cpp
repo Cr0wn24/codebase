@@ -511,6 +511,9 @@ ui_draw(void)
  renderer->last_batch_node = 0;
 
  Vec2U64 client_area = os_client_area_from_window(ui_state->os_window);
+ os_print_debug_string("2: %d, %d\n", client_area.x, client_area.y);
+
+ // os_print_debug_string("2: %d, %d\n", client_area.x, client_area.y);
 
  RectF32 clip_rect = {};
  clip_rect.max = v2f32((F32)client_area.x, (F32)client_area.y);

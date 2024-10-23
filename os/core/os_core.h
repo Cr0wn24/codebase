@@ -137,7 +137,7 @@ function U32 os_get_current_thread_id(void);
 // NOTE(hampus): Debug output
 
 function void os_print_debug_string(String8 string);
-function void os_print_debug_string(char *fmt, ...);
+function void os_print_debug_string(const char *fmt, ...);
 
 //////////////////////////////
 // NOTE(hampus): Entry point

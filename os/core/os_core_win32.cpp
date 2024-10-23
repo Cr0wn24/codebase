@@ -16,80 +16,80 @@ global OS_Win32_State *os_win32_state;
 function OS_Win32_Entity *
 os_win32_entity_alloc(void)
 {
-  OS_Win32_Entity *result = os_win32_state->first_free_entity;
-  if(result == 0)
-  {
-    result = push_array<OS_Win32_Entity>(os_win32_state->perm_arena, 1);
-  }
-  else
-  {
-    sll_stack_pop(os_win32_state->first_free_entity);
-  }
-  memory_zero_struct(result);
-  return result;
+ OS_Win32_Entity *result = os_win32_state->first_free_entity;
+ if(result == 0)
+ {
+  result = push_array<OS_Win32_Entity>(os_win32_state->perm_arena, 1);
+ }
+ else
+ {
+  sll_stack_pop(os_win32_state->first_free_entity);
+ }
+ memory_zero_struct(result);
+ return result;
 }
 
 function void
 os_win32_entity_free(OS_Win32_Entity *e)
 {
-  sll_stack_push(os_win32_state->first_free_entity, e);
+ sll_stack_push(os_win32_state->first_free_entity, e);
 }
 
 function B32
 os_win32_handle_is_valid(HANDLE handle)
 {
-  B32 result = !(handle == INVALID_HANDLE_VALUE || handle == 0);
-  return result;
+ B32 result = !(handle == INVALID_HANDLE_VALUE || handle == 0);
+ return result;
 }
 
 function String16
 os_win32_str16_from_wchar(WCHAR *wide_char)
 {
-  String16 result = {};
-  result.data = (U16 *)wide_char;
-  while(*wide_char++)
-  {
-    result.size++;
-  }
-  return result;
+ String16 result = {};
+ result.data = (U16 *)wide_char;
+ while(*wide_char++)
+ {
+  result.size++;
+ }
+ return result;
 }
 
 function DateTime
 os_win32_date_time_from_system_time(SYSTEMTIME *system_time)
 {
-  DateTime result = {};
-  result.millisecond = system_time->wMilliseconds;
-  result.second = (U8)system_time->wSecond;
-  result.minute = (U8)system_time->wMinute;
-  result.hour = (U8)system_time->wHour;
-  result.day = (U8)system_time->wDay;
-  result.month = (U8)system_time->wMonth;
-  result.year = (S16)system_time->wYear;
-  return result;
+ DateTime result = {};
+ result.millisecond = system_time->wMilliseconds;
+ result.second = (U8)system_time->wSecond;
+ result.minute = (U8)system_time->wMinute;
+ result.hour = (U8)system_time->wHour;
+ result.day = (U8)system_time->wDay;
+ result.month = (U8)system_time->wMonth;
+ result.year = (S16)system_time->wYear;
+ return result;
 }
 
 function SYSTEMTIME
 os_win32_system_time_from_date_time(DateTime *date_time)
 {
-  SYSTEMTIME result = {};
-  result.wMilliseconds = (WORD)date_time->millisecond;
-  result.wSecond = (WORD)date_time->second;
-  result.wMinute = (WORD)date_time->minute;
-  result.wHour = (WORD)date_time->hour;
-  result.wDay = (WORD)date_time->day;
-  result.wMonth = (WORD)date_time->month;
-  result.wYear = (WORD)date_time->year;
-  return result;
+ SYSTEMTIME result = {};
+ result.wMilliseconds = (WORD)date_time->millisecond;
+ result.wSecond = (WORD)date_time->second;
+ result.wMinute = (WORD)date_time->minute;
+ result.wHour = (WORD)date_time->hour;
+ result.wDay = (WORD)date_time->day;
+ result.wMonth = (WORD)date_time->month;
+ result.wYear = (WORD)date_time->year;
+ return result;
 }
 
 DWORD
 os_win32_thread_proc(LPVOID data)
 {
-  profile_init_thread();
-  OS_Win32_ThreadArgs *args = (OS_Win32_ThreadArgs *)data;
-  args->proc(args->data);
-  profile_quit_thread();
-  return 0;
+ profile_init_thread();
+ OS_Win32_ThreadArgs *args = (OS_Win32_ThreadArgs *)data;
+ args->proc(args->data);
+ profile_quit_thread();
+ return 0;
 }
 
 //////////////////////////////
@@ -98,40 +98,40 @@ os_win32_thread_proc(LPVOID data)
 function void *
 os_memory_reserve(U64 size)
 {
-  void *result = VirtualAlloc(0, size, MEM_RESERVE, PAGE_READWRITE);
-  return result;
+ void *result = VirtualAlloc(0, size, MEM_RESERVE, PAGE_READWRITE);
+ return result;
 }
 
 function void
 os_memory_commit(void *ptr, U64 size)
 {
-  VirtualAlloc(ptr, size, MEM_COMMIT, PAGE_READWRITE);
+ VirtualAlloc(ptr, size, MEM_COMMIT, PAGE_READWRITE);
 }
 
 function void
 os_memory_decommit(void *ptr, U64 size)
 {
-  VirtualFree(ptr, size, MEM_DECOMMIT);
+ VirtualFree(ptr, size, MEM_DECOMMIT);
 }
 
 function void
 os_memory_release(void *ptr, U64 size)
 {
-  VirtualFree(ptr, 0, MEM_RELEASE);
+ VirtualFree(ptr, 0, MEM_RELEASE);
 }
 
 function void *
 os_memory_alloc(U64 size)
 {
-  void *result = os_memory_reserve(size);
-  os_memory_commit(result, size);
-  return result;
+ void *result = os_memory_reserve(size);
+ os_memory_commit(result, size);
+ return result;
 }
 
 function void
 os_memory_free(void *memory)
 {
-  os_memory_release(memory, 0);
+ os_memory_release(memory, 0);
 }
 
 //////////////////////////////
@@ -140,15 +140,15 @@ os_memory_free(void *memory)
 function OS_FileAttributes
 os_get_file_attributes(String8 path)
 {
-  OS_FileAttributes result = {};
-  TempArena scratch = get_scratch(0, 0);
-  U16 *path_cstr16 = cstr16_from_str8(scratch.arena, path);
-  DWORD attribs = GetFileAttributesW((LPCWSTR)path_cstr16);
-  result.directory = (attribs & FILE_ATTRIBUTE_DIRECTORY) != 0;
-  result.hidden = (attribs & FILE_ATTRIBUTE_HIDDEN) != 0;
-  result.writable = (attribs & FILE_ATTRIBUTE_READONLY) == 0;
+ OS_FileAttributes result = {};
+ TempArena scratch = get_scratch(0, 0);
+ U16 *path_cstr16 = cstr16_from_str8(scratch.arena, path);
+ DWORD attribs = GetFileAttributesW((LPCWSTR)path_cstr16);
+ result.directory = (attribs & FILE_ATTRIBUTE_DIRECTORY) != 0;
+ result.hidden = (attribs & FILE_ATTRIBUTE_HIDDEN) != 0;
+ result.writable = (attribs & FILE_ATTRIBUTE_READONLY) == 0;
 
-  return result;
+ return result;
 }
 
 //////////////////////////////
@@ -157,104 +157,104 @@ os_get_file_attributes(String8 path)
 function String8
 os_read_file(Arena *arena, String8 path)
 {
-  String8 result = {};
-  ASSERT(path.size < MAX_PATH);
-  if(path.size <= OS_WIN32_MAX_PATH)
+ String8 result = {};
+ ASSERT(path.size < MAX_PATH);
+ if(path.size <= OS_WIN32_MAX_PATH)
+ {
+  TempArena scratch = get_scratch(&arena, 1);
+  HANDLE file = CreateFileW((LPCWSTR)cstr16_from_str8(scratch.arena, path),
+                            GENERIC_READ,
+                            FILE_SHARE_READ,
+                            0,
+                            OPEN_EXISTING,
+                            FILE_ATTRIBUTE_NORMAL,
+                            0);
+
+  if(os_win32_handle_is_valid(file))
   {
-    TempArena scratch = get_scratch(&arena, 1);
-    HANDLE file = CreateFileW((LPCWSTR)cstr16_from_str8(scratch.arena, path),
-                              GENERIC_READ,
-                              FILE_SHARE_READ,
-                              0,
-                              OPEN_EXISTING,
-                              FILE_ATTRIBUTE_NORMAL,
-                              0);
-
-    if(os_win32_handle_is_valid(file))
-    {
-      LARGE_INTEGER file_size = {};
-      GetFileSizeEx(file, &file_size);
-      U32 file_size_u32 = safe_u32_from_s64(file_size.QuadPart);
-      U32 push_amount = file_size_u32;
-      result.data = push_array_no_zero<U8>(arena, push_amount);
-      result.size = file_size_u32;
-      DWORD bytes_read;
-      BOOL read_file_result = ReadFile(file, result.data, file_size_u32, &bytes_read, 0);
-      if(!read_file_result || bytes_read != file_size_u32)
-      {
-        result.data = 0;
-        result.size = 0;
-        arena_pop_amount(arena, push_amount);
-      }
-      CloseHandle(file);
-    }
+   LARGE_INTEGER file_size = {};
+   GetFileSizeEx(file, &file_size);
+   U32 file_size_u32 = safe_u32_from_s64(file_size.QuadPart);
+   U32 push_amount = file_size_u32;
+   result.data = push_array_no_zero<U8>(arena, push_amount);
+   result.size = file_size_u32;
+   DWORD bytes_read;
+   BOOL read_file_result = ReadFile(file, result.data, file_size_u32, &bytes_read, 0);
+   if(!read_file_result || bytes_read != file_size_u32)
+   {
+    result.data = 0;
+    result.size = 0;
+    arena_pop_amount(arena, push_amount);
+   }
+   CloseHandle(file);
   }
+ }
 
-  return result;
+ return result;
 }
 
 function B32
 os_file_write(String8 path, String8 data)
 {
-  B32 result = false;
-  if(path.size <= OS_WIN32_MAX_PATH)
+ B32 result = false;
+ if(path.size <= OS_WIN32_MAX_PATH)
+ {
+  TempArena scratch = get_scratch(0, 0);
+  HANDLE file = CreateFileW((LPCWSTR)cstr16_from_str8(scratch.arena, path),
+                            GENERIC_READ | GENERIC_WRITE,
+                            0,
+                            0,
+                            OPEN_ALWAYS,
+                            FILE_ATTRIBUTE_NORMAL,
+                            0);
+  if(os_win32_handle_is_valid(file))
   {
-    TempArena scratch = get_scratch(0, 0);
-    HANDLE file = CreateFileW((LPCWSTR)cstr16_from_str8(scratch.arena, path),
-                              GENERIC_READ | GENERIC_WRITE,
-                              0,
-                              0,
-                              OPEN_ALWAYS,
-                              FILE_ATTRIBUTE_NORMAL,
-                              0);
-    if(os_win32_handle_is_valid(file))
-    {
-      BOOL write_file_result = WriteFile(file, data.data, (DWORD)safe_s32_from_u64(data.size), 0, 0);
-      result = (B32)write_file_result;
-      CloseHandle(file);
-    }
+   BOOL write_file_result = WriteFile(file, data.data, (DWORD)safe_s32_from_u64(data.size), 0, 0);
+   result = (B32)write_file_result;
+   CloseHandle(file);
   }
-  return result;
+ }
+ return result;
 }
 
 function B32
 os_file_copy(String8 old_path, String8 new_path)
 {
-  B32 result = false;
-  if(old_path.size <= OS_WIN32_MAX_PATH && new_path.size < OS_WIN32_MAX_PATH)
-  {
-    TempArena scratch = get_scratch(0, 0);
-    U16 *old_path16 = cstr16_from_str8(scratch.arena, old_path);
-    U16 *new_path16 = cstr16_from_str8(scratch.arena, new_path);
-    result = (B32)CopyFileW((LPCWSTR)old_path16, (LPCWSTR)new_path16, TRUE);
-  }
-  return result;
+ B32 result = false;
+ if(old_path.size <= OS_WIN32_MAX_PATH && new_path.size < OS_WIN32_MAX_PATH)
+ {
+  TempArena scratch = get_scratch(0, 0);
+  U16 *old_path16 = cstr16_from_str8(scratch.arena, old_path);
+  U16 *new_path16 = cstr16_from_str8(scratch.arena, new_path);
+  result = (B32)CopyFileW((LPCWSTR)old_path16, (LPCWSTR)new_path16, TRUE);
+ }
+ return result;
 }
 
 function B32
 os_file_rename(String8 old_path, String8 new_path)
 {
-  B32 result = false;
-  if(old_path.size <= OS_WIN32_MAX_PATH && new_path.size < OS_WIN32_MAX_PATH)
-  {
-    TempArena scratch = get_scratch(0, 0);
-    U16 *old_path16 = cstr16_from_str8(scratch.arena, old_path);
-    U16 *new_path16 = cstr16_from_str8(scratch.arena, new_path);
-    result = (B32)MoveFileW((LPCWSTR)old_path16, (LPCWSTR)new_path16);
-  }
-  return result;
+ B32 result = false;
+ if(old_path.size <= OS_WIN32_MAX_PATH && new_path.size < OS_WIN32_MAX_PATH)
+ {
+  TempArena scratch = get_scratch(0, 0);
+  U16 *old_path16 = cstr16_from_str8(scratch.arena, old_path);
+  U16 *new_path16 = cstr16_from_str8(scratch.arena, new_path);
+  result = (B32)MoveFileW((LPCWSTR)old_path16, (LPCWSTR)new_path16);
+ }
+ return result;
 }
 
 function B32
 os_file_delete(String8 path)
 {
-  B32 result = false;
-  if(path.size <= OS_WIN32_MAX_PATH)
-  {
-    TempArena scratch = get_scratch(0, 0);
-    result = (B32)CreateDirectoryW((LPCWSTR)cstr16_from_str8(scratch.arena, path), 0);
-  }
-  return result;
+ B32 result = false;
+ if(path.size <= OS_WIN32_MAX_PATH)
+ {
+  TempArena scratch = get_scratch(0, 0);
+  result = (B32)CreateDirectoryW((LPCWSTR)cstr16_from_str8(scratch.arena, path), 0);
+ }
+ return result;
 }
 
 //////////////////////////////
@@ -263,51 +263,51 @@ os_file_delete(String8 path)
 function OS_Handle
 os_file_stream_open(String8 path)
 {
-  OS_Handle result = os_handle_zero();
-  if(path.size <= OS_WIN32_MAX_PATH)
+ OS_Handle result = os_handle_zero();
+ if(path.size <= OS_WIN32_MAX_PATH)
+ {
+  TempArena scratch = get_scratch(0, 0);
+  U16 *path16 = cstr16_from_str8(scratch.arena, path);
+  HANDLE file_handle = CreateFileW((LPCWSTR)path16,
+                                   GENERIC_WRITE | GENERIC_READ,
+                                   0, 0, CREATE_ALWAYS, 0, 0);
+  if(os_win32_handle_is_valid(file_handle))
   {
-    TempArena scratch = get_scratch(0, 0);
-    U16 *path16 = cstr16_from_str8(scratch.arena, path);
-    HANDLE file_handle = CreateFileW((LPCWSTR)path16,
-                                     GENERIC_WRITE | GENERIC_READ,
-                                     0, 0, CREATE_ALWAYS, 0, 0);
-    if(os_win32_handle_is_valid(file_handle))
-    {
-      result.u64[0] = int_from_ptr(file_handle);
-    }
+   result.u64[0] = int_from_ptr(file_handle);
   }
-  return result;
+ }
+ return result;
 }
 
 function B32
 os_file_stream_close(OS_Handle file)
 {
-  B32 success = false;
-  HANDLE file_handle = ptr_from_int(file.u64[0]);
-  if(os_win32_handle_is_valid(file_handle))
-  {
-    CloseHandle(file_handle);
-    success = true;
-  }
-  return (success);
+ B32 success = false;
+ HANDLE file_handle = ptr_from_int(file.u64[0]);
+ if(os_win32_handle_is_valid(file_handle))
+ {
+  CloseHandle(file_handle);
+  success = true;
+ }
+ return (success);
 }
 
 function B32
 os_file_stream_write(OS_Handle file, String8 data)
 {
-  B32 result = false;
-  HANDLE file_handle = ptr_from_int(file.u64[0]);
-  if(os_win32_handle_is_valid(file_handle))
+ B32 result = false;
+ HANDLE file_handle = ptr_from_int(file.u64[0]);
+ if(os_win32_handle_is_valid(file_handle))
+ {
+  DWORD bytes_written = 0;
+  ASSERT(data.size <= U32_MAX);
+  BOOL write_file_result = WriteFile(file_handle, data.data, (DWORD)safe_s32_from_u64(data.size), &bytes_written, 0);
+  if(bytes_written == data.size && write_file_result)
   {
-    DWORD bytes_written = 0;
-    ASSERT(data.size <= U32_MAX);
-    BOOL write_file_result = WriteFile(file_handle, data.data, (DWORD)safe_s32_from_u64(data.size), &bytes_written, 0);
-    if(bytes_written == data.size && write_file_result)
-    {
-      result = true;
-    }
+   result = true;
   }
-  return result;
+ }
+ return result;
 }
 
 //////////////////////////////
@@ -316,99 +316,99 @@ os_file_stream_write(OS_Handle file, String8 data)
 function B32
 os_directory_create(String8 path)
 {
-  B32 result = false;
-  if(path.size <= OS_WIN32_MAX_PATH)
-  {
-    TempArena scratch = get_scratch(0, 0);
-    result = (B32)CreateDirectoryW((LPCWSTR)cstr16_from_str8(scratch.arena, path), 0);
-  }
-  return result;
+ B32 result = false;
+ if(path.size <= OS_WIN32_MAX_PATH)
+ {
+  TempArena scratch = get_scratch(0, 0);
+  result = (B32)CreateDirectoryW((LPCWSTR)cstr16_from_str8(scratch.arena, path), 0);
+ }
+ return result;
 }
 
 function B32
 os_directory_delete(String8 path)
 {
-  B32 result = false;
-  if(path.size <= OS_WIN32_MAX_PATH)
-  {
-    TempArena scratch = get_scratch(0, 0);
-    result = (B32)RemoveDirectoryW((LPCWSTR)cstr16_from_str8(scratch.arena, path));
-  }
-  return result;
+ B32 result = false;
+ if(path.size <= OS_WIN32_MAX_PATH)
+ {
+  TempArena scratch = get_scratch(0, 0);
+  result = (B32)RemoveDirectoryW((LPCWSTR)cstr16_from_str8(scratch.arena, path));
+ }
+ return result;
 }
 
 function OS_Handle
 os_file_iterator_init(String8 path)
 {
-  OS_Handle result = {};
-  if(path.size <= OS_WIN32_MAX_PATH)
-  {
-    String8Node nodes[2] = {};
-    String8List list = {};
-    str8_list_push(&list, path, nodes + 0);
-    str8_list_push(&list, str8_lit("\\*"), nodes + 1);
-    TempArena scratch = get_scratch(0, 0);
-    String8 path_star = str8_join(scratch.arena, &list);
-    U16 *path16 = cstr16_from_str8(scratch.arena, path_star);
-    OS_Win32_Entity *win32_iter = os_win32_entity_alloc();
-    win32_iter->handle = FindFirstFileW((LPCWSTR)path16, &win32_iter->find_data);
+ OS_Handle result = {};
+ if(path.size <= OS_WIN32_MAX_PATH)
+ {
+  String8Node nodes[2] = {};
+  String8List list = {};
+  str8_list_push(&list, path, nodes + 0);
+  str8_list_push(&list, str8_lit("\\*"), nodes + 1);
+  TempArena scratch = get_scratch(0, 0);
+  String8 path_star = str8_join(scratch.arena, &list);
+  U16 *path16 = cstr16_from_str8(scratch.arena, path_star);
+  OS_Win32_Entity *win32_iter = os_win32_entity_alloc();
+  win32_iter->handle = FindFirstFileW((LPCWSTR)path16, &win32_iter->find_data);
 
-    result.u64[0] = int_from_ptr(win32_iter);
-  }
-  return result;
+  result.u64[0] = int_from_ptr(win32_iter);
+ }
+ return result;
 }
 
 function void
 os_file_iterator_end(OS_Handle iterator)
 {
-  OS_Win32_Entity *win32_iter = (OS_Win32_Entity *)ptr_from_int(iterator.u64[0]);
-  if(os_win32_handle_is_valid(win32_iter->handle))
-  {
-    FindClose(win32_iter->handle);
-  }
+ OS_Win32_Entity *win32_iter = (OS_Win32_Entity *)ptr_from_int(iterator.u64[0]);
+ if(os_win32_handle_is_valid(win32_iter->handle))
+ {
+  FindClose(win32_iter->handle);
+ }
 }
 
 function B32
 os_file_iterator_next(Arena *arena, OS_Handle iterator, String8 *result_name)
 {
-  B32 result = false;
-  OS_Win32_Entity *win32_iter = (OS_Win32_Entity *)ptr_from_int(iterator.u64[0]);
-  if(os_win32_handle_is_valid(win32_iter->handle))
+ B32 result = false;
+ OS_Win32_Entity *win32_iter = (OS_Win32_Entity *)ptr_from_int(iterator.u64[0]);
+ if(os_win32_handle_is_valid(win32_iter->handle))
+ {
+  for(; !win32_iter->done;)
   {
-    for(; !win32_iter->done;)
-    {
-      WCHAR *file_name = win32_iter->find_data.cFileName;
-      B32 is_dot = (file_name[0] == '.' && file_name[1] == 0);
-      B32 is_dotdot = (file_name[0] == '.' && file_name[1] == '.' && file_name[2] == 0);
-      B32 emit = (!is_dot && !is_dotdot);
-      WIN32_FIND_DATAW data = {};
-      if(emit)
-      {
-        memory_copy_struct(&data, &win32_iter->find_data);
-      }
-      if(!FindNextFileW(win32_iter->handle, &win32_iter->find_data))
-      {
-        win32_iter->done = true;
-      }
-      if(emit)
-      {
-        *result_name = str8_from_str16(arena, os_win32_str16_from_wchar(data.cFileName));
-        result = true;
-        break;
-      }
-    }
+   WCHAR *file_name = win32_iter->find_data.cFileName;
+   B32 is_dot = (file_name[0] == '.' && file_name[1] == 0);
+   B32 is_dotdot = (file_name[0] == '.' && file_name[1] == '.' && file_name[2] == 0);
+   B32 emit = (!is_dot && !is_dotdot);
+   WIN32_FIND_DATAW data = {};
+   if(emit)
+   {
+    memory_copy_struct(&data, &win32_iter->find_data);
+   }
+   if(!FindNextFileW(win32_iter->handle, &win32_iter->find_data))
+   {
+    win32_iter->done = true;
+   }
+   if(emit)
+   {
+    *result_name = str8_from_str16(arena, os_win32_str16_from_wchar(data.cFileName));
+    result = true;
+    break;
+   }
   }
-  return result;
+ }
+ return result;
 }
 
 function String8
 os_get_executable_path(Arena *arena)
 {
-  String8 result = {};
-  StaticArray<WCHAR, 1024> buffer = {};
-  U64 length = GetModuleFileNameW(0, buffer.val, (DWORD)array_count(buffer));
-  result = str8_from_str16(arena, str16((U16 *)buffer.val, length));
-  return result;
+ String8 result = {};
+ StaticArray<WCHAR, 1024> buffer = {};
+ U64 length = GetModuleFileNameW(0, buffer.val, (DWORD)array_count(buffer));
+ result = str8_from_str16(arena, str16((U16 *)buffer.val, length));
+ return result;
 }
 
 //////////////////////////////
@@ -417,88 +417,88 @@ os_get_executable_path(Arena *arena)
 function DateTime
 os_get_universal_time(void)
 {
-  SYSTEMTIME universal_time = {};
-  GetSystemTime(&universal_time);
-  DateTime result = os_win32_date_time_from_system_time(&universal_time);
-  return result;
+ SYSTEMTIME universal_time = {};
+ GetSystemTime(&universal_time);
+ DateTime result = os_win32_date_time_from_system_time(&universal_time);
+ return result;
 }
 
 function DateTime
 os_get_local_time(void)
 {
-  SYSTEMTIME local_time = {};
-  GetLocalTime(&local_time);
-  DateTime result = os_win32_date_time_from_system_time(&local_time);
-  return result;
+ SYSTEMTIME local_time = {};
+ GetLocalTime(&local_time);
+ DateTime result = os_win32_date_time_from_system_time(&local_time);
+ return result;
 }
 
 function Date
 os_get_local_date(void)
 {
-  SYSTEMTIME local_time = {};
-  GetLocalTime(&local_time);
-  DateTime time = os_win32_date_time_from_system_time(&local_time);
-  Date result = {};
-  result.day = time.day;
-  result.month = time.month;
-  result.year = time.year;
-  return result;
+ SYSTEMTIME local_time = {};
+ GetLocalTime(&local_time);
+ DateTime time = os_win32_date_time_from_system_time(&local_time);
+ Date result = {};
+ result.day = time.day;
+ result.month = time.month;
+ result.year = time.year;
+ return result;
 }
 
 function DateTime
 os_local_time_from_universal(DateTime *date_time)
 {
-  TIME_ZONE_INFORMATION time_zone_information;
-  GetTimeZoneInformation(&time_zone_information);
-  SYSTEMTIME universal_time = os_win32_system_time_from_date_time(date_time);
-  SYSTEMTIME local_time;
-  SystemTimeToTzSpecificLocalTime(&time_zone_information, &universal_time, &local_time);
-  DateTime result = os_win32_date_time_from_system_time(&local_time);
-  return result;
+ TIME_ZONE_INFORMATION time_zone_information;
+ GetTimeZoneInformation(&time_zone_information);
+ SYSTEMTIME universal_time = os_win32_system_time_from_date_time(date_time);
+ SYSTEMTIME local_time;
+ SystemTimeToTzSpecificLocalTime(&time_zone_information, &universal_time, &local_time);
+ DateTime result = os_win32_date_time_from_system_time(&local_time);
+ return result;
 }
 
 function DateTime
 os_universal_time_from_local(DateTime *date_time)
 {
-  TIME_ZONE_INFORMATION time_zone_information;
-  GetTimeZoneInformation(&time_zone_information);
-  SYSTEMTIME local_time = os_win32_system_time_from_date_time(date_time);
-  SYSTEMTIME universal_time;
-  TzSpecificLocalTimeToSystemTime(&time_zone_information, &local_time, &universal_time);
-  DateTime result = os_win32_date_time_from_system_time(&universal_time);
-  return result;
+ TIME_ZONE_INFORMATION time_zone_information;
+ GetTimeZoneInformation(&time_zone_information);
+ SYSTEMTIME local_time = os_win32_system_time_from_date_time(date_time);
+ SYSTEMTIME universal_time;
+ TzSpecificLocalTimeToSystemTime(&time_zone_information, &local_time, &universal_time);
+ DateTime result = os_win32_date_time_from_system_time(&universal_time);
+ return result;
 }
 
 function U64
 os_get_microseconds(void)
 {
-  U64 result = 0;
-  LARGE_INTEGER counter;
-  QueryPerformanceCounter(&counter);
-  counter.QuadPart *= million(1);
-  counter.QuadPart /= os_win32_state->frequency.QuadPart;
-  result = safe_u64_from_s64(counter.QuadPart);
-  return result;
+ U64 result = 0;
+ LARGE_INTEGER counter;
+ QueryPerformanceCounter(&counter);
+ counter.QuadPart *= million(1);
+ counter.QuadPart /= os_win32_state->frequency.QuadPart;
+ result = safe_u64_from_s64(counter.QuadPart);
+ return result;
 }
 
 function void
 os_sleep(U64 ms)
 {
-  Sleep((DWORD)ms);
+ Sleep((DWORD)ms);
 }
 
 function void
 os_wait_microseconds(U64 end_time_us)
 {
-  U64 begin_time_us = os_get_microseconds();
-  if(end_time_us > begin_time_us)
-  {
-    U64 time_to_wait_us = end_time_us - begin_time_us;
-    os_sleep(time_to_wait_us / 1000);
+ U64 begin_time_us = os_get_microseconds();
+ if(end_time_us > begin_time_us)
+ {
+  U64 time_to_wait_us = end_time_us - begin_time_us;
+  os_sleep(time_to_wait_us / 1000);
 
-    for(; os_get_microseconds() < end_time_us;)
-      ;
-  }
+  for(; os_get_microseconds() < end_time_us;)
+   ;
+ }
 }
 
 //////////////////////////////
@@ -507,43 +507,43 @@ os_wait_microseconds(U64 end_time_us)
 function OS_Handle
 os_library_open(String8 path)
 {
-  OS_Handle result = {};
-  TempArena scratch = get_scratch(0, 0);
-  String8List part_list = {};
-  String8Node parts[2];
-  str8_list_push(&part_list, path, &parts[0]);
-  str8_list_push(&part_list, str8_lit(".dll"), &parts[1]);
-  String8 full_path = str8_join(scratch.arena, &part_list);
-  HMODULE lib = LoadLibraryW((LPCWSTR)cstr16_from_str8(scratch.arena, full_path));
-  if(lib)
-  {
-    result.u64[0] = int_from_ptr(lib);
-  }
+ OS_Handle result = {};
+ TempArena scratch = get_scratch(0, 0);
+ String8List part_list = {};
+ String8Node parts[2];
+ str8_list_push(&part_list, path, &parts[0]);
+ str8_list_push(&part_list, str8_lit(".dll"), &parts[1]);
+ String8 full_path = str8_join(scratch.arena, &part_list);
+ HMODULE lib = LoadLibraryW((LPCWSTR)cstr16_from_str8(scratch.arena, full_path));
+ if(lib)
+ {
+  result.u64[0] = int_from_ptr(lib);
+ }
 
-  return result;
+ return result;
 }
 
 function void
 os_library_close(OS_Handle library)
 {
-  if(library.u64[0])
-  {
-    HMODULE hmodule = (HMODULE)ptr_from_int(library.u64[0]);
-    FreeLibrary(hmodule);
-  }
+ if(library.u64[0])
+ {
+  HMODULE hmodule = (HMODULE)ptr_from_int(library.u64[0]);
+  FreeLibrary(hmodule);
+ }
 }
 
 function void *
 os_libary_load_function(OS_Handle library, String8 name)
 {
-  void *result = 0;
-  if(library.u64[0])
-  {
-    HMODULE lib = (HMODULE)ptr_from_int(library.u64[0]);
-    TempArena scratch = get_scratch(0, 0);
-    result = (void *)GetProcAddress(lib, cstr_from_str8(scratch.arena, name));
-  }
-  return result;
+ void *result = 0;
+ if(library.u64[0])
+ {
+  HMODULE lib = (HMODULE)ptr_from_int(library.u64[0]);
+  TempArena scratch = get_scratch(0, 0);
+  result = (void *)GetProcAddress(lib, cstr_from_str8(scratch.arena, name));
+ }
+ return result;
 }
 
 //////////////////////////////
@@ -552,122 +552,122 @@ os_libary_load_function(OS_Handle library, String8 name)
 function OS_Handle
 os_semaphore_alloc(U32 initial_value)
 {
-  OS_Handle result = {};
-  HANDLE win32_handle = CreateSemaphore(0, safe_s32_from_u32(initial_value), S32_MAX, 0);
-  if(os_win32_handle_is_valid(win32_handle))
-  {
-    result.u64[0] = int_from_ptr(win32_handle);
-  }
-  return result;
+ OS_Handle result = {};
+ HANDLE win32_handle = CreateSemaphore(0, safe_s32_from_u32(initial_value), S32_MAX, 0);
+ if(os_win32_handle_is_valid(win32_handle))
+ {
+  result.u64[0] = int_from_ptr(win32_handle);
+ }
+ return result;
 }
 
 function void
 os_semaphore_free(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
-  if(os_win32_handle_is_valid(win32_handle))
-  {
-    CloseHandle(win32_handle);
-  }
+ HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+ if(os_win32_handle_is_valid(win32_handle))
+ {
+  CloseHandle(win32_handle);
+ }
 }
 
 function void
 os_semaphore_signal(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
-  if(os_win32_handle_is_valid(win32_handle))
-  {
-    ReleaseSemaphore(win32_handle, 1, 0);
-  }
+ HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+ if(os_win32_handle_is_valid(win32_handle))
+ {
+  ReleaseSemaphore(win32_handle, 1, 0);
+ }
 }
 
 function void
 os_semaphore_wait(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
-  if(os_win32_handle_is_valid(win32_handle))
-  {
-    WaitForSingleObject(win32_handle, INFINITE);
-  }
+ HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+ if(os_win32_handle_is_valid(win32_handle))
+ {
+  WaitForSingleObject(win32_handle, INFINITE);
+ }
 }
 
 function OS_Handle
 os_mutex_alloc(void)
 {
-  OS_Handle result = {};
-  HANDLE win32_handle = CreateMutex(0, FALSE, 0);
-  if(os_win32_handle_is_valid(win32_handle))
-  {
-    result.u64[0] = int_from_ptr(win32_handle);
-  }
-  return result;
+ OS_Handle result = {};
+ HANDLE win32_handle = CreateMutex(0, FALSE, 0);
+ if(os_win32_handle_is_valid(win32_handle))
+ {
+  result.u64[0] = int_from_ptr(win32_handle);
+ }
+ return result;
 }
 
 function void
 os_mutex_free(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
-  if(os_win32_handle_is_valid(win32_handle))
-  {
-    CloseHandle(win32_handle);
-  }
+ HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+ if(os_win32_handle_is_valid(win32_handle))
+ {
+  CloseHandle(win32_handle);
+ }
 }
 
 function void
 os_mutex_take(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
-  if(os_win32_handle_is_valid(win32_handle))
-  {
-    WaitForSingleObject(win32_handle, INFINITE);
-  }
+ HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+ if(os_win32_handle_is_valid(win32_handle))
+ {
+  WaitForSingleObject(win32_handle, INFINITE);
+ }
 }
 
 function void
 os_mutex_release(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
-  if(os_win32_handle_is_valid(win32_handle))
-  {
-    ReleaseMutex(win32_handle);
-  }
+ HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+ if(os_win32_handle_is_valid(win32_handle))
+ {
+  ReleaseMutex(win32_handle);
+ }
 }
 
 function OS_Handle
 os_thread_create(ThreadProc *proc, void *data)
 {
-  OS_Handle result = {};
-  OS_Win32_ThreadArgs *args = push_array<OS_Win32_ThreadArgs>(os_win32_state->perm_arena, 1);
-  args->proc = proc;
-  args->data = data;
-  HANDLE handle = CreateThread(0, 0, os_win32_thread_proc, args, 0, 0);
-  result.u64[0] = int_from_ptr(handle);
-  return result;
+ OS_Handle result = {};
+ OS_Win32_ThreadArgs *args = push_array<OS_Win32_ThreadArgs>(os_win32_state->perm_arena, 1);
+ args->proc = proc;
+ args->data = data;
+ HANDLE handle = CreateThread(0, 0, os_win32_thread_proc, args, 0, 0);
+ result.u64[0] = int_from_ptr(handle);
+ return result;
 }
 
 function void
 os_thread_join(OS_Handle handle)
 {
-  HANDLE win32_handle = ptr_from_int(handle.u64[0]);
-  if(os_win32_handle_is_valid(win32_handle))
-  {
-    WaitForSingleObject(win32_handle, INFINITE);
-  }
+ HANDLE win32_handle = ptr_from_int(handle.u64[0]);
+ if(os_win32_handle_is_valid(win32_handle))
+ {
+  WaitForSingleObject(win32_handle, INFINITE);
+ }
 }
 
 function void
 os_thread_set_name(String8 string)
 {
-  HANDLE handle = GetCurrentThread();
-  TempArena scratch = get_scratch(0, 0);
-  SetThreadDescription(handle, (PCWSTR)cstr16_from_str8(scratch.arena, string));
+ HANDLE handle = GetCurrentThread();
+ TempArena scratch = get_scratch(0, 0);
+ SetThreadDescription(handle, (PCWSTR)cstr16_from_str8(scratch.arena, string));
 }
 
 function U32
 os_get_current_thread_id(void)
 {
-  U32 result = GetCurrentThreadId();
-  return result;
+ U32 result = GetCurrentThreadId();
+ return result;
 }
 
 //////////////////////////////
@@ -676,20 +676,20 @@ os_get_current_thread_id(void)
 function void
 os_print_debug_string(String8 string)
 {
-  TempArena scratch = get_scratch(0, 0);
-  U16 *cstr16 = cstr16_from_str8(scratch.arena, string);
-  OutputDebugStringW((LPCWSTR)cstr16);
+ TempArena scratch = get_scratch(0, 0);
+ U16 *cstr16 = cstr16_from_str8(scratch.arena, string);
+ OutputDebugStringW((LPCWSTR)cstr16);
 }
 
 function void
-os_print_debug_string(char *fmt, ...)
+os_print_debug_string(const char *fmt, ...)
 {
-  TempArena scratch = get_scratch(0, 0);
-  va_list args;
-  va_start(args, fmt);
-  String8 result = str8_push(scratch.arena, fmt, args);
-  os_print_debug_string(result);
-  va_end(args);
+ TempArena scratch = get_scratch(0, 0);
+ va_list args;
+ va_start(args, fmt);
+ String8 result = str8_push(scratch.arena, (char *)fmt, args);
+ os_print_debug_string(result);
+ va_end(args);
 }
 
 //////////////////////////////
@@ -697,27 +697,27 @@ os_print_debug_string(char *fmt, ...)
 
 #if !defined(OS_NO_ENTRY_POINT)
 
-#  if 0
+# if 0
 S32 APIENTRY
 WinMain(HINSTANCE instance, HINSTANCE prev_instance, PSTR command_line, S32 show_code)
-#  else
+# else
 S32
 main(S32 argc, char **argv)
-#  endif
+# endif
 {
 
-  timeBeginPeriod(1);
-  Arena *win32_perm_arena = arena_alloc();
-  os_win32_state = push_array<OS_Win32_State>(win32_perm_arena, 1);
-  os_win32_state->tls_idx = TlsAlloc();
-  os_win32_state->perm_arena = win32_perm_arena;
-  QueryPerformanceFrequency(&os_win32_state->frequency);
-  ThreadCtx *tctx = thread_ctx_init(str8_lit("Main"));
-  // NOTE(hampus): 'command_line' handed to WinMain doesn't include the program name
-  LPSTR command_line_with_exe_path = GetCommandLineA();
-  String8List argument_list = str8_split_by_codepoints(os_win32_state->perm_arena, str8_cstr(command_line_with_exe_path), str8_lit(" "));
-  S32 exit_code = os_entry_point(argument_list);
-  ExitProcess(safe_u32_from_s32(exit_code));
+ timeBeginPeriod(1);
+ Arena *win32_perm_arena = arena_alloc();
+ os_win32_state = push_array<OS_Win32_State>(win32_perm_arena, 1);
+ os_win32_state->tls_idx = TlsAlloc();
+ os_win32_state->perm_arena = win32_perm_arena;
+ QueryPerformanceFrequency(&os_win32_state->frequency);
+ ThreadCtx *tctx = thread_ctx_init(str8_lit("Main"));
+ // NOTE(hampus): 'command_line' handed to WinMain doesn't include the program name
+ LPSTR command_line_with_exe_path = GetCommandLineA();
+ String8List argument_list = str8_split_by_codepoints(os_win32_state->perm_arena, str8_cstr(command_line_with_exe_path), str8_lit(" "));
+ S32 exit_code = os_entry_point(argument_list);
+ ExitProcess(safe_u32_from_s32(exit_code));
 }
 
 #endif
@@ -728,5 +728,5 @@ main(S32 argc, char **argv)
 function void
 os_exit(S32 exit_code)
 {
-  ExitProcess(safe_u32_from_s32(exit_code));
+ ExitProcess(safe_u32_from_s32(exit_code));
 }
