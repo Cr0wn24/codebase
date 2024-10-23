@@ -7,15 +7,22 @@
 template <typename T>
 struct Array
 {
-  T *val;
-  U64 count;
+ T *val;
+ U64 count;
 
-  T &
-  operator[](U64 idx) const
-  {
-    ASSERT(idx < count);
-    return val[idx];
-  }
+ T &
+ operator[](U64 idx)
+ {
+  ASSERT(idx < count);
+  return val[idx];
+ }
+
+ T &
+ operator[](U64 idx) const
+ {
+  ASSERT(idx < count);
+  return val[idx];
+ }
 };
 
 template <typename T>
@@ -30,26 +37,26 @@ Array<T> array_make_no_zero(Arena *arena, U64 count);
 template <typename T, U64 N>
 struct StaticArray
 {
-  T val[N];
+ T val[N];
 
-  T &
-  operator[](U64 idx)
-  {
-    ASSERT(idx < N);
-    return val[idx];
-  }
+ T &
+ operator[](U64 idx)
+ {
+  ASSERT(idx < N);
+  return val[idx];
+ }
 
-  volatile T &
-  operator[](U64 idx) volatile
-  {
-    ASSERT(idx < N);
-    return val[idx];
-  }
+ volatile T &
+ operator[](U64 idx) volatile
+ {
+  ASSERT(idx < N);
+  return val[idx];
+ }
 
-  operator Array<T>()
-  {
-    return array_make<T>(val, N);
-  }
+ operator Array<T>()
+ {
+  return array_make<T>(val, N);
+ }
 };
 
 template <typename T, U64 N>
@@ -61,22 +68,29 @@ U64 array_count(Array<T> array);
 template <typename T>
 struct DynamicArray
 {
-  T *base;
-  U64 pos;         // NOTE(hampus): In bytes
-  U64 cap;         // NOTE(hampus): In bytes
-  U64 commit_size; // NOTE(hampus): In bytes
+ T *base;
+ U64 pos;         // NOTE(hampus): In bytes
+ U64 cap;         // NOTE(hampus): In bytes
+ U64 commit_size; // NOTE(hampus): In bytes
 
-  T &
-  operator[](U64 idx)
-  {
-    ASSERT(idx < (pos / sizeof(T)));
-    return base[idx];
-  }
+ T &
+ operator[](U64 idx)
+ {
+  ASSERT(idx < (pos / sizeof(T)));
+  return base[idx];
+ }
 
-  operator Array<T>()
-  {
-    return array_make<T>(base, pos / sizeof(T));
-  }
+ T &
+ operator[](U64 idx) const
+ {
+  ASSERT(idx < (pos / sizeof(T)));
+  return base[idx];
+ }
+
+ operator Array<T>()
+ {
+  return array_make<T>(base, pos / sizeof(T));
+ }
 };
 
 template <typename T>
