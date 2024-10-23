@@ -452,7 +452,6 @@ r_begin_pass(Vec4F32 clear_color)
  R_D3D11_Window *d3d11_window = r_d3d11_state->current_window_context;
 
  Vec2U64 client_area_dim = os_client_area_from_window(d3d11_window->window);
- os_print_debug_string("1: %d, %d\n", client_area_dim.x, client_area_dim.y);
  HRESULT hr;
  if(d3d11_window->render_target_view == 0 ||
     r_d3d11_state->current_width != (S32)client_area_dim.width ||
