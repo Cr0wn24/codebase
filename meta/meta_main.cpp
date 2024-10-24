@@ -333,7 +333,7 @@ os_entry_point(String8List args)
                                            "#define META_EMBED_FILE(path, name)\n\n"
                                            "#endif // BASE_META_H");
     String8 base_meta_file_path = str8_append(scratch.arena, code_path, str8_lit("base/base_meta.h"));
-    os_file_write(base_meta_file_path, base_meta_file_data);
+    ASSERT_ALWAYS(os_file_write(base_meta_file_path, base_meta_file_data));
   }
 
   String8List layer_paths = {};
@@ -418,10 +418,10 @@ os_entry_point(String8List args)
                     {
                       String8 generated_directory_path = str8_append(scratch.arena, directory, str8_lit("\\generated"));
                       String8 editor_main_generated_file_path = str8_push(scratch.arena, "%S\\%S_meta.cpp", generated_directory_path, str8_chop(file_name, 4));
-                      os_directory_create(generated_directory_path);
+                      ASSERT_ALWAYS(os_directory_create(generated_directory_path));
                       if((n->flags & SourceFileFlag_Open) == 0)
                       {
-                        os_file_write(editor_main_generated_file_path, str8_lit(""));
+                        ASSERT_ALWAYS(os_file_write(editor_main_generated_file_path, str8_lit("")));
                         n->flags |= SourceFileFlag_Open;
                         n->file_stream_handle = os_file_stream_open(editor_main_generated_file_path);
                       }
@@ -431,7 +431,7 @@ os_entry_point(String8List args)
 
                       {
                         String8 string = str8_push(scratch.arena, "\nglobal StaticArray<U8, %" PRIU64 "> %S_data =\n{\n", file_data.size, generated_variable_name);
-                        os_file_stream_write(n->file_stream_handle, string);
+                        ASSERT_ALWAYS(os_file_stream_write(n->file_stream_handle, string));
                       }
 
                       for(U64 idx = 0; idx < file_data.size; idx += 1)
@@ -449,16 +449,16 @@ os_entry_point(String8List args)
                         buffer_used_size += string.size;
                         if((buffer_used_size + 6) > array_count(buffer))
                         {
-                          os_file_stream_write(n->file_stream_handle, str8(buffer.val, buffer_used_size));
+                          ASSERT_ALWAYS(os_file_stream_write(n->file_stream_handle, str8(buffer.val, buffer_used_size)));
                           buffer_used_size = 0;
                         }
                       }
 
-                      os_file_stream_write(n->file_stream_handle, str8(buffer.val, buffer_used_size));
+                      ASSERT_ALWAYS(os_file_stream_write(n->file_stream_handle, str8(buffer.val, buffer_used_size)));
 
                       {
                         String8 string = str8_push(scratch.arena, "\n};\nString8 %S = {.data = (U8 *)%S_data.val, .size = array_count(%S_data)};", generated_variable_name, generated_variable_name, generated_variable_name);
-                        os_file_stream_write(n->file_stream_handle, string);
+                        ASSERT_ALWAYS(os_file_stream_write(n->file_stream_handle, string));
                       }
                     }
                     else
@@ -493,7 +493,7 @@ os_entry_point(String8List args)
         {
           if((n->flags & SourceFileFlag_Open) != 0)
           {
-            os_file_stream_close(n->file_stream_handle);
+            ASSERT_ALWAYS(os_file_stream_close(n->file_stream_handle));
           }
           parsing = false;
         }

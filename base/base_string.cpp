@@ -177,6 +177,16 @@ str8_push(Arena *arena, char *cstr, ...)
   return result;
 }
 
+function String8
+str8_push(Arena *arena, const char *cstr, ...)
+{
+  va_list args = {};
+  va_start(args, cstr);
+  String8 result = str8_push(arena, (char *)cstr, args);
+  va_end(args);
+  return result;
+}
+
 function B32
 str8_match(String8 a, String8 b)
 {
@@ -1171,16 +1181,33 @@ is_num(U8 ch)
 // NOTE(hampus): C-String functions
 
 function String8
-cstr_format(U8 *buffer, U64 buffer_size, char *cstr, ...)
+cstr_format(U8 *buffer, U64 buffer_size, char *cstr, va_list args)
 {
   TempArena scratch = get_scratch(0, 0);
-  va_list args;
-  va_start(args, cstr);
   String8 string = str8_push(scratch.arena, cstr, args);
-  va_end(args);
   U64 clamped_size = min(string.size, buffer_size);
   memory_copy(buffer, string.data, clamped_size);
   return (str8(buffer, clamped_size));
+}
+
+function String8
+cstr_format(U8 *buffer, U64 buffer_size, char *cstr, ...)
+{
+  va_list args;
+  va_start(args, cstr);
+  String8 string = cstr_format(buffer, buffer_size, cstr, args);
+  va_end(args);
+  return string;
+}
+
+function String8
+cstr_format(U8 *buffer, U64 buffer_size, const char *cstr, ...)
+{
+  va_list args;
+  va_start(args, cstr);
+  String8 string = cstr_format(buffer, buffer_size, (char *)cstr, args);
+  va_end(args);
+  return string;
 }
 
 function U64

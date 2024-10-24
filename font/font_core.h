@@ -74,24 +74,24 @@ struct F_State
 
 function void f_init(void);
 
-no_discard function F_Handle f_handle_zero(void);
-no_discard function B32 f_handle_match(F_Handle a, F_Handle b);
+[[nodiscard]] function F_Handle f_handle_zero(void);
+[[nodiscard]] function B32 f_handle_match(F_Handle a, F_Handle b);
 
-no_discard function B32 f_tag_match(F_Tag a, F_Tag b);
+[[nodiscard]] function B32 f_tag_match(F_Tag a, F_Tag b);
 
-no_discard function FP_Handle fp_handle_from_tag(F_Tag tag);
-no_discard function F_Glyph *f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp);
-no_discard function F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
-no_discard function F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
+[[nodiscard]] function FP_Handle fp_handle_from_tag(F_Tag tag);
+[[nodiscard]] function F_Glyph *f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp);
+[[nodiscard]] function F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
+[[nodiscard]] function F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
 
-no_discard function F32 f_get_advance(F_Tag tag, U32 size, String32 string);
-no_discard function F32 f_get_advance(F_Tag tag, U32 size, String8 string);
-no_discard function F32 f_get_advance(F_Tag tag, U32 size, U32 cp);
-no_discard function F32 f_line_height_from_tag_size(F_Tag tag, U32 size);
-no_discard function F32 f_descent_from_tag_size(F_Tag tag, U32 size);
-no_discard function F32 f_max_height_from_tag_size_string(F_Tag tag, U32 size, String8 string);
+[[nodiscard]] function F32 f_get_advance(F_Tag tag, U32 size, String32 string);
+[[nodiscard]] function F32 f_get_advance(F_Tag tag, U32 size, String8 string);
+[[nodiscard]] function F32 f_get_advance(F_Tag tag, U32 size, U32 cp);
+[[nodiscard]] function F32 f_line_height_from_tag_size(F_Tag tag, U32 size);
+[[nodiscard]] function F32 f_descent_from_tag_size(F_Tag tag, U32 size);
+[[nodiscard]] function F32 f_max_height_from_tag_size_string(F_Tag tag, U32 size, String8 string);
 
-no_discard function F_Atlas *f_atlas(void);
+[[nodiscard]] function F_Atlas *f_atlas(void);
 
 global F_State *f_state;
 

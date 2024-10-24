@@ -11,7 +11,7 @@ struct String8
   U8 *data;
   U64 size;
 
-  no_discard U8 &
+  [[nodiscard]] U8 &
   operator[](U64 idx)
   {
     ASSERT(idx < size);
@@ -25,7 +25,7 @@ struct String16
   U16 *data;
   U64 size;
 
-  no_discard U16 &
+  [[nodiscard]] U16 &
   operator[](U64 idx)
   {
     ASSERT(idx < size);
@@ -38,7 +38,7 @@ struct String32
 {
   U32 *data;
   U64 size;
-  no_discard U32 &
+  [[nodiscard]] U32 &
   operator[](U64 idx)
   {
     ASSERT(idx < size);
@@ -101,36 +101,37 @@ struct StringDecode
 #define str8_struct(s) \
   (String8) { (U8 *)(s), sizeof(*s) }
 
-no_discard function String8 str8(U8 *data, U64 size);
-no_discard function String8 str8(Arena *arena, String8 string);
-no_discard function String8 str8_range(U8 *start, U8 *opl);
-no_discard function String8 str8_cstr(char *data);
-no_discard function String8 str8_lower(Arena *arena, String8 string);
+[[nodiscard]] function String8 str8(U8 *data, U64 size);
+[[nodiscard]] function String8 str8(Arena *arena, String8 string);
+[[nodiscard]] function String8 str8_range(U8 *start, U8 *opl);
+[[nodiscard]] function String8 str8_cstr(char *data);
+[[nodiscard]] function String8 str8_lower(Arena *arena, String8 string);
 
-no_discard function String8 str8_prefix(String8 string, U64 size);
-no_discard function String8 str8_postfix(String8 string, U64 size);
-no_discard function String8 str8_skip(String8 string, U64 size);
-no_discard function String8 str8_chop(String8 string, U64 size);
-no_discard function String8 str8_substr8(String8 string, U64 start, U64 size);
-no_discard function String8 str8_skip_to_char(String8 string, U8 ch);
+[[nodiscard]] function String8 str8_prefix(String8 string, U64 size);
+[[nodiscard]] function String8 str8_postfix(String8 string, U64 size);
+[[nodiscard]] function String8 str8_skip(String8 string, U64 size);
+[[nodiscard]] function String8 str8_chop(String8 string, U64 size);
+[[nodiscard]] function String8 str8_substr8(String8 string, U64 start, U64 size);
+[[nodiscard]] function String8 str8_skip_to_char(String8 string, U8 ch);
 
-no_discard function String8 str8_push(Arena *arena, String8 string);
-no_discard function String8 str8_push(Arena *arena, char *cstr, va_list args);
-no_discard function String8 str8_push(Arena *arena, char *cstr, ...);
+[[nodiscard]] function String8 str8_push(Arena *arena, String8 string);
+[[nodiscard]] function String8 str8_push(Arena *arena, char *cstr, va_list args);
+[[nodiscard]] function String8 str8_push(Arena *arena, char *cstr, ...);
+[[nodiscard]] function String8 str8_push(Arena *arena, const char *cstr, ...);
 
-no_discard function B32 str8_match(String8 a, String8 b);
+[[nodiscard]] function B32 str8_match(String8 a, String8 b);
 function B32 str8_first_index_of(String8 string, U32 codepoint, U64 *result_idx);
 function B32 str8_last_index_of(String8 string, U32 codepoint, U64 *result_idx);
 function B32 str8_find_substr8(String8 string, String8 substring, U64 *result_idx);
-no_discard function String8List str8_split_by_codepoints(Arena *arena, String8 string, String8 codepoints);
+[[nodiscard]] function String8List str8_split_by_codepoints(Arena *arena, String8 string, String8 codepoints);
 
 function void str8_list_push(String8List *list, String8 string, String8Node *node);
 function void str8_list_push(Arena *arena, String8List *list, String8 string);
 function void str8_list_push(Arena *arena, String8List *list, char *fmt, ...);
-no_discard function String8 str8_join(Arena *arena, String8List *list);
-no_discard function String8 str8_append(Arena *arena, String8 first, String8 last);
-no_discard function String8 str8_chop_last_slash(String8 string);
-no_discard function String8 str8_skip_last_slash(String8 string);
+[[nodiscard]] function String8 str8_join(Arena *arena, String8List *list);
+[[nodiscard]] function String8 str8_append(Arena *arena, String8 first, String8 last);
+[[nodiscard]] function String8 str8_chop_last_slash(String8 string);
+[[nodiscard]] function String8 str8_skip_last_slash(String8 string);
 
 //////////////////////////////
 // NOTE(hampus): String16
@@ -140,34 +141,34 @@ function String16 str16(U16 *data, U64 size);
 //////////////////////////////
 // NOTE(hampus): String32
 
-no_discard function String32 str32(U32 *data, U64 size);
-no_discard function String32 str32_range(U32 *start, U32 *opl);
-no_discard function String32 str32_copy(Arena *arena, String32 string);
-no_discard function String32 str32_prefix(String32 string, U64 size);
-no_discard function String32 str32_postfix(String32 string, U64 size);
-no_discard function String32 str32_skip(String32 string, U64 size);
-no_discard function String32 str32_chop(String32 string, U64 size);
-no_discard function B32 str32_match(String32 a, String32 b);
+[[nodiscard]] function String32 str32(U32 *data, U64 size);
+[[nodiscard]] function String32 str32_range(U32 *start, U32 *opl);
+[[nodiscard]] function String32 str32_copy(Arena *arena, String32 string);
+[[nodiscard]] function String32 str32_prefix(String32 string, U64 size);
+[[nodiscard]] function String32 str32_postfix(String32 string, U64 size);
+[[nodiscard]] function String32 str32_skip(String32 string, U64 size);
+[[nodiscard]] function String32 str32_chop(String32 string, U64 size);
+[[nodiscard]] function B32 str32_match(String32 a, String32 b);
 
 //////////////////////////////
 // NOTE(hampus): Encoding & decoding
 
-no_discard function StringDecode string_decode_utf8(U8 *string, U64 size);
+[[nodiscard]] function StringDecode string_decode_utf8(U8 *string, U64 size);
 function U64 string_encode_utf8(U8 *dst, U32 codepoint);
-no_discard function StringDecode string_decode_utf16(U16 *string, U64 size);
+[[nodiscard]] function StringDecode string_decode_utf16(U16 *string, U64 size);
 function U64 string_encode_utf16(U16 *dst, U32 codepoint);
 
 //////////////////////////////
 // NOTE(hampus): Conversion between UTF
 
-no_discard function String32 str32_from_str8(Arena *arena, String8 string);
-no_discard function String8 str8_from_str32(Arena *arena, String32 string);
-no_discard function String16 str16_from_str8(Arena *arena, String8 string);
-no_discard function String8 str8_from_str16(Arena *arena, String16 string);
-no_discard function String8 str8_from_cstr16(Arena *arena, U16 *string);
+[[nodiscard]] function String32 str32_from_str8(Arena *arena, String8 string);
+[[nodiscard]] function String8 str8_from_str32(Arena *arena, String32 string);
+[[nodiscard]] function String16 str16_from_str8(Arena *arena, String8 string);
+[[nodiscard]] function String8 str8_from_str16(Arena *arena, String16 string);
+[[nodiscard]] function String8 str8_from_cstr16(Arena *arena, U16 *string);
 
-no_discard function char *cstr_from_str8(Arena *arena, String8 string);
-no_discard function U16 *cstr16_from_str8(Arena *arena, String8 string);
+[[nodiscard]] function char *cstr_from_str8(Arena *arena, String8 string);
+[[nodiscard]] function U16 *cstr16_from_str8(Arena *arena, String8 string);
 
 //////////////////////////////
 // NOTE(hampus): String to integers
@@ -192,12 +193,12 @@ function U64 f64_from_str8(String8 string, F64 *dst);
 //////////////////////////////
 // NOTE(hampus): Character functions
 
-no_discard function B32 is_num(U8 ch);
+[[nodiscard]] function B32 is_num(U8 ch);
 
 //////////////////////////////
 // NOTE(hampus): C-String functions
 
 function String8 cstr_format(U8 *buffer, U64 buffer_size, char *cstr, ...);
-no_discard function U64 cstr_length(char *cstr);
+[[nodiscard]] function U64 cstr_length(char *cstr);
 
 #endif // BASE_STRING_H

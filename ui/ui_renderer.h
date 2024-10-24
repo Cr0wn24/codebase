@@ -68,7 +68,7 @@ function F32 ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4
 
 function void ui_draw(void);
 
-no_discard function RectF32 ui_clip_rect_top(void);
+[[nodiscard]] function RectF32 ui_clip_rect_top(void);
 function void ui_clip_rect_push(RectF32 rect);
 function void ui_clip_rect_pop(void);
 

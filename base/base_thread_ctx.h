@@ -22,19 +22,19 @@ struct ThreadCtx
 
 function ThreadCtx *thread_ctx_init(String8 name);
 
-no_discard function ThreadCtx *thread_ctx_alloc(void);
+[[nodiscard]] function ThreadCtx *thread_ctx_alloc(void);
 function void thread_ctx_release(ThreadCtx *tctx);
 function void set_thread_ctx(ThreadCtx *tctx);
-no_discard function ThreadCtx *get_thread_ctx(void);
+[[nodiscard]] function ThreadCtx *get_thread_ctx(void);
 
 function void set_thread_ctx_name(String8 string);
-no_discard function String8 get_thread_ctx_name(void);
+[[nodiscard]] function String8 get_thread_ctx_name(void);
 
 //////////////////////////////
 // NOTE(hampus): Scratch functions
 
 #define get_scratch(conflicts, count) TempArena(get_scratch_arena(conflicts, count))
 #define release_scratch(scratch) end_temp_arena(scratch)
-no_discard function Arena *get_scratch_arena(Arena **conflicts, U32 count);
+[[nodiscard]] function Arena *get_scratch_arena(Arena **conflicts, U32 count);
 
 #endif // BASE_THREAD_CTX_H

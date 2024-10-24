@@ -37,24 +37,24 @@ struct OS_NetAcceptResult
   B32 succeeded;
 };
 
-no_discard function OS_NetAddress os_net_address_from_str8(String8 string);
-no_discard function String8 os_str8_from_net_address(Arena *arena, OS_NetAddress address);
-no_discard function B32 os_net_address_match(OS_NetAddress a, OS_NetAddress b);
-no_discard function OS_NetAddress os_net_address_zero(void);
+[[nodiscard]] function OS_NetAddress os_net_address_from_str8(String8 string);
+[[nodiscard]] function String8 os_str8_from_net_address(Arena *arena, OS_NetAddress address);
+[[nodiscard]] function B32 os_net_address_match(OS_NetAddress a, OS_NetAddress b);
+[[nodiscard]] function OS_NetAddress os_net_address_zero(void);
 
 function void os_net_init(void);
-no_discard function OS_Handle os_socket_alloc(OS_NetProtocol protocol, OS_NetAddressFamily address_family);
-no_discard function B32 os_socket_free(OS_Handle socket);
-no_discard function B32 os_socket_bind(OS_Handle socket, OS_NetAddress address);
-no_discard function B32 os_socket_set_blocking_mode(OS_Handle socket, B32 should_block);
-no_discard function OS_NetAddress os_address_from_socket(OS_Handle socket);
+[[nodiscard]] function OS_Handle os_socket_alloc(OS_NetProtocol protocol, OS_NetAddressFamily address_family);
+[[nodiscard]] function B32 os_socket_free(OS_Handle socket);
+[[nodiscard]] function B32 os_socket_bind(OS_Handle socket, OS_NetAddress address);
+[[nodiscard]] function B32 os_socket_set_blocking_mode(OS_Handle socket, B32 should_block);
+[[nodiscard]] function OS_NetAddress os_address_from_socket(OS_Handle socket);
 
-no_discard function B32 os_socket_connect(OS_Handle socket, OS_NetAddress address);
-no_discard function OS_NetAcceptResult os_socket_accept(OS_Handle socket);
-no_discard function B32 os_socket_send(OS_Handle socket, String8 data);
-no_discard function OS_NetReceiveResult os_socket_receive(Arena *arena, OS_Handle connected_socket, U64 cap);
+[[nodiscard]] function B32 os_socket_connect(OS_Handle socket, OS_NetAddress address);
+[[nodiscard]] function OS_NetAcceptResult os_socket_accept(OS_Handle socket);
+[[nodiscard]] function B32 os_socket_send(OS_Handle socket, String8 data);
+[[nodiscard]] function OS_NetReceiveResult os_socket_receive(Arena *arena, OS_Handle connected_socket, U64 cap);
 
-no_discard function B32 os_socket_send_to(OS_Handle socket, OS_NetAddress address, String8 data);
-no_discard function OS_NetReceiveResult os_socket_receive_from(Arena *arena, OS_Handle listen_socket, U64 cap);
+[[nodiscard]] function B32 os_socket_send_to(OS_Handle socket, OS_NetAddress address, String8 data);
+[[nodiscard]] function OS_NetReceiveResult os_socket_receive_from(Arena *arena, OS_Handle listen_socket, U64 cap);
 
 #endif // OS_NET_CORE_H

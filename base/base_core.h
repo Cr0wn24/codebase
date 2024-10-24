@@ -252,8 +252,6 @@ typedef double F64;
 #define global static
 #define local static
 
-#define no_discard [[nodiscard]]
-
 //////////////////////////////
 // NOTE(hampus): Basic helper macros
 
@@ -277,8 +275,12 @@ typedef double F64;
 #  error no per_thread exists for this compiler
 #endif
 
-#define ASSERT(expr) \
-  if(!(expr))        \
+#define ASSERT_ALWAYS(expr) \
+  if(!(expr)) [[unlikely]]  \
+    (*(volatile int *)0 = 0);
+
+#define ASSERT(expr)       \
+  if(!(expr)) [[unlikely]] \
     (*(volatile int *)0 = 0);
 
 #define invalid_case         \
@@ -456,18 +458,18 @@ struct Date
 
 struct String8;
 
-no_discard function OperatingSystem os_from_context(void);
-no_discard function Architecture arch_from_context(void);
-no_discard function DateTime build_date_from_context(void);
+[[nodiscard]] function OperatingSystem os_from_context(void);
+[[nodiscard]] function Architecture arch_from_context(void);
+[[nodiscard]] function DateTime build_date_from_context(void);
 
-no_discard function String8 string_from_arch(Architecture arc);
-no_discard function String8 string_from_os(OperatingSystem os);
-no_discard function String8 string_from_day_of_week(DayOfWeek day);
-no_discard function String8 string_from_month(Month month);
+[[nodiscard]] function String8 string_from_arch(Architecture arc);
+[[nodiscard]] function String8 string_from_os(OperatingSystem os);
+[[nodiscard]] function String8 string_from_day_of_week(DayOfWeek day);
+[[nodiscard]] function String8 string_from_month(Month month);
 
-no_discard function DenseTime dense_time_from_date_time(DateTime date_time);
-no_discard function DateTime date_time_from_dense_time(DenseTime dense_time);
-no_discard function B32 date_match(Date a, Date b);
+[[nodiscard]] function DenseTime dense_time_from_date_time(DateTime date_time);
+[[nodiscard]] function DateTime date_time_from_dense_time(DenseTime dense_time);
+[[nodiscard]] function B32 date_match(Date a, Date b);
 
 struct MemorySize
 {
@@ -476,6 +478,6 @@ struct MemorySize
   U64 unit_length;
 };
 
-no_discard function MemorySize memory_size_from_bytes(U64 bytes);
+[[nodiscard]] function MemorySize memory_size_from_bytes(U64 bytes);
 
 #endif // BASE_CORE_H

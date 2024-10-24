@@ -497,22 +497,22 @@ struct UI_State
 //////////////////////////////
 // NOTE(hampus): Helpers
 
-no_discard function Arena *ui_frame_arena(void);
-no_discard function String8 ui_str8_from_icon(UI_Icon icon);
+[[nodiscard]] function Arena *ui_frame_arena(void);
+[[nodiscard]] function String8 ui_str8_from_icon(UI_Icon icon);
 
 //////////////////////////////
 // NOTE(hampus): Keying
 
-no_discard function UI_Key ui_key_zero(void);
-no_discard function UI_Key ui_key_from_string(U64 seed, String8 string);
-no_discard function U64 ui_hash_from_seed_string(U64 seed, String8 string);
+[[nodiscard]] function UI_Key ui_key_zero(void);
+[[nodiscard]] function UI_Key ui_key_from_string(U64 seed, String8 string);
+[[nodiscard]] function U64 ui_hash_from_seed_string(U64 seed, String8 string);
 
 //////////////////////////////
 // NOTE(hampus): Text action
 
-no_discard function UI_TextAction ui_text_action_from_event(OS_Event *event);
-no_discard function UI_TextActionList ui_text_action_list_from_events(Arena *arena, OS_EventList *event_list);
-no_discard function UI_TextOp ui_text_of_from_state_and_action(Arena *arena, String8 edit_str, UI_TextEditState *state, UI_TextAction *action);
+[[nodiscard]] function UI_TextAction ui_text_action_from_event(OS_Event *event);
+[[nodiscard]] function UI_TextActionList ui_text_action_list_from_events(Arena *arena, OS_EventList *event_list);
+[[nodiscard]] function UI_TextOp ui_text_of_from_state_and_action(Arena *arena, String8 edit_str, UI_TextEditState *state, UI_TextAction *action);
 
 //////////////////////////////
 // NOTE(hampus): Init
@@ -528,16 +528,16 @@ function void ui_end_build(void);
 //////////////////////////////
 // NOTE(hampus): Box implementation
 
-no_discard function UI_Box *ui_box_alloc(void);
+[[nodiscard]] function UI_Box *ui_box_alloc(void);
 function void ui_box_free(UI_Box *box);
-no_discard function B32 ui_box_is_hot(UI_Box *box);
-no_discard function B32 ui_box_is_active(UI_Box *box);
-no_discard function B32 ui_box_is_focus(UI_Box *box);
-no_discard function B32 ui_box_is_nil(UI_Box *box);
-no_discard function UI_Box *ui_box_from_key(UI_Key key);
+[[nodiscard]] function B32 ui_box_is_hot(UI_Box *box);
+[[nodiscard]] function B32 ui_box_is_active(UI_Box *box);
+[[nodiscard]] function B32 ui_box_is_focus(UI_Box *box);
+[[nodiscard]] function B32 ui_box_is_nil(UI_Box *box);
+[[nodiscard]] function UI_Box *ui_box_from_key(UI_Key key);
 function UI_Box *ui_box_make_from_key(UI_BoxFlags flags, UI_Key key);
-no_discard function String8 ui_get_display_part_from_string(String8 string);
-no_discard function String8 ui_get_hash_part_from_string(String8 string);
+[[nodiscard]] function String8 ui_get_display_part_from_string(String8 string);
+[[nodiscard]] function String8 ui_get_hash_part_from_string(String8 string);
 function UI_Box *ui_box_make(UI_BoxFlags flags, String8 string);
 function UI_Box *ui_box_make(UI_BoxFlags flags, char *fmt, ...);
 function UI_Box *ui_box_make(UI_BoxFlags flags);
@@ -549,7 +549,7 @@ function UI_Comm ui_comm_from_box__mouse(UI_Box *box);
 //////////////////////////////
 // NOTE(hampus): Layouting
 
-no_discard function UI_Size ui_size_make(UI_SizeKind kind, F32 val, F32 strictness);
+[[nodiscard]] function UI_Size ui_size_make(UI_SizeKind kind, F32 val, F32 strictness);
 function void ui_solve_independent_sizes(UI_Box *root, Axis2 axis);
 function void ui_solve_upward_dependent_sizes(UI_Box *root, Axis2 axis);
 function void ui_solve_downward_dependent_sizes(UI_Box *root, Axis2 axis);
@@ -561,22 +561,22 @@ function void ui_layout(UI_Box *root);
 //////////////////////////////
 // NOTE(hampus): Stack helpers
 
-no_discard function UI_Size ui_dp(F32 val, F32 strictness);
-no_discard function UI_Size ui_px(F32 val, F32 strictness);
-no_discard function UI_Size ui_text_content(F32 strictness);
-no_discard function UI_Size ui_pct(F32 val, F32 strictness);
-no_discard function UI_Size ui_children_sum(F32 strictness);
-no_discard function UI_Size ui_other_axis(F32 strictness);
-no_discard function UI_Size ui_fill(void);
-no_discard function UI_Size ui_em(F32 val, F32 strictness);
+[[nodiscard]] function UI_Size ui_dp(F32 val, F32 strictness);
+[[nodiscard]] function UI_Size ui_px(F32 val, F32 strictness);
+[[nodiscard]] function UI_Size ui_text_content(F32 strictness);
+[[nodiscard]] function UI_Size ui_pct(F32 val, F32 strictness);
+[[nodiscard]] function UI_Size ui_children_sum(F32 strictness);
+[[nodiscard]] function UI_Size ui_other_axis(F32 strictness);
+[[nodiscard]] function UI_Size ui_fill(void);
+[[nodiscard]] function UI_Size ui_em(F32 val, F32 strictness);
 
 function void ui_push_parent(UI_Box *box);
 function UI_Box *ui_pop_parent(void);
-no_discard function UI_Box *ui_top_parent(void);
+[[nodiscard]] function UI_Box *ui_top_parent(void);
 function void ui_push_seed(U64 seed);
 function void ui_pop_seed(void);
-no_discard function U64 ui_top_seed(void);
-no_discard function F32 ui_top_font_line_height(void);
+[[nodiscard]] function U64 ui_top_seed(void);
+[[nodiscard]] function F32 ui_top_font_line_height(void);
 
 function void ui_push_pref_size(Axis2 axis, UI_Size size);
 function void ui_next_pref_size(Axis2 axis, UI_Size size);
@@ -632,7 +632,7 @@ function void ui_pop_fixed_rect(void);
   function ui_##name_upper##Node *ui_push_##name_lower(type val); \
   function ui_##name_upper##Node *ui_next_##name_lower(type val); \
   function ui_##name_upper##Node *ui_pop_##name_lower(void);      \
-  no_discard function type ui_top_##name_lower(void);
+  [[nodiscard]] function type ui_top_##name_lower(void);
 
 stack_values
 #undef X
