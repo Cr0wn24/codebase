@@ -848,7 +848,7 @@ ui_box_from_key(UI_Key key)
 }
 
 function UI_Box *
-ui_box_makerom_key(UI_BoxFlags flags, UI_Key key)
+ui_box_make_from_key(UI_BoxFlags flags, UI_Key key)
 {
   UI_Box *box = ui_box_from_key(key);
   ASSERT(box->last_build_touched_idx != ui_state->build_idx);
@@ -913,7 +913,7 @@ ui_box_make(UI_BoxFlags flags, String8 string)
 {
   UI_Key key =
   ui_key_from_string(ui_top_seed(), ui_get_hash_part_from_string(string));
-  UI_Box *box = ui_box_makerom_key(flags, key);
+  UI_Box *box = ui_box_make_from_key(flags, key);
   box->string = string;
   return box;
 }

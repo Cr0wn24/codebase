@@ -41,11 +41,11 @@ struct TempArena
 //////////////////////////////
 // NOTE(hampus): Base functions
 
-[[nodiscard]] function Arena *arena_alloc(void);
+no_discard function Arena *arena_alloc(void);
 function void arena_free(Arena *arena);
 
-[[nodiscard]] function void *arena_push(Arena *arena, U64 size);
-[[nodiscard]] function void *arena_push_no_zero(Arena *arena, U64 size);
+no_discard function void *arena_push(Arena *arena, U64 size);
+no_discard function void *arena_push_no_zero(Arena *arena, U64 size);
 function void arena_pop_to(Arena *arena, U64 pos);
 function void arena_pop_amount(Arena *arena, U64 amount);
 
@@ -58,14 +58,14 @@ function void arena_align_no_zero(Arena *arena, U64 power);
 #define ring_write_struct(b, sz, o, s) ring_write(b, sz, o, str8_struct(s))
 #define ring_read_struct(b, sz, o, s) ring_read(b, sz, o, str8_struct(s))
 
-[[nodiscard]] function U64 ring_write(U8 *base, U64 size, U64 offset, String8 string);
-[[nodiscard]] function U64 ring_read(U8 *base, U64 size, U64 offset, String8 string);
+no_discard function U64 ring_write(U8 *base, U64 size, U64 offset, String8 string);
+no_discard function U64 ring_read(U8 *base, U64 size, U64 offset, String8 string);
 
 //////////////////////////////
 // NOTE(hampus): Macro wrappers
 
 template <typename T>
-[[nodiscard]] function T *
+no_discard function T *
 push_array(Arena *arena, U64 count)
 {
   T *result = (T *)arena_push(arena, sizeof(T) * count);
@@ -73,7 +73,7 @@ push_array(Arena *arena, U64 count)
 }
 
 template <typename T>
-[[nodiscard]] function T *
+no_discard function T *
 push_array_no_zero(Arena *arena, U64 count)
 {
   T *result = (T *)arena_push_no_zero(arena, sizeof(T) * count);
