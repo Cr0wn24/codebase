@@ -114,10 +114,6 @@ ui_renderer_init(void)
  });
  U32 white = 0xffffffff;
  renderer->white_texture = r_make_tex2d_from_bitmap(&white, 1, 1);
-
- Atlas *atlas = f_atlas();
- renderer->font_atlas_texture_handle = r_make_tex2d_from_bitmap(atlas->memory, safe_u32_from_u64(atlas->dim.x), safe_u32_from_u64(atlas->dim.y));
- // f_state->atlas_texture_dirty = true;
 }
 
 function UI_RectInstance *
@@ -207,8 +203,6 @@ ui_renderer_destroy(void)
  renderer->vertex_buffer = r_handle_zero();
  r_destroy_tex2d(renderer->white_texture);
  renderer->white_texture = r_handle_zero();
- r_destroy_tex2d(renderer->font_atlas_texture_handle);
- renderer->font_atlas_texture_handle = r_handle_zero();
 }
 
 function F32
@@ -222,7 +216,7 @@ ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
  F32 y_offset = metrics.line_height + metrics.descent;
  F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);
  F32 advance = pos.x;
- Atlas *atlas = f_atlas();
+ F_Atlas *atlas = f_atlas();
  for(F_GlyphRunNode *node = glyph_run.first; node != 0; node = node->next)
  {
   F32 xpos = advance + node->bearing.x;
@@ -231,7 +225,7 @@ ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
   F32 height = (F32)node->bitmap_size.y;
 
   R_Tex2DSlice slice = {};
-  slice.tex = renderer->font_atlas_texture_handle;
+  slice.tex = atlas->handle;
   slice.uv = node->region_uv;
 
   UI_DrawRectParams params = {};
@@ -505,7 +499,8 @@ ui_draw_box_hierarchy(UI_Box *root)
 function void
 ui_draw(void)
 {
- profile_function_begin();
+ profile_function();
+
  UI_RendererState *renderer = ui_state->renderer;
  renderer->first_batch_node = 0;
  renderer->last_batch_node = 0;
@@ -517,13 +512,6 @@ ui_draw(void)
  ui_clip_rect_push(clip_rect);
  ui_draw_box_hierarchy(ui_state->root);
  ui_clip_rect_pop();
-
- if(f_atlas_region_is_dirty())
- {
-  Atlas *atlas = f_atlas();
-  r_update_tex2d_contents(renderer->font_atlas_texture_handle, atlas->memory);
-  f_state->atlas_texture_dirty = false;
- }
 
  Mat4F32 mats[2] = {};
  mats[0] = make_ortho_4x4f32(0, (F32)client_area.x, (F32)client_area.y, 0, 0, 1);
@@ -550,6 +538,4 @@ ui_draw(void)
   r_apply_scissor_rect(batch->params.clip_rect_node->v);
   r_instanced_draw(4, batch->count);
  }
-
- profile_function_end();
 }

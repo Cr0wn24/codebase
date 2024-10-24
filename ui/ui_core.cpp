@@ -500,7 +500,7 @@ ui_tree_contains_click(UI_Box *root, Vec2F32 mouse_pos)
 function void
 ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
 {
- profile_function_begin();
+ profile_function();
 
  ui_state->parent_stack = 0;
  ui_state->seed_stack = 0;
@@ -703,14 +703,13 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
  ui_state->normal_root = ui_box_make(0, str8_lit("NormalRoot"));
 
  ui_push_parent(ui_state->normal_root);
-
- profile_function_end();
 }
 
 function void
 ui_end_build(void)
 {
- profile_function_begin();
+ profile_function();
+
  ui_pop_parent(); // pop normal root
  ui_pop_parent(); // pop root
 
@@ -748,7 +747,6 @@ ui_end_build(void)
  }
 
  ui_layout(ui_state->root);
- profile_function_end();
 }
 
 //////////////////////////////

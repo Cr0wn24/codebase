@@ -4,7 +4,9 @@ f_init(void)
  Arena *arena = arena_alloc();
  f_state = push_array<F_State>(arena, 1);
  f_state->arena = arena;
- f_state->atlas = atlas_make(arena, v2u64(4096, 4096));
+ f_state->atlas.atlas = atlas_make(arena, v2u64(4096, 4096));
+ f_state->atlas.handle = r_make_tex2d_from_bitmap(f_state->atlas.atlas.memory,
+                                                  safe_u32_from_u64(f_state->atlas.atlas.dim.x), safe_u32_from_u64(f_state->atlas.atlas.dim.y));
 }
 
 function void
@@ -92,6 +94,8 @@ fp_handle_from_tag(F_Tag tag)
 function F_Glyph *
 f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp)
 {
+ profile_function();
+
  TempArena scratch = get_scratch(0, 0);
  FP_Handle fp_handle = fp_handle_from_tag(tag);
  ASSERT(!fp_handle_match(fp_handle, fp_handle_zero()));
@@ -119,7 +123,8 @@ f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp)
 
   FP_RasterResult raster_result = fp_raster(bitmap_memory_arena.arena, fp_handle, size, cp);
 
-  Atlas *atlas = &f_state->atlas;
+  F_Atlas *f_atlas = &f_state->atlas;
+  Atlas *atlas = &f_atlas->atlas;
   if(raster_result.dim.x != 0 && raster_result.dim.y != 0)
   {
    // hampus: Allocate atlas region
@@ -131,24 +136,33 @@ f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp)
 
    // hampus: Rasterize from 8-bit to 32-bit into atlas region
 
-   U8 *dst_row = (U8 *)atlas_memory;
-   U8 *src = (U8 *)raster_result.memory;
-   for(U64 y = 0; y < raster_result.dim.y; ++y)
+   U8 *bitmap_with_rgba = push_array_no_zero<U8>(scratch.arena, raster_result.dim.x * raster_result.dim.y * 4);
+
    {
-    U8 *dst = dst_row;
-    for(U64 x = 0; x < raster_result.dim.x; ++x)
+    profile_scope("Rasterize into atlas");
+    U8 *dst_row = (U8 *)atlas_memory;
+    U32 *dst_bitmap = (U32 *)bitmap_with_rgba;
+    U8 *src = (U8 *)raster_result.memory;
+    for(U64 y = 0; y < raster_result.dim.y; ++y)
     {
-     *dst++ = 0xff;
-     *dst++ = 0xff;
-     *dst++ = 0xff;
-     *dst++ = *src++;
+     U8 *dst = dst_row;
+     for(U64 x = 0; x < raster_result.dim.x; ++x)
+     {
+      *dst++ = 0xff;
+      *dst++ = 0xff;
+      *dst++ = 0xff;
+      *dst++ = *src++;
+      *dst_bitmap++ = *((U32 *)dst - 1);
+     }
+     dst_row += atlas_pitch;
     }
-    dst_row += atlas_pitch;
    }
+
    glyph_node->region_uv.min = v2f32((F32)atlas_region.min.x / (F32)atlas->dim.x,
                                      (F32)atlas_region.min.y / (F32)atlas->dim.y);
    glyph_node->region_uv.max = v2f32(((F32)atlas_region.min.x + (F32)raster_result.dim.x) / (F32)atlas->dim.x,
                                      ((F32)atlas_region.min.y + (F32)raster_result.dim.y) / (F32)atlas->dim.y);
+   r_fill_tex2d_region(f_atlas->handle, atlas_region, bitmap_with_rgba);
   }
 
   sll_stack_push_n(f_state->glyph_lookup_table[slot_idx], glyph_node, hash_next);
@@ -160,7 +174,7 @@ f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp)
   glyph_node->advance = metrics.advance;
   glyph_node->bitmap_size = v2f32((F32)raster_result.dim.x, (F32)raster_result.dim.y);
 
-  f_state->atlas_texture_dirty = true;
+  // f_state->atlas_texture_dirty = true;
  }
  return (glyph_node);
 }
@@ -272,16 +286,9 @@ f_max_height_from_tag_size_string(F_Tag tag, U32 size, String8 string)
  return result;
 }
 
-function B32
-f_atlas_region_is_dirty(void)
-{
- B32 result = f_state->atlas_texture_dirty;
- return result;
-}
-
-function Atlas *
+function F_Atlas *
 f_atlas(void)
 {
- Atlas *result = &f_state->atlas;
+ F_Atlas *result = &f_state->atlas;
  return result;
 }

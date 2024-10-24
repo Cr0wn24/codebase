@@ -705,7 +705,6 @@ S32
 main(S32 argc, char **argv)
 # endif
 {
-
  timeBeginPeriod(1);
  Arena *win32_perm_arena = arena_alloc();
  os_win32_state = push_array<OS_Win32_State>(win32_perm_arena, 1);

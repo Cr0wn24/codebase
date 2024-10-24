@@ -389,7 +389,7 @@ r_make_tex2d_from_bitmap(void *data, U32 width, U32 height)
    .ArraySize = 1,
    .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
    .SampleDesc = {1, 0},
-   .Usage = D3D11_USAGE_DYNAMIC,
+   .Usage = D3D11_USAGE_DEFAULT,
    .BindFlags = D3D11_BIND_SHADER_RESOURCE,
    .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
  };
@@ -436,14 +436,24 @@ r_destroy_tex2d(R_Handle texture)
  d3d11_texture->view->Release();
  sll_stack_push(r_d3d11_state->first_free_texture, d3d11_texture);
 }
+
 function void
-r_update_tex2d_contents(R_Handle texture, void *memory)
+r_fill_tex2d_region(R_Handle texture, RectU64 region, void *memory)
 {
+ profile_function();
  R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)ptr_from_int(texture.u64[0]);
- D3D11_MAPPED_SUBRESOURCE mapped;
- r_d3d11_state->context->Map((ID3D11Resource *)d3d11_texture->texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
- memory_copy((U8 *)mapped.pData, (U8 *)memory, (d3d11_texture->width * d3d11_texture->height * 4));
- r_d3d11_state->context->Unmap((ID3D11Resource *)d3d11_texture->texture, 0);
+ U32 bytes_per_pixel = 4;
+ Vec2S32 dim = v2s32((S32)(region.x1 - region.x0), (S32)(region.y1 - region.y0));
+ D3D11_BOX dst_box =
+ {
+   (UINT)region.x0,
+   (UINT)region.y0,
+   0,
+   (UINT)region.x1,
+   (UINT)region.y1,
+   1,
+ };
+ r_d3d11_state->context->UpdateSubresource((ID3D11Resource *)d3d11_texture->texture, 0, &dst_box, memory, dim.x * bytes_per_pixel, 0);
 }
 
 function void
@@ -546,7 +556,7 @@ r_instanced_draw(U64 vertex_count_per_instance, U64 instance_count)
 function void
 r_commit(void)
 {
- profile_function_begin();
+ profile_function();
 
  HRESULT hr;
  R_D3D11_Window *d3d11_window = r_d3d11_state->current_window_context;
@@ -567,8 +577,6 @@ r_commit(void)
    ASSERT(!"Failed to present swap chain! Device lost?");
   }
  }
-
- profile_function_end();
 }
 
 function void

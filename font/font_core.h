@@ -48,6 +48,12 @@ struct F_GlyphRun
  F_GlyphRunNode *last;
 };
 
+struct F_Atlas
+{
+ Atlas atlas;
+ R_Handle handle;
+};
+
 struct F_State
 {
  Arena *arena;
@@ -63,8 +69,7 @@ struct F_State
  // the key references. For better cache locality when doing
  // the lookup
  StaticArray<F_Glyph *, 128> glyph_lookup_table;
- Atlas atlas;
- B32 atlas_texture_dirty;
+ F_Atlas atlas;
 };
 
 function void f_init(void);
@@ -86,8 +91,7 @@ function F32 f_line_height_from_tag_size(F_Tag tag, U32 size);
 function F32 f_descent_from_tag_size(F_Tag tag, U32 size);
 function F32 f_max_height_from_tag_size_string(F_Tag tag, U32 size, String8 string);
 
-function B32 f_atlas_region_is_dirty(void);
-function Atlas *f_atlas(void);
+function F_Atlas *f_atlas(void);
 
 global F_State *f_state;
 
