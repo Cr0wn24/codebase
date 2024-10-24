@@ -3,4 +3,4 @@
 
 #include "font/font_core.h"
 
-#endif //FONT_INC_H
+#endif // FONT_INC_H

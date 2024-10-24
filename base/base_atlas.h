@@ -27,8 +27,8 @@ struct Atlas
   AtlasRegion *root;
 };
 
-function Atlas atlas_make(Arena *arena, Vec2U64 dim);
-function RectU64 atlas_region_alloc(Arena *arena, Atlas *atlas, Vec2U64 dim);
+[[nodiscard]] function Atlas atlas_make(Arena *arena, Vec2U64 dim);
+[[nodiscard]] function RectU64 atlas_region_alloc(Arena *arena, Atlas *atlas, Vec2U64 dim);
 function void atlas_region_free(Atlas *atlas, RectU64 region);
 
 #endif // BASE_ATLAS_H

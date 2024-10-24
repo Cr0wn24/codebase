@@ -454,18 +454,18 @@ struct Date
 
 struct String8;
 
-function OperatingSystem os_from_context(void);
-function Architecture arch_from_context(void);
-function DateTime build_date_from_context(void);
+[[nodiscard]] function OperatingSystem os_from_context(void);
+[[nodiscard]] function Architecture arch_from_context(void);
+[[nodiscard]] function DateTime build_date_from_context(void);
 
-function String8 string_from_arch(Architecture arc);
-function String8 string_from_os(OperatingSystem os);
-function String8 string_from_day_of_week(DayOfWeek day);
-function String8 string_from_month(Month month);
+[[nodiscard]] function String8 string_from_arch(Architecture arc);
+[[nodiscard]] function String8 string_from_os(OperatingSystem os);
+[[nodiscard]] function String8 string_from_day_of_week(DayOfWeek day);
+[[nodiscard]] function String8 string_from_month(Month month);
 
-function DenseTime dense_time_from_date_time(DateTime date_time);
-function DateTime date_time_from_dense_time(DenseTime dense_time);
-function B32 date_match(Date a, Date b);
+[[nodiscard]] function DenseTime dense_time_from_date_time(DateTime date_time);
+[[nodiscard]] function DateTime date_time_from_dense_time(DenseTime dense_time);
+[[nodiscard]] function B32 date_match(Date a, Date b);
 
 struct MemorySize
 {
@@ -474,6 +474,6 @@ struct MemorySize
   U64 unit_length;
 };
 
-function MemorySize memory_size_from_bytes(U64 bytes);
+[[nodiscard]] function MemorySize memory_size_from_bytes(U64 bytes);
 
 #endif // BASE_CORE_H

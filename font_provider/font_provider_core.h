@@ -15,11 +15,15 @@ struct FP_RasterResult
 #define FP_FILE_READ_PROC(name) String8 name(Arena *arena, String8 string)
 typedef FP_FILE_READ_PROC(FP_FileReadProc);
 
-struct FP_Metrics
+struct FP_FontMetrics
 {
   F32 ascent;
   F32 descent;
   F32 line_height;
+};
+
+struct FP_GlyphMetrics
+{
   F32 advance;
   Vec2F32 bearing;
 };
@@ -43,8 +47,8 @@ function void fp_set_file_read_proc(FP_FileReadProc *proc);
 
 function FP_RasterResult fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp);
 
-function FP_Metrics fp_metrics_from_font_size(FP_Handle font, U32 size);
-function FP_Metrics f_metrics_from_font_size_cp(FP_Handle font, U32 size, U32 cp);
+function FP_FontMetrics fp_metrics_from_font_size(FP_Handle font, U32 size);
+function FP_GlyphMetrics fp_metrics_From_font_size_cp(FP_Handle font, U32 size, U32 cp);
 
 global FP_State *fp_state;
 

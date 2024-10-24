@@ -3,73 +3,73 @@
 
 struct F_Handle
 {
- U64 u64[1];
+  U64 u64[1];
 };
 
 struct F_Tag
 {
- String8 name;
- String8 data;
+  String8 name;
+  String8 data;
 };
 
 struct F_Glyph
 {
- F_Glyph *hash_next;
- U32 cp;
- U32 size;
- F_Tag tag;
+  F_Glyph *hash_next;
+  U32 cp;
+  U32 size;
+  F_Tag tag;
 
- RectF32 region_uv;
- Vec2F32 bearing;
- Vec2F32 bitmap_size;
- F32 advance;
+  RectF32 region_uv;
+  Vec2F32 bearing;
+  Vec2F32 bitmap_size;
+  F32 advance;
 };
 
 struct F_BakedFont
 {
- F_Glyph *glyph_lookup_table[128];
- FP_Metrics metrics;
+  F_Glyph *glyph_lookup_table[128];
+  FP_FontMetrics metrics;
 };
 
 struct F_GlyphRunNode
 {
- F_GlyphRunNode *next;
- F_GlyphRunNode *prev;
+  F_GlyphRunNode *next;
+  F_GlyphRunNode *prev;
 
- RectF32 region_uv;
- Vec2F32 bearing;
- Vec2F32 bitmap_size;
- F32 advance;
+  RectF32 region_uv;
+  Vec2F32 bearing;
+  Vec2F32 bitmap_size;
+  F32 advance;
 };
 
 struct F_GlyphRun
 {
- F_GlyphRunNode *first;
- F_GlyphRunNode *last;
+  F_GlyphRunNode *first;
+  F_GlyphRunNode *last;
 };
 
 struct F_Atlas
 {
- Atlas atlas;
- R_Handle handle;
+  Atlas atlas;
+  R_Handle handle;
 };
 
 struct F_State
 {
- Arena *arena;
+  Arena *arena;
 
- // TODO(hampus): Make this more dynamic.
- StaticArray<F_Tag, 6> tag_table;
- StaticArray<FP_Handle, 6> fp_table;
+  // TODO(hampus): Make this more dynamic.
+  StaticArray<F_Tag, 6> tag_table;
+  StaticArray<FP_Handle, 6> fp_table;
 
- // TODO(hampus): Be able to free from this table.
- // Maybe have this table per font tag.
- // TODO(hampus): Think about pulling the keys (cp, size, tag) to
- // their own table and then have the data in its own table which
- // the key references. For better cache locality when doing
- // the lookup
- StaticArray<F_Glyph *, 128> glyph_lookup_table;
- F_Atlas atlas;
+  // TODO(hampus): Be able to free from this table.
+  // Maybe have this table per font tag.
+  // TODO(hampus): Think about pulling the keys (cp, size, tag) to
+  // their own table and then have the data in its own table which
+  // the key references. For better cache locality when doing
+  // the lookup
+  StaticArray<F_Glyph *, 128> glyph_lookup_table;
+  F_Atlas atlas;
 };
 
 function void f_init(void);

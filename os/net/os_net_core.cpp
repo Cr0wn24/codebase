@@ -24,7 +24,6 @@ os_str8_from_net_address(Arena *arena, OS_NetAddress address)
   String8 string = str8_push(arena, (char *)"%d.%d.%d.%d:%d",
                              address.ip.u8[0], address.ip.u8[1], address.ip.u8[2], address.ip.u8[3],
                              address.port);
-  ;
   return (string);
 }
 

@@ -212,7 +212,7 @@ ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
 
  TempArena scratch = get_scratch(0, 0);
  FP_Handle fp_handle = fp_handle_from_tag(tag);
- FP_Metrics metrics = fp_metrics_from_font_size(fp_handle, size);
+ FP_FontMetrics metrics = fp_metrics_from_font_size(fp_handle, size);
  F32 y_offset = metrics.line_height + metrics.descent;
  F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);
  F32 advance = pos.x;

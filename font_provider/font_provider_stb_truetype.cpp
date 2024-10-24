@@ -37,6 +37,8 @@ fp_font_close(FP_Handle font)
 function FP_RasterResult
 fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
 {
+  profile_function();
+
   FP_RasterResult result = {};
   stbtt_fontinfo *stb_font = (stbtt_fontinfo *)ptr_from_int(font.u64[0]);
 
@@ -58,6 +60,7 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
 
   // hampus: Rasterize
 
+  TempArena scratch = get_scratch(0, 0);
   U8 *bitmap_memory = push_array_no_zero<U8>(arena, bitmap_size);
   stbtt_MakeGlyphBitmap(stb_font,
                         bitmap_memory,
@@ -66,15 +69,28 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
                         safe_s32_from_u64(bitmap_dim.x),
                         scale, scale,
                         safe_s32_from_u64(stb_glyph_idx));
-  result.memory = bitmap_memory;
   result.dim = bitmap_dim;
+  result.memory = (void *)push_array<U8>(arena, result.dim.x * result.dim.y * 4);
+
+  U8 *dst = (U8 *)result.memory;
+  U8 *src = (U8 *)bitmap_memory;
+  for(U64 y = 0; y < result.dim.y; ++y)
+  {
+    for(U64 x = 0; x < result.dim.x; ++x)
+    {
+      *dst++ = 0xff;
+      *dst++ = 0xff;
+      *dst++ = 0xff;
+      *dst++ = *src++;
+    }
+  }
   return result;
 }
 
-function FP_Metrics
+function FP_FontMetrics
 fp_metrics_from_font_size(FP_Handle font, U32 size)
 {
-  FP_Metrics result = {};
+  FP_FontMetrics result = {};
   stbtt_fontinfo *stb_font = (stbtt_fontinfo *)ptr_from_int(font.u64[0]);
   F32 scale = stbtt_ScaleForMappingEmToPixels(stb_font, (F32)size * 1.33f);
   S32 ascent = 0;
@@ -87,10 +103,10 @@ fp_metrics_from_font_size(FP_Handle font, U32 size)
   return result;
 }
 
-function FP_Metrics
-f_metrics_from_font_size_cp(FP_Handle font, U32 size, U32 cp)
+function FP_GlyphMetrics
+fp_metrics_From_font_size_cp(FP_Handle font, U32 size, U32 cp)
 {
-  FP_Metrics result = {};
+  FP_GlyphMetrics result = {};
   stbtt_fontinfo *stb_font = (stbtt_fontinfo *)ptr_from_int(font.u64[0]);
   F32 scale = stbtt_ScaleForMappingEmToPixels(stb_font, (F32)size * 1.33f);
   S32 advance = 0;

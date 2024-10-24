@@ -57,4 +57,4 @@ function OS_NetReceiveResult os_socket_receive(Arena *arena, OS_Handle connected
 function B32 os_socket_send_to(OS_Handle socket, OS_NetAddress address, String8 data);
 function OS_NetReceiveResult os_socket_receive_from(Arena *arena, OS_Handle listen_socket, U64 cap);
 
-#endif //OS_NET_CORE_H
+#endif // OS_NET_CORE_H

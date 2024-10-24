@@ -27,7 +27,7 @@ r_init(void)
  // NOTE(hampus): Create D3D11 device & context
  {
   UINT flags = 0;
-#ifndef N_DEBUG
+#ifndef NDEBUG
   flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
   D3D_FEATURE_LEVEL levels[] = {D3D_FEATURE_LEVEL_11_0};
@@ -37,7 +37,7 @@ r_init(void)
  }
 
  // hampus: Enable useful debug break on errors
-#ifndef N_DEBUG
+#ifndef NDEBUG
  {
   r_d3d11_state->device->QueryInterface(IID_ID3D11InfoQueue, (void **)&r_d3d11_state->info);
   r_d3d11_state->info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);

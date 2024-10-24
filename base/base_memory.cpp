@@ -93,7 +93,7 @@ arena_align(Arena *arena, U64 power)
   U64 align = pos_aligned - arena->pos;
   if(align)
   {
-    arena_push(arena, align);
+    void *push_result = arena_push(arena, align);
   }
 }
 
@@ -104,7 +104,7 @@ arena_align_no_zero(Arena *arena, U64 power)
   U64 align = pos_aligned - arena->pos;
   if(align)
   {
-    arena_push_no_zero(arena, align);
+    void *push_result = arena_push_no_zero(arena, align);
   }
 }
 
