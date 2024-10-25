@@ -8,8 +8,7 @@ struct F_Handle
 
 struct F_Tag
 {
-  String8 name;
-  String8 data;
+  String8 path;
 };
 
 struct F_Glyph
@@ -72,27 +71,27 @@ struct F_State
   F_Atlas atlas;
 };
 
-function void f_init(void);
+static void f_init();
 
-[[nodiscard]] function F_Handle f_handle_zero(void);
-[[nodiscard]] function B32 f_handle_match(F_Handle a, F_Handle b);
+[[nodiscard]] static F_Handle f_handle_zero();
+[[nodiscard]] static B32 f_handle_match(F_Handle a, F_Handle b);
 
-[[nodiscard]] function B32 f_tag_match(F_Tag a, F_Tag b);
+[[nodiscard]] static B32 f_tag_match(F_Tag a, F_Tag b);
 
-[[nodiscard]] function FP_Handle fp_handle_from_tag(F_Tag tag);
-[[nodiscard]] function F_Glyph *f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp);
-[[nodiscard]] function F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
-[[nodiscard]] function F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
+[[nodiscard]] static FP_Handle fp_handle_from_tag(F_Tag tag);
+[[nodiscard]] static F_Glyph *f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp);
+[[nodiscard]] static F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
+[[nodiscard]] static F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
 
-[[nodiscard]] function F32 f_get_advance(F_Tag tag, U32 size, String32 string);
-[[nodiscard]] function F32 f_get_advance(F_Tag tag, U32 size, String8 string);
-[[nodiscard]] function F32 f_get_advance(F_Tag tag, U32 size, U32 cp);
-[[nodiscard]] function F32 f_line_height_from_tag_size(F_Tag tag, U32 size);
-[[nodiscard]] function F32 f_descent_from_tag_size(F_Tag tag, U32 size);
-[[nodiscard]] function F32 f_max_height_from_tag_size_string(F_Tag tag, U32 size, String8 string);
+[[nodiscard]] static F32 f_get_advance(F_Tag tag, U32 size, String32 string);
+[[nodiscard]] static F32 f_get_advance(F_Tag tag, U32 size, String8 string);
+[[nodiscard]] static F32 f_get_advance(F_Tag tag, U32 size, U32 cp);
+[[nodiscard]] static F32 f_line_height_from_tag_size(F_Tag tag, U32 size);
+[[nodiscard]] static F32 f_descent_from_tag_size(F_Tag tag, U32 size);
+[[nodiscard]] static F32 f_max_height_from_tag_size_string(F_Tag tag, U32 size, String8 string);
 
-[[nodiscard]] function F_Atlas *f_atlas(void);
+[[nodiscard]] static F_Atlas *f_atlas();
 
-global F_State *f_state;
+static F_State *f_state;
 
 #endif // FONT_CORE_H

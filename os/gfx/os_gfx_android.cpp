@@ -1,15 +1,15 @@
 //////////////////////////////
 // NOTE(hampus): Globals
 
-global OS_Android_GfxState *os_gfx_android_state;
-global Arena *os_android_event_arena;
-global OS_EventList *os_android_event_list;
+static OS_Android_GfxState *os_gfx_android_state;
+static Arena *os_android_event_arena;
+static OS_EventList *os_android_event_list;
 
 //////////////////////////////
 // NOTE(hampus): Android specific functions
 
-function RectF32
-os_android_call_inset_function(char *string)
+static RectF32
+os_android_call_inset_static(char *string)
 {
   RectF32 result = {};
   TempArena scratch = get_scratch(0, 0);
@@ -50,34 +50,34 @@ os_android_call_inset_function(char *string)
   return result;
 }
 
-function RectF32
+static RectF32
 os_android_get_inset_rect_px(OS_Android_Inset inset)
 {
-  local char *inset_to_activity_function_string[] =
+  static char *inset_to_activity_static_string[] =
   {
     [OS_Android_Inset_StatusBar] = "getStatusBarInset",
     [OS_Android_Inset_NavBar] = "getNavigationBarInset",
   };
 
-  RectF32 result = os_android_call_inset_function(inset_to_activity_function_string[inset]);
+  RectF32 result = os_android_call_inset_static(inset_to_activity_static_string[inset]);
   return result;
 }
 
-function F32
-os_android_get_pixel_density(void)
+static F32
+os_android_get_pixel_density()
 {
   F32 result = os_gfx_android_state->display_metrics.pixel_density;
   return result;
 }
 
-function F32
-os_android_get_font_scale(void)
+static F32
+os_android_get_font_scale()
 {
   F32 result = os_gfx_android_state->display_metrics.font_scale;
   return result;
 }
 
-function S32
+static S32
 os_android_show_yes_no_message_box(String8 title, String8 message)
 {
   S32 result = 0;
@@ -95,16 +95,16 @@ os_android_show_yes_no_message_box(String8 title, String8 message)
   return result;
 }
 
-function String8
-os_android_get_internal_data_path(void)
+static String8
+os_android_get_internal_data_path()
 {
   const char *str = android_app->activity->internalDataPath;
   String8 result = str8_cstr((char *)str);
   return result;
 }
 
-function String8
-os_android_get_external_data_path(void)
+static String8
+os_android_get_external_data_path()
 {
   const char *str = android_app->activity->externalDataPath;
   String8 result = str8_cstr((char *)str);
@@ -112,7 +112,7 @@ os_android_get_external_data_path(void)
 }
 
 static long
-os_android_get_native_heap_allocation(void)
+os_android_get_native_heap_allocation()
 {
   SETUP_FOR_JAVA_CALL_THREAD;
   jclass clazz = env->FindClass("android/os/Debug");
@@ -129,7 +129,7 @@ os_android_get_native_heap_allocation(void)
 }
 
 static long
-os_android_get_native_heap_size(void)
+os_android_get_native_heap_size()
 {
   SETUP_FOR_JAVA_CALL_THREAD;
   jclass clazz = env->FindClass("android/os/Debug");
@@ -145,7 +145,7 @@ os_android_get_native_heap_size(void)
   return -1L;
 }
 
-function String8
+static String8
 os_android_load_asset(Arena *arena, String8 name)
 {
   String8 result = {};
@@ -163,7 +163,7 @@ os_android_load_asset(Arena *arena, String8 name)
   return result;
 }
 
-function int
+static int
 os_android_get_unicode_char(int eventType, int keyCode, int metaState)
 {
   SETUP_FOR_JAVA_CALL_THREAD;
@@ -192,7 +192,7 @@ os_android_get_unicode_char(int eventType, int keyCode, int metaState)
   return unicodeKey;
 }
 
-function void
+static void
 os_android_post_event(OS_Event event)
 {
   OS_EventNode *event_node = push_array<OS_EventNode>(os_android_event_arena, 1);
@@ -201,27 +201,27 @@ os_android_post_event(OS_Event event)
   os_android_event_list->count += 1;
 }
 
-function B32
+static B32
 os_android_gesture_is_disabled(OS_Android_MotionState *motion_state, OS_Android_Gesture gesture)
 {
   B32 result = motion_state->gesture_states[gesture].disabled;
   return result;
 }
 
-function B32
+static B32
 os_android_gesture_is_sent(OS_Android_MotionState *motion_state, OS_Android_Gesture gesture)
 {
   B32 result = motion_state->gesture_states[gesture].sent;
   return result;
 }
 
-function void
+static void
 os_android_disable_gesture(OS_Android_MotionState *motion_state, OS_Android_Gesture gesture)
 {
   motion_state->gesture_states[gesture].disabled = true;
 }
 
-function void
+static void
 os_android_mark_gesture_as_sent(OS_Android_MotionState *motion_state, OS_Android_Gesture gesture)
 {
   if(!motion_state->gesture_states[gesture].disabled)
@@ -230,7 +230,7 @@ os_android_mark_gesture_as_sent(OS_Android_MotionState *motion_state, OS_Android
   }
 }
 
-function Vec2F32
+static Vec2F32
 os_android_clamp_fling_velocity(Vec2F32 velocity)
 {
   Vec2F32 result = {};
@@ -241,7 +241,7 @@ os_android_clamp_fling_velocity(Vec2F32 velocity)
   return result;
 }
 
-function S32
+static S32
 os_android_input_callback(struct android_app *android_app, AInputEvent *event)
 {
   S32 type = AInputEvent_getType(event);
@@ -592,7 +592,7 @@ os_android_input_callback(struct android_app *android_app, AInputEvent *event)
   return 0;
 }
 
-function void
+static void
 os_android_cmd_callback(struct android_app *android_app, S32 cmd)
 {
   switch(cmd)
@@ -630,8 +630,8 @@ os_android_cmd_callback(struct android_app *android_app, S32 cmd)
 //////////////////////////////
 // NOTE(hampus): Init
 
-function void
-os_gfx_init(void)
+static void
+os_gfx_init()
 {
   Arena *arena = arena_alloc();
   os_gfx_android_state = push_array<OS_Android_GfxState>(arena, 1);
@@ -808,8 +808,8 @@ os_gfx_init(void)
   JAVA_CALL_DETACH_THREAD;
 }
 
-function void
-os_gfx_destroy(void)
+static void
+os_gfx_destroy()
 {
   arena_free(os_gfx_android_state->arena);
   os_gfx_android_state = 0;
@@ -818,7 +818,7 @@ os_gfx_destroy(void)
 //////////////////////////////
 // NOTE(hampus): Window
 
-function OS_Handle
+static OS_Handle
 os_window_open(String8 title, U32 width, U32 height)
 {
   OS_Android_Window *window = os_gfx_android_state->first_free_window;
@@ -913,7 +913,7 @@ os_window_open(String8 title, U32 width, U32 height)
   return result;
 }
 
-function void
+static void
 os_window_close(OS_Handle handle)
 {
   OS_Android_Window *window = (OS_Android_Window *)ptr_from_int(handle.u64[0]);
@@ -933,13 +933,13 @@ os_window_close(OS_Handle handle)
   sll_stack_push(os_gfx_android_state->first_free_window, window);
 }
 
-function void
+static void
 os_window_show(OS_Handle handle)
 {
   not_implemented;
 }
 
-function Vec2U64
+static Vec2U64
 os_client_area_from_window(OS_Handle handle)
 {
   OS_Android_Window *window = (OS_Android_Window *)ptr_from_int(handle.u64[0]);
@@ -953,25 +953,25 @@ os_client_area_from_window(OS_Handle handle)
   return result;
 }
 
-function void
+static void
 os_window_equip_repaint(OS_Handle window, OS_WindowRepaintProc *proc, void *user_data)
 {
   not_implemented;
 }
 
-function void
+static void
 os_window_maximize(OS_Handle window)
 {
   not_implemented;
 }
 
-function void
+static void
 os_window_toggle_fullscreen(OS_Handle window)
 {
   not_implemented;
 }
 
-function OS_EventList
+static OS_EventList
 os_events_from_window(Arena *arena, OS_Handle window)
 {
   static F32 dt = 0;
@@ -1072,14 +1072,14 @@ os_events_from_window(Arena *arena, OS_Handle window)
   return result;
 }
 
-function Vec2F32
+static Vec2F32
 os_window_dpi(OS_Handle handle)
 {
   Vec2F32 result = v2f32(os_gfx_android_state->display_metrics.dpi, os_gfx_android_state->display_metrics.dpi);
   return result;
 }
 
-function Vec2F32
+static Vec2F32
 os_mouse_pos(OS_Handle window)
 {
   // TODO(hampus): not thread-safe
@@ -1087,7 +1087,7 @@ os_mouse_pos(OS_Handle window)
   return result;
 }
 
-function void
+static void
 os_swap_buffers(OS_Handle handle)
 {
   OS_Android_Window *window = (OS_Android_Window *)ptr_from_int(handle.u64[0]);
@@ -1097,7 +1097,7 @@ os_swap_buffers(OS_Handle handle)
 //////////////////////////////
 // NOTE(hampus): Cursor
 
-function void
+static void
 os_set_cursor(OS_Cursor cursor)
 {
   // TODO(hampus): What if they have a mouse connected?
@@ -1106,7 +1106,7 @@ os_set_cursor(OS_Cursor cursor)
 //////////////////////////////
 // NOTE(hampus): Clipboard
 
-function String8
+static String8
 os_push_clipboard(Arena *arena)
 {
   not_implemented;
@@ -1114,13 +1114,13 @@ os_push_clipboard(Arena *arena)
   return result;
 }
 
-function void
+static void
 os_set_clipboard(String8 string)
 {
   not_implemented;
 }
 
-function void
+static void
 os_set_keyboard_visibility(B32 show)
 {
   SETUP_FOR_JAVA_CALL_THREAD;
@@ -1133,8 +1133,8 @@ os_set_keyboard_visibility(B32 show)
   os_gfx_android_state->showing_keyboard = show;
 }
 
-function B32
-os_showing_keyboard(void)
+static B32
+os_showing_keyboard()
 {
   return os_gfx_android_state->showing_keyboard;
 }

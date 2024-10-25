@@ -1,7 +1,7 @@
 //////////////////////////////
 // NOTE(hampus): Vector functions
 
-function Vec2F32
+static Vec2F32
 v2f32(F32 x, F32 y)
 {
   Vec2F32 result = {};
@@ -80,14 +80,14 @@ Vec2F32::operator[](U64 idx)
   return result;
 }
 
-function F32
+static F32
 distance_2f32(Vec2F32 v)
 {
   F32 result = sqrt_f32(square(v.x) + square(v.y));
   return result;
 }
 
-function Vec3F32
+static Vec3F32
 v3f32(F32 x, F32 y, F32 z)
 {
   Vec3F32 result = {};
@@ -114,7 +114,7 @@ Vec3F32::operator[](U64 idx)
   return result;
 }
 
-function Vec3F32
+static Vec3F32
 cross_3f32(Vec3F32 a, Vec3F32 b)
 {
   Vec3F32 result = {};
@@ -124,7 +124,7 @@ cross_3f32(Vec3F32 a, Vec3F32 b)
   return result;
 }
 
-function Vec3F32
+static Vec3F32
 negate_3f32(Vec3F32 v)
 {
   Vec3F32 result = {};
@@ -134,14 +134,14 @@ negate_3f32(Vec3F32 v)
   return result;
 }
 
-function F32
+static F32
 length_3f32(Vec3F32 v)
 {
   F32 result = sqrt_f32(square(v.x) + square(v.y) + square(v.z));
   return result;
 }
 
-function Vec3F32
+static Vec3F32
 norm_3f32(Vec3F32 v)
 {
   Vec3F32 result = {};
@@ -152,13 +152,13 @@ norm_3f32(Vec3F32 v)
   return result;
 }
 
-function Vec4F32
+static Vec4F32
 v4f32(F32 x, F32 y, F32 z, F32 w)
 {
   return ((Vec4F32){x, y, z, w});
 }
 
-function Vec4F32
+static Vec4F32
 v4f32(F32 x, F32 y, Vec2F32 zw)
 {
   return v4f32(x, y, zw.x, zw.y);
@@ -195,19 +195,19 @@ Vec4F32::operator/(F32 t)
 
 // hampus: F64
 
-function Vec2F64
+static Vec2F64
 v2f64(F64 x, F64 y)
 {
   return ((Vec2F64){x, y});
 }
 
-function Vec3F64
+static Vec3F64
 v3f64(F64 x, F64 y, F64 z)
 {
   return ((Vec3F64){x, y, z});
 }
 
-function Vec4F64
+static Vec4F64
 v4f64(F64 x, F64 y, F64 z, F64 w)
 {
   return ((Vec4F64){x, y, z, w});
@@ -215,19 +215,19 @@ v4f64(F64 x, F64 y, F64 z, F64 w)
 
 // hampus: S32
 
-function Vec2S32
+static Vec2S32
 v2s32(S32 x, S32 y)
 {
   return ((Vec2S32){x, y});
 }
 
-function Vec3S32
+static Vec3S32
 v3s32(S32 x, S32 y, S32 z)
 {
   return ((Vec3S32){x, y, z});
 }
 
-function Vec4S32
+static Vec4S32
 v4s32(S32 x, S32 y, S32 z, S32 w)
 {
   return ((Vec4S32){x, y, z, w});
@@ -235,19 +235,19 @@ v4s32(S32 x, S32 y, S32 z, S32 w)
 
 // hampus: S64
 
-function Vec2S64
+static Vec2S64
 v2s64(S64 x, S64 y)
 {
   return ((Vec2S64){x, y});
 }
 
-function Vec3S64
+static Vec3S64
 v3s64(S64 x, S64 y, S64 z)
 {
   return ((Vec3S64){x, y, z});
 }
 
-function Vec4S64
+static Vec4S64
 v4s64(S64 x, S64 y, S64 z, S64 w)
 {
   return ((Vec4S64){x, y, z, w});
@@ -255,19 +255,19 @@ v4s64(S64 x, S64 y, S64 z, S64 w)
 
 // hampus: U32
 
-function Vec2U32
+static Vec2U32
 v2u32(U32 x, U32 y)
 {
   return ((Vec2U32){x, y});
 }
 
-function Vec3U32
+static Vec3U32
 v3u32(U32 x, U32 y, U32 z)
 {
   return ((Vec3U32){x, y, z});
 }
 
-function Vec4U32
+static Vec4U32
 v4u32(U32 x, U32 y, U32 z, U32 w)
 {
   return ((Vec4U32){x, y, z, w});
@@ -275,7 +275,7 @@ v4u32(U32 x, U32 y, U32 z, U32 w)
 
 // hampus: U64
 
-function Vec2U64
+static Vec2U64
 v2u64(U64 x, U64 y)
 {
   return ((Vec2U64){x, y});
@@ -304,13 +304,13 @@ Vec2U64::operator+(Vec2U64 other)
   return result;
 }
 
-function Vec3U64
+static Vec3U64
 v3u64(U64 x, U64 y, U64 z)
 {
   return ((Vec3U64){x, y, z});
 }
 
-function Vec4U64
+static Vec4U64
 v4u64(U64 x, U64 y, U64 z, U64 w)
 {
   return ((Vec4U64){x, y, z, w});
@@ -319,7 +319,7 @@ v4u64(U64 x, U64 y, U64 z, U64 w)
 //////////////////////////////
 // NOTE(hampus): Matrix functions
 
-function Mat4F32
+static Mat4F32
 make_4x4f32(F32 x)
 {
   Mat4F32 result =
@@ -372,7 +372,7 @@ Mat4F32::operator*(Mat4F32 v)
   return result;
 }
 
-function Mat4F32
+static Mat4F32
 make_perspective_4x4f32(F32 fov, F32 aspect, F32 near_z, F32 far_z)
 {
   Mat4F32 result = make_4x4f32(1);
@@ -390,7 +390,7 @@ make_perspective_4x4f32(F32 fov, F32 aspect, F32 near_z, F32 far_z)
   return result;
 }
 
-function Mat4F32
+static Mat4F32
 make_ortho_4x4f32(F32 left, F32 right, F32 bottom, F32 top, F32 n, F32 f)
 {
   Mat4F32 result = {};
@@ -418,7 +418,7 @@ make_ortho_4x4f32(F32 left, F32 right, F32 bottom, F32 top, F32 n, F32 f)
   return result;
 }
 
-function Mat4F32
+static Mat4F32
 make_look_at_4x4f32(Vec3F32 pos, Vec3F32 target, Vec3F32 up)
 {
   Mat4F32 result = make_4x4f32(1);
@@ -445,7 +445,7 @@ make_look_at_4x4f32(Vec3F32 pos, Vec3F32 target, Vec3F32 up)
   return result;
 }
 
-function Mat4F32
+static Mat4F32
 make_translate_4x4f32(Vec3F32 trans)
 {
   Mat4F32 result = make_4x4f32(1);
@@ -455,7 +455,7 @@ make_translate_4x4f32(Vec3F32 trans)
   return result;
 }
 
-function Mat4F32
+static Mat4F32
 make_scale_4x4f32(Vec3F32 scale)
 {
   Mat4F32 result = make_4x4f32(1);
@@ -465,7 +465,7 @@ make_scale_4x4f32(Vec3F32 scale)
   return result;
 }
 
-function Mat4F32
+static Mat4F32
 make_rotate_4x4f32(F32 radians, Vec3F32 axis)
 {
   F32 cos = cos_f32(radians);
@@ -501,7 +501,7 @@ make_rotate_4x4f32(F32 radians, Vec3F32 axis)
 //////////////////////////////
 // NOTE(hampus): Mat3 functions
 
-function Mat3F32
+static Mat3F32
 make_3x3f32(F32 x)
 {
   Mat3F32 result =
@@ -537,7 +537,7 @@ Mat3F32::operator*(Mat3F32 v)
   return result;
 }
 
-function Mat3F32
+static Mat3F32
 make_translate_3x3f32(Vec2F32 p)
 {
   Mat3F32 result =
@@ -555,7 +555,7 @@ make_translate_3x3f32(Vec2F32 p)
   return result;
 }
 
-function Mat3F32
+static Mat3F32
 make_scale_3x3f32(Vec2F32 scale)
 {
   Mat3F32 result =
@@ -573,7 +573,7 @@ make_scale_3x3f32(Vec2F32 scale)
   return result;
 }
 
-function Mat3F32
+static Mat3F32
 make_rotate_3x3f32(F32 radians)
 {
   F32 a = cos_f32(radians);
@@ -596,19 +596,19 @@ make_rotate_3x3f32(F32 radians)
 //////////////////////////////
 // NOTE(hampus): Rect functions
 
-function RectF32
+static RectF32
 r4f32(Vec2F32 min, Vec2F32 max)
 {
   return ((RectF32){min, max});
 }
 
-function RectF32
+static RectF32
 r4f32(F32 x0, F32 y0, F32 x1, F32 y1)
 {
   return r4f32(v2f32(x0, y0), v2f32(x1, y1));
 }
 
-function Vec2F32
+static Vec2F32
 center_r4f32(RectF32 rect)
 {
   Vec2F32 result = {};
@@ -617,7 +617,7 @@ center_r4f32(RectF32 rect)
   return result;
 }
 
-function Vec2F32
+static Vec2F32
 dim_r4f32(RectF32 rect)
 {
   Vec2F32 result = {};
@@ -626,14 +626,14 @@ dim_r4f32(RectF32 rect)
   return result;
 }
 
-function B32
+static B32
 r4f32_contains_2f32(RectF32 rect, Vec2F32 v)
 {
   B32 result = v.x >= rect.x0 && v.x < rect.x1 && v.y >= rect.y0 && v.y < rect.y1;
   return result;
 }
 
-function RectF32
+static RectF32
 r4f32_intersect_r4f32(RectF32 cutter, RectF32 cookie)
 {
   RectF32 result = {};
@@ -644,13 +644,13 @@ r4f32_intersect_r4f32(RectF32 cutter, RectF32 cookie)
   return result;
 }
 
-function RectS32
+static RectS32
 r4s32(Vec2S32 min, Vec2S32 max)
 {
   return ((RectS32){min, max});
 }
 
-function Vec2S32
+static Vec2S32
 center_r4s32(RectS32 rect)
 {
   Vec2S32 result = {};
@@ -659,7 +659,7 @@ center_r4s32(RectS32 rect)
   return result;
 }
 
-function Vec2S32
+static Vec2S32
 dim_r4s32(RectS32 rect)
 {
   Vec2S32 result = {};
@@ -668,20 +668,20 @@ dim_r4s32(RectS32 rect)
   return result;
 }
 
-function B32
+static B32
 r4s32_contains_2f32(RectS32 rect, Vec2S32 v)
 {
   B32 result = v.x >= rect.x0 && v.x < rect.x1 && v.y >= rect.y0 && v.y < rect.y1;
   return result;
 }
 
-function RectU32
+static RectU32
 r4u32(Vec2U32 min, Vec2U32 max)
 {
   return ((RectU32){min, max});
 }
 
-function Vec2U32
+static Vec2U32
 center_r4u32(RectU32 rect)
 {
   Vec2U32 result = {};
@@ -690,7 +690,7 @@ center_r4u32(RectU32 rect)
   return result;
 }
 
-function Vec2U32
+static Vec2U32
 dim_r4u32(RectU32 rect)
 {
   Vec2U32 result = {};
@@ -699,20 +699,20 @@ dim_r4u32(RectU32 rect)
   return result;
 }
 
-function B32
+static B32
 r4u32_contains_2u32(RectU32 rect, Vec2U32 v)
 {
   B32 result = v.x >= rect.x0 && v.x < rect.x1 && v.y >= rect.y0 && v.y < rect.y1;
   return result;
 }
 
-function RectU64
+static RectU64
 r4u64(Vec2U64 min, Vec2U64 max)
 {
   return ((RectU64){min, max});
 }
 
-function Vec2U64
+static Vec2U64
 center_r4u64(RectU64 rect)
 {
   Vec2U64 result = {};
@@ -721,7 +721,7 @@ center_r4u64(RectU64 rect)
   return result;
 }
 
-function Vec2U64
+static Vec2U64
 dim_r4u64(RectU64 rect)
 {
   Vec2U64 result = {};
@@ -730,7 +730,7 @@ dim_r4u64(RectU64 rect)
   return result;
 }
 
-function B32
+static B32
 r4u64_contains_2u64(RectU64 rect, Vec2U64 v)
 {
   B32 result = v.x >= rect.x0 && v.x < rect.x1 && v.y >= rect.y0 && v.y < rect.y1;
@@ -738,9 +738,9 @@ r4u64_contains_2u64(RectU64 rect, Vec2U64 v)
 }
 
 //////////////////////////////
-// NOTE(hampus): Conversion function
+// NOTE(hampus): Conversion static
 
-function U32
+static U32
 u32_from_s64(S64 s64)
 {
   U32 result = 0;
@@ -748,7 +748,7 @@ u32_from_s64(S64 s64)
   return result;
 }
 
-function U64
+static U64
 u64_from_s64(S64 s64)
 {
   U64 result = 0;
@@ -756,7 +756,7 @@ u64_from_s64(S64 s64)
   return result;
 }
 
-function U32
+static U32
 u32_from_u64(U64 u64)
 {
   U32 result = 0;
@@ -764,7 +764,7 @@ u32_from_u64(U64 u64)
   return result;
 }
 
-function S64
+static S64
 s64_from_u64(U64 u64)
 {
   S64 result = 0;
@@ -772,7 +772,7 @@ s64_from_u64(U64 u64)
   return result;
 }
 
-function S32
+static S32
 s32_from_u64(U64 u64)
 {
   S32 result = 0;
@@ -780,7 +780,7 @@ s32_from_u64(U64 u64)
   return result;
 }
 
-function U32
+static U32
 u32_from_s32(S32 s32)
 {
   U32 result = 0;
@@ -788,7 +788,7 @@ u32_from_s32(S32 s32)
   return result;
 }
 
-function S32
+static S32
 s32_from_u32(U32 u32)
 {
   S32 result = 0;
@@ -796,7 +796,7 @@ s32_from_u32(U32 u32)
   return result;
 }
 
-function U64
+static U64
 u64_from_s32(S32 s32)
 {
   U64 result = 0;
@@ -807,28 +807,28 @@ u64_from_s32(S32 s32)
 //////////////////////////////
 // NOTE(hampus): Integer functions
 
-function U8
+static U8
 round_up_to_power_2_u8(U8 value, U8 power)
 {
   U8 result = (U8)((value + power - 1) & ~(power - 1));
   return result;
 }
 
-function U16
+static U16
 round_up_to_power_2_u16(U16 value, U16 power)
 {
   U16 result = (U16)((value + power - 1) & ~(power - 1));
   return result;
 }
 
-function U32
+static U32
 round_up_to_power_2_u32(U32 value, U32 power)
 {
   U32 result = (U32)((value + power - 1) & ~(power - 1));
   return result;
 }
 
-function U64
+static U64
 round_up_to_power_2_u64(U64 value, U64 power)
 {
   U64 result = (U64)((value + power - 1) & ~(power - 1));
@@ -838,7 +838,7 @@ round_up_to_power_2_u64(U64 value, U64 power)
 //////////////////////////////
 // NOTE(hampus): F32 functions
 
-function F32
+static F32
 lerp_f32(F32 a, F32 b, F32 t)
 {
   F32 result = (1.0f - t) * a + t * b;
@@ -848,7 +848,7 @@ lerp_f32(F32 a, F32 b, F32 t)
 //////////////////////////////
 // NOTE(hampus): Misc functions
 
-function Vec3F32
+static Vec3F32
 hsv_from_rgb(Vec3F32 rgb)
 {
   F32 c_max = max(rgb.x, max(rgb.y, rgb.z));
@@ -864,7 +864,7 @@ hsv_from_rgb(Vec3F32 rgb)
   return hsv;
 }
 
-function Vec3F32
+static Vec3F32
 rgb_from_hsv(Vec3F32 hsv)
 {
   F32 h = mod_f32(hsv.x * 360.f, 360.f);
@@ -920,7 +920,7 @@ rgb_from_hsv(Vec3F32 hsv)
   return (rgb);
 }
 
-function F32
+static F32
 srgb_from_linear_f32(F32 value)
 {
   F32 result = 0.0f;
@@ -935,7 +935,7 @@ srgb_from_linear_f32(F32 value)
   return result;
 }
 
-function Vec4F32
+static Vec4F32
 srgb_from_linear_4f32(Vec4F32 linear)
 {
   Vec4F32 result = v4f32(srgb_from_linear_f32(linear.r),
@@ -945,7 +945,7 @@ srgb_from_linear_4f32(Vec4F32 linear)
   return result;
 }
 
-function F32
+static F32
 linear_from_srgb_f32(F32 value)
 {
   F32 result = 0.0f;
@@ -960,7 +960,7 @@ linear_from_srgb_f32(F32 value)
   return result;
 }
 
-function Vec4F32
+static Vec4F32
 linear_from_srgb_4f32(Vec4F32 srgb)
 {
   Vec4F32 result = v4f32(linear_from_srgb_f32(srgb.r),
@@ -970,7 +970,7 @@ linear_from_srgb_4f32(Vec4F32 srgb)
   return result;
 }
 
-function Vec4F32
+static Vec4F32
 rgba_from_u32(U32 u32)
 {
   Vec4F32 result = {};
@@ -981,7 +981,7 @@ rgba_from_u32(U32 u32)
   return result;
 }
 
-function U32
+static U32
 u32_from_rgba(Vec4F32 v)
 {
   U32 result = 0;
@@ -992,7 +992,7 @@ u32_from_rgba(Vec4F32 v)
   return result;
 }
 
-function U64
+static U64
 num_digits(U64 x)
 {
   U64 result = 0;

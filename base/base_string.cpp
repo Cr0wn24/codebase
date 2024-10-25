@@ -12,7 +12,7 @@
 //////////////////////////////
 // NOTE(hampus): String8
 
-function String8
+static String8
 str8(U8 *data, U64 size)
 {
   String8 result = {};
@@ -21,7 +21,7 @@ str8(U8 *data, U64 size)
   return result;
 }
 
-function String8
+static String8
 str8(Arena *arena, String8 string)
 {
   String8 result = {};
@@ -31,7 +31,7 @@ str8(Arena *arena, String8 string)
   return result;
 }
 
-function String8
+static String8
 str8_range(U8 *start, U8 *opl)
 {
   String8 result = {};
@@ -40,7 +40,7 @@ str8_range(U8 *start, U8 *opl)
   return result;
 }
 
-function String8
+static String8
 str8_cstr(char *data)
 {
   String8 result = {};
@@ -53,7 +53,7 @@ str8_cstr(char *data)
   return result;
 }
 
-function String8
+static String8
 str8_lower(Arena *arena, String8 string)
 {
   String8 result = {};
@@ -71,14 +71,14 @@ str8_lower(Arena *arena, String8 string)
   return result;
 }
 
-function String8
+static String8
 str8_upper(Arena *arena, String8 string)
 {
   String8 result = {};
   return result;
 }
 
-function String8
+static String8
 str8_prefix(String8 string, U64 size)
 {
   String8 result = {};
@@ -89,7 +89,7 @@ str8_prefix(String8 string, U64 size)
   return result;
 }
 
-function String8
+static String8
 str8_postfix(String8 string, U64 size)
 {
   String8 result = {};
@@ -99,7 +99,7 @@ str8_postfix(String8 string, U64 size)
   return result;
 }
 
-function String8
+static String8
 str8_skip(String8 string, U64 size)
 {
   String8 result = {};
@@ -109,7 +109,7 @@ str8_skip(String8 string, U64 size)
   return result;
 }
 
-function String8
+static String8
 str8_chop(String8 string, U64 size)
 {
   String8 result = {};
@@ -119,7 +119,7 @@ str8_chop(String8 string, U64 size)
   return result;
 }
 
-function String8
+static String8
 str8_substr8(String8 string, U64 start, U64 size)
 {
   String8 result = {};
@@ -130,7 +130,7 @@ str8_substr8(String8 string, U64 start, U64 size)
   return result;
 }
 
-function String8
+static String8
 str8_skip_to_char(String8 string, U8 ch)
 {
   String8 result = string;
@@ -142,7 +142,7 @@ str8_skip_to_char(String8 string, U8 ch)
   return result;
 }
 
-function String8
+static String8
 str8_push(Arena *arena, String8 string)
 {
   String8 result = {};
@@ -153,7 +153,7 @@ str8_push(Arena *arena, String8 string)
   return result;
 }
 
-function String8
+static String8
 str8_push(Arena *arena, char *cstr, va_list args)
 {
   String8 result = {};
@@ -167,7 +167,7 @@ str8_push(Arena *arena, char *cstr, va_list args)
   return result;
 }
 
-function String8
+static String8
 str8_push(Arena *arena, char *cstr, ...)
 {
   va_list args = {};
@@ -177,7 +177,7 @@ str8_push(Arena *arena, char *cstr, ...)
   return result;
 }
 
-function String8
+static String8
 str8_push(Arena *arena, const char *cstr, ...)
 {
   va_list args = {};
@@ -187,7 +187,7 @@ str8_push(Arena *arena, const char *cstr, ...)
   return result;
 }
 
-function B32
+static B32
 str8_match(String8 a, String8 b)
 {
   B32 result = true;
@@ -220,7 +220,7 @@ str8_match(String8 a, String8 b)
   return result;
 }
 
-function B32
+static B32
 str8_first_index_of(String8 string, U32 codepoint, U64 *result_idx)
 {
   B32 found = false;
@@ -240,7 +240,7 @@ str8_first_index_of(String8 string, U32 codepoint, U64 *result_idx)
   return (found);
 }
 
-function B32
+static B32
 str8_last_index_of(String8 string, U32 codepoint, U64 *result_idx)
 {
   B32 found = false;
@@ -264,7 +264,7 @@ str8_last_index_of(String8 string, U32 codepoint, U64 *result_idx)
   return (found);
 }
 
-function B32
+static B32
 str8_find_substr8(String8 string, String8 substring, U64 *result_idx)
 {
   B32 result = true;
@@ -307,7 +307,7 @@ str8_find_substr8(String8 string, String8 substring, U64 *result_idx)
   return result;
 }
 
-function String8List
+static String8List
 str8_split_by_codepoints(Arena *arena, String8 string, String8 codepoints)
 {
   String8List result = {};
@@ -347,7 +347,7 @@ str8_split_by_codepoints(Arena *arena, String8 string, String8 codepoints)
   return result;
 }
 
-function void
+static void
 str8_list_push(String8List *list, String8 string, String8Node *node)
 {
   node->v = string;
@@ -356,14 +356,14 @@ str8_list_push(String8List *list, String8 string, String8Node *node)
   list->total_size += string.size;
 }
 
-function void
+static void
 str8_list_push(Arena *arena, String8List *list, String8 string)
 {
   String8Node *node = push_array<String8Node>(arena, 1);
   str8_list_push(list, string, node);
 }
 
-function void
+static void
 str8_list_push(Arena *arena, String8List *list, char *fmt, ...)
 {
   String8Node *node = push_array<String8Node>(arena, 1);
@@ -374,7 +374,7 @@ str8_list_push(Arena *arena, String8List *list, char *fmt, ...)
   str8_list_push(list, string, node);
 }
 
-function String8
+static String8
 str8_join(Arena *arena, String8List *list)
 {
   U64 size = list->total_size;
@@ -390,7 +390,7 @@ str8_join(Arena *arena, String8List *list)
   return (str8(data, size));
 }
 
-function String8
+static String8
 str8_append(Arena *arena, String8 first, String8 last)
 {
   String8 result = {};
@@ -401,7 +401,7 @@ str8_append(Arena *arena, String8 first, String8 last)
   return result;
 }
 
-function String8
+static String8
 str8_chop_last_slash(String8 string)
 {
   if(string.size > 0)
@@ -426,7 +426,7 @@ str8_chop_last_slash(String8 string)
   return (string);
 }
 
-function String8
+static String8
 str8_skip_last_slash(String8 string)
 {
   if(string.size > 0)
@@ -455,7 +455,7 @@ str8_skip_last_slash(String8 string)
 //////////////////////////////
 // NOTE(hampus): String16
 
-function String16
+static String16
 str16(U16 *data, U64 size)
 {
   String16 result = {};
@@ -467,7 +467,7 @@ str16(U16 *data, U64 size)
 //////////////////////////////
 // NOTE(hampus): String32
 
-function String32
+static String32
 str32(U32 *data, U64 size)
 {
   String32 result = {};
@@ -476,7 +476,7 @@ str32(U32 *data, U64 size)
   return result;
 }
 
-function B32
+static B32
 str32_contains_only(String32 string, Array<U32> slice)
 {
   B32 result = true;
@@ -502,7 +502,7 @@ str32_contains_only(String32 string, Array<U32> slice)
   return result;
 }
 
-function B32
+static B32
 str32_match(String32 a, String32 b)
 {
   B32 result = true;
@@ -534,7 +534,7 @@ str32_match(String32 a, String32 b)
   return result;
 }
 
-function String32
+static String32
 str32_range(U32 *start, U32 *opl)
 {
   String32 result = {};
@@ -543,7 +543,7 @@ str32_range(U32 *start, U32 *opl)
   return result;
 }
 
-function String32
+static String32
 str32_copy(Arena *arena, String32 string)
 {
   String32 result = {};
@@ -554,7 +554,7 @@ str32_copy(Arena *arena, String32 string)
   return result;
 }
 
-function String32
+static String32
 str32_append(Arena *arena, String32 first, String32 last)
 {
   String32 result = {};
@@ -565,7 +565,7 @@ str32_append(Arena *arena, String32 first, String32 last)
   return result;
 }
 
-function String32
+static String32
 str32_push(Arena *arena, U32 *data, U64 size)
 {
   String32 result = {};
@@ -575,7 +575,7 @@ str32_push(Arena *arena, U32 *data, U64 size)
   return result;
 }
 
-function String32
+static String32
 str32_prefix(String32 string, U64 size)
 {
   String32 result = {};
@@ -585,7 +585,7 @@ str32_prefix(String32 string, U64 size)
   return result;
 }
 
-function String32
+static String32
 str32_postfix(String32 string, U64 size)
 {
   String32 result = {};
@@ -595,7 +595,7 @@ str32_postfix(String32 string, U64 size)
   return result;
 }
 
-function String32
+static String32
 str32_skip(String32 string, U64 size)
 {
   String32 result = {};
@@ -605,7 +605,7 @@ str32_skip(String32 string, U64 size)
   return result;
 }
 
-function String32
+static String32
 str32_chop(String32 string, U64 size)
 {
   String32 result = {};
@@ -615,7 +615,7 @@ str32_chop(String32 string, U64 size)
   return result;
 }
 
-function String32
+static String32
 str32_skip_to_codepoint(String32 string, U32 cp)
 {
   String32 result = string;
@@ -629,7 +629,7 @@ str32_skip_to_codepoint(String32 string, U32 cp)
   return result;
 }
 
-function String32
+static String32
 str32_skip_to_string(String32 haystack, String32 needle)
 {
   String32 result = haystack;
@@ -649,10 +649,10 @@ str32_skip_to_string(String32 haystack, String32 needle)
 //////////////////////////////
 // NOTE(hampus): Encoding & decoding
 
-function StringDecode
+static StringDecode
 string_decode_utf8(U8 *string, U64 cap)
 {
-  local U8 length[] =
+  static U8 length[] =
   {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     0, 0, 0, 0, 0, 0, 0, 0,
@@ -661,8 +661,8 @@ string_decode_utf8(U8 *string, U64 cap)
     4,
     5};
 
-  local U32 first_byte_mask[] = {0, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF, 0x01FF, 0x03FF};
-  local U8 final_shift[] = {0, 18, 12, 6, 0};
+  static U32 first_byte_mask[] = {0, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF, 0x01FF, 0x03FF};
+  static U8 final_shift[] = {0, 18, 12, 6, 0};
 
   StringDecode result = {};
   if(cap > 0)
@@ -733,7 +733,7 @@ string_decode_utf8(U8 *string, U64 cap)
   return result;
 }
 
-function U64
+static U64
 string_encode_utf8(U8 *dst, U32 codepoint)
 {
   U32 size = 0;
@@ -772,7 +772,7 @@ string_encode_utf8(U8 *dst, U32 codepoint)
   return (size);
 }
 
-function StringDecode
+static StringDecode
 string_decode_utf16(U16 *string, U64 size)
 {
   StringDecode result = {};
@@ -807,7 +807,7 @@ string_decode_utf16(U16 *string, U64 size)
   return result;
 }
 
-function U64
+static U64
 string_encode_utf16(U16 *dst, U32 codepoint)
 {
   U64 size = 0;
@@ -829,7 +829,7 @@ string_encode_utf16(U16 *dst, U32 codepoint)
 //////////////////////////////
 // NOTE(hampus): Conversion between UTF
 
-function String32
+static String32
 str32_from_str8(Arena *arena, String8 string)
 {
   U64 allocated_size = string.size;
@@ -856,7 +856,7 @@ str32_from_str8(Arena *arena, String8 string)
   return result;
 }
 
-function String8
+static String8
 str8_from_str32(Arena *arena, String32 string)
 {
   U64 allocated_size = 4 * string.size;
@@ -881,7 +881,7 @@ str8_from_str32(Arena *arena, String32 string)
   return result;
 }
 
-function String16
+static String16
 str16_from_str8(Arena *arena, String8 string)
 {
   U64 allocated_size = string.size;
@@ -907,7 +907,7 @@ str16_from_str8(Arena *arena, String8 string)
   return result;
 }
 
-function String8
+static String8
 str8_from_str16(Arena *arena, String16 string)
 {
   U64 allocated_size = 3 * string.size;
@@ -934,7 +934,7 @@ str8_from_str16(Arena *arena, String16 string)
   return result;
 }
 
-function String8
+static String8
 str8_from_cstr16(Arena *arena, U16 *string)
 {
   String16 str16 = {};
@@ -948,7 +948,7 @@ str8_from_cstr16(Arena *arena, U16 *string)
   return result;
 }
 
-function char *
+static char *
 cstr_from_str8(Arena *arena, String8 string)
 {
   U64 allocated_size = string.size + 1;
@@ -958,7 +958,7 @@ cstr_from_str8(Arena *arena, String8 string)
   return ((char *)memory);
 }
 
-function U16 *
+static U16 *
 cstr16_from_str8(Arena *arena, String8 string)
 {
   U64 allocated_size = string.size + 1;
@@ -983,7 +983,7 @@ cstr16_from_str8(Arena *arena, String8 string)
 //////////////////////////////
 // NOTE(hampus): String to integers
 
-function U64
+static U64
 u64_hex_from_str8(String8 string, U64 *dst)
 {
   U64 i;
@@ -1010,7 +1010,7 @@ u64_hex_from_str8(String8 string, U64 *dst)
   return (i);
 }
 
-function U64
+static U64
 u64_from_str8(String8 string, U64 *dst)
 {
   U64 i;
@@ -1026,7 +1026,7 @@ u64_from_str8(String8 string, U64 *dst)
   return (i);
 }
 
-function U64
+static U64
 u32_from_str8(String8 string, U32 *dst)
 {
   U64 result = 0;
@@ -1036,7 +1036,7 @@ u32_from_str8(String8 string, U32 *dst)
   return result;
 }
 
-function U64
+static U64
 u16_from_str8(String8 string, U16 *dst)
 {
   U64 result = 0;
@@ -1046,7 +1046,7 @@ u16_from_str8(String8 string, U16 *dst)
   return result;
 }
 
-function U64
+static U64
 u8_from_str8(String8 string, U8 *dst)
 {
   U64 result = 0;
@@ -1056,7 +1056,7 @@ u8_from_str8(String8 string, U8 *dst)
   return result;
 }
 
-function U64
+static U64
 s64_from_str8(String8 string, S64 *dst)
 {
   U64 i = 0;
@@ -1085,7 +1085,7 @@ s64_from_str8(String8 string, S64 *dst)
   return (i);
 }
 
-function U64
+static U64
 s32_from_str8(String8 string, S32 *dst)
 {
   U64 result = 0;
@@ -1095,7 +1095,7 @@ s32_from_str8(String8 string, S32 *dst)
   return result;
 }
 
-function U64
+static U64
 s16_from_str8(String8 string, S16 *dst)
 {
   U64 result = 0;
@@ -1105,7 +1105,7 @@ s16_from_str8(String8 string, S16 *dst)
   return result;
 }
 
-function U64
+static U64
 s8_from_str8(String8 string, S8 *dst)
 {
   U64 result = 0;
@@ -1118,7 +1118,7 @@ s8_from_str8(String8 string, S8 *dst)
 //////////////////////////////
 // NOTE(hampus): String to floating point
 
-function U64
+static U64
 f64_from_str8(String8 string, F64 *dst)
 {
   U64 bytes_read = 0;
@@ -1170,7 +1170,7 @@ f64_from_str8(String8 string, F64 *dst)
 //////////////////////////////
 // NOTE(hampus): Character functions
 
-function B32
+static B32
 is_num(U8 ch)
 {
   B32 result = ('0' <= ch && ch <= '9');
@@ -1180,7 +1180,7 @@ is_num(U8 ch)
 //////////////////////////////
 // NOTE(hampus): C-String functions
 
-function String8
+static String8
 cstr_format(U8 *buffer, U64 buffer_size, char *cstr, va_list args)
 {
   TempArena scratch = get_scratch(0, 0);
@@ -1190,7 +1190,7 @@ cstr_format(U8 *buffer, U64 buffer_size, char *cstr, va_list args)
   return (str8(buffer, clamped_size));
 }
 
-function String8
+static String8
 cstr_format(U8 *buffer, U64 buffer_size, char *cstr, ...)
 {
   va_list args;
@@ -1200,7 +1200,7 @@ cstr_format(U8 *buffer, U64 buffer_size, char *cstr, ...)
   return string;
 }
 
-function String8
+static String8
 cstr_format(U8 *buffer, U64 buffer_size, const char *cstr, ...)
 {
   va_list args;
@@ -1210,7 +1210,7 @@ cstr_format(U8 *buffer, U64 buffer_size, const char *cstr, ...)
   return string;
 }
 
-function U64
+static U64
 cstr_length(char *cstr)
 {
   U64 result = 0;

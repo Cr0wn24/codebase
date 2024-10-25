@@ -61,15 +61,15 @@ struct UI_RendererState
   UI_ClipRectNode *clip_rect_stack;
 };
 
-function void ui_renderer_init(void);
-function void ui_renderer_destroy(void);
-function UI_RectInstance *ui_draw_rect(Vec2F32 min, Vec2F32 max, UI_DrawRectParams params);
-function F32 ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color);
+static void ui_renderer_init();
+static void ui_renderer_destroy();
+static UI_RectInstance *ui_draw_rect(Vec2F32 min, Vec2F32 max, UI_DrawRectParams params);
+static F32 ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color);
 
-function void ui_draw(void);
+static void ui_draw();
 
-[[nodiscard]] function RectF32 ui_clip_rect_top(void);
-function void ui_clip_rect_push(RectF32 rect);
-function void ui_clip_rect_pop(void);
+[[nodiscard]] static RectF32 ui_clip_rect_top();
+static void ui_clip_rect_push(RectF32 rect);
+static void ui_clip_rect_pop();
 
 #endif // UI_RENDERER_H

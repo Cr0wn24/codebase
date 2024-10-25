@@ -1,18 +1,18 @@
-function R_Handle
-r_handle_zero(void)
+static R_Handle
+r_handle_zero()
 {
   R_Handle result = {};
   return result;
 }
 
-function B32
+static B32
 r_handle_match(R_Handle a, R_Handle b)
 {
   B32 result = a.u64[0] == b.u64[0];
   return result;
 }
 
-function void
+static void
 r_add_input_layout_attribute(R_InputLayoutDesc *input_layout_desc, R_AttributeDesc desc)
 {
   if(input_layout_desc->attribs_count < array_count(input_layout_desc->attribs))

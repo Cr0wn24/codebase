@@ -11,7 +11,7 @@
       r_gles_debug_callback(error, __FILE__, __LINE__); \
   }
 
-global R_GLES_State *r_gles_state;
+static R_GLES_State *r_gles_state;
 
 static void
 r_gles_debug_callback(GLenum error, char *file, U64 line)
@@ -41,8 +41,8 @@ r_gles_debug_callback(GLenum error, char *file, U64 line)
   }
 }
 
-function void
-r_init(void)
+static void
+r_init()
 {
   Arena *arena = arena_alloc();
   r_gles_state = push_array<R_GLES_State>(arena, 1);
@@ -50,7 +50,7 @@ r_init(void)
   r_gles_state->frame_arena = arena_alloc();
 }
 
-function R_Handle
+static R_Handle
 r_make_render_window_context(OS_Handle window_os)
 {
   R_Handle result = {};
@@ -69,7 +69,7 @@ r_make_render_window_context(OS_Handle window_os)
   return result;
 }
 
-function void
+static void
 r_destroy_render_window_context(R_Handle handle)
 {
   if(!r_handle_match(handle, r_handle_zero()))
@@ -83,7 +83,7 @@ r_destroy_render_window_context(R_Handle handle)
   }
 }
 
-function R_Handle
+static R_Handle
 r_make_pipeline(R_PipelineDesc desc)
 {
   R_Handle result = {};
@@ -188,7 +188,7 @@ r_make_pipeline(R_PipelineDesc desc)
   return result;
 }
 
-function void
+static void
 r_destroy_pipeline(R_Handle handle)
 {
   if(!r_handle_match(handle, r_handle_zero()))
@@ -203,7 +203,7 @@ r_destroy_pipeline(R_Handle handle)
   }
 }
 
-function R_Handle
+static R_Handle
 r_make_buffer(R_BufferDesc desc)
 {
   R_Handle result = {};
@@ -225,7 +225,7 @@ r_make_buffer(R_BufferDesc desc)
   return result;
 }
 
-function void
+static void
 r_destroy_buffer(R_Handle handle)
 {
   if(!r_handle_match(handle, r_handle_zero()))
@@ -236,7 +236,7 @@ r_destroy_buffer(R_Handle handle)
   }
 }
 
-function R_Handle
+static R_Handle
 r_make_tex2d_from_bitmap(void *data, U32 width, U32 height)
 {
   R_Handle result = {};
@@ -269,7 +269,7 @@ r_make_tex2d_from_bitmap(void *data, U32 width, U32 height)
   return result;
 }
 
-function R_Handle
+static R_Handle
 r_make_tex2d_from_memory(String8 data)
 {
   R_Handle result = {};
@@ -282,7 +282,7 @@ r_make_tex2d_from_memory(String8 data)
   return result;
 }
 
-function void
+static void
 r_destroy_tex2d(R_Handle handle)
 {
   if(!r_handle_match(handle, r_handle_zero()))
@@ -297,7 +297,7 @@ r_destroy_tex2d(R_Handle handle)
   }
 }
 
-function void
+static void
 r_update_tex2d_contents(R_Handle handle, void *memory)
 {
   if(!r_handle_match(handle, r_handle_zero()))
@@ -313,7 +313,7 @@ r_update_tex2d_contents(R_Handle handle, void *memory)
   }
 }
 
-function void
+static void
 r_begin_pass(Vec4F32 clear_color)
 {
   arena_clear(r_gles_state->frame_arena);
@@ -323,15 +323,15 @@ r_begin_pass(Vec4F32 clear_color)
   GL_CALL(glEnable(GL_SCISSOR_TEST));
 }
 
-function void
-r_end_pass(void)
+static void
+r_end_pass()
 {
   r_gles_state->active_buffer = 0;
   r_gles_state->active_tex2d = 0;
   r_gles_state->active_pipeline = 0;
 }
 
-function void
+static void
 r_draw(U64 vertex_count)
 {
   if(r_gles_state->active_tex2d != 0)
@@ -342,7 +342,7 @@ r_draw(U64 vertex_count)
   GL_CALL(glDrawArrays(r_gles_state->active_pipeline->draw_mode, 0, vertex_count));
 }
 
-function void
+static void
 r_instanced_draw(U64 vertex_count_per_instance, U64 instance_count)
 {
   if(r_gles_state->active_tex2d != 0)
@@ -353,8 +353,8 @@ r_instanced_draw(U64 vertex_count_per_instance, U64 instance_count)
   GL_CALL(glDrawArraysInstanced(r_gles_state->active_pipeline->draw_mode, 0, vertex_count_per_instance, instance_count));
 }
 
-function void
-r_commit(void)
+static void
+r_commit()
 {
   if(r_gles_state->active_window_context == 0)
   {
@@ -368,7 +368,7 @@ r_commit(void)
   r_gles_state->active_window_context = 0;
 }
 
-function void
+static void
 r_apply_pipeline(R_Handle pipeline)
 {
   if(!r_handle_match(pipeline, r_handle_zero()))
@@ -387,7 +387,7 @@ r_apply_pipeline(R_Handle pipeline)
   }
 }
 
-function U64
+static U64
 r_byte_size_from_attribute_kind(R_AttributeKind kind)
 {
   U64 result = 0;
@@ -418,7 +418,7 @@ r_byte_size_from_attribute_kind(R_AttributeKind kind)
   return result;
 }
 
-function void
+static void
 r_apply_vertex_buffer(R_Handle buffer, U64 stride)
 {
   if(!r_handle_match(buffer, r_handle_zero()))
@@ -449,12 +449,12 @@ r_apply_vertex_buffer(R_Handle buffer, U64 stride)
   }
 }
 
-function void
+static void
 r_apply_uniform_buffer(R_Handle buffer)
 {
 }
 
-function void
+static void
 r_apply_tex2d(R_Handle tex2d)
 {
   if(!r_handle_match(tex2d, r_handle_zero()))
@@ -468,7 +468,7 @@ r_apply_tex2d(R_Handle tex2d)
   }
 }
 
-function void
+static void
 r_apply_window_context(R_Handle window_context)
 {
   if(!r_handle_match(window_context, r_handle_zero()))
@@ -481,7 +481,7 @@ r_apply_window_context(R_Handle window_context)
   }
 }
 
-function void
+static void
 r_apply_scissor_rect(RectF32 rect)
 {
   R_GLES_Window *window = r_gles_state->active_window_context;
@@ -493,7 +493,7 @@ r_apply_scissor_rect(RectF32 rect)
   glScissor(x, viewport_dim.y - y, width, height);
 }
 
-function void
+static void
 r_fill_buffer(R_Handle handle, R_FillBufferDesc desc)
 {
   if(!r_handle_match(handle, r_handle_zero()))
@@ -509,7 +509,7 @@ r_fill_buffer(R_Handle handle, R_FillBufferDesc desc)
   }
 }
 
-function void
+static void
 r_gles_set_uniform_4x4f32(String8 name, U8 *data)
 {
   TempArena scratch = get_scratch(0, 0);

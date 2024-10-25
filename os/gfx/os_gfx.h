@@ -179,36 +179,36 @@ typedef void OS_WindowRepaintProc(OS_Handle window_os_repaint_handle, void *data
 //////////////////////////////
 // NOTE(hampus): Init & destroy
 
-function void os_gfx_init(void);
-function void os_gfx_destroy(void);
+static void os_gfx_init();
+static void os_gfx_destroy();
 
 //////////////////////////////
 // NOTE(hampus): Window
 
-[[nodiscard]] function OS_Handle os_window_open(String8 title, U32 width, U32 height);
-function void os_window_close(OS_Handle window);
-function void os_window_show(OS_Handle handle);
-[[nodiscard]] function Vec2U64 os_client_area_from_window(OS_Handle handle);
-[[nodiscard]] function RectF32 os_client_rect_from_window(OS_Handle handle);
-function void os_window_equip_repaint(OS_Handle window, OS_WindowRepaintProc *proc, void *user_data);
-function void os_window_maximize(OS_Handle window);
-function void os_window_toggle_fullscreen(OS_Handle window);
-[[nodiscard]] function OS_EventList os_events_from_window(Arena *arena, OS_Handle window);
-[[nodiscard]] function Vec2F32 os_window_dpi(OS_Handle window); // TODO(hampus): Change this to dots/meter instead of dots/inch?
-[[nodiscard]] function Vec2F32 os_mouse_pos(OS_Handle window);
-function void os_swap_buffers(OS_Handle handle);
+[[nodiscard]] static OS_Handle os_window_open(String8 title, U32 width, U32 height);
+static void os_window_close(OS_Handle window);
+static void os_window_show(OS_Handle handle);
+[[nodiscard]] static Vec2U64 os_client_area_from_window(OS_Handle handle);
+[[nodiscard]] static RectF32 os_client_rect_from_window(OS_Handle handle);
+static void os_window_equip_repaint(OS_Handle window, OS_WindowRepaintProc *proc, void *user_data);
+static void os_window_maximize(OS_Handle window);
+static void os_window_toggle_fullscreen(OS_Handle window);
+[[nodiscard]] static OS_EventList os_events_from_window(Arena *arena, OS_Handle window);
+[[nodiscard]] static Vec2F32 os_window_dpi(OS_Handle window); // TODO(hampus): Change this to dots/meter instead of dots/inch?
+[[nodiscard]] static Vec2F32 os_mouse_pos(OS_Handle window);
+static void os_swap_buffers(OS_Handle handle);
 
 //////////////////////////////
 // NOTE(hampus): Cursor
 
-function void os_set_cursor(OS_Cursor cursor);
-function void os_set_cursor_visibility(B32 show);
+static void os_set_cursor(OS_Cursor cursor);
+static void os_set_cursor_visibility(B32 show);
 
 //////////////////////////////
 // NOTE(hampus): Clipboard
 
-[[nodiscard]] function String8 os_push_clipboard(Arena *arena);
-function void os_set_clipboard(String8 string);
-function void os_set_keyboard_visibility(B32 show);
+[[nodiscard]] static String8 os_push_clipboard(Arena *arena);
+static void os_set_clipboard(String8 string);
+static void os_set_keyboard_visibility(B32 show);
 
 #endif // OS_GFX_H

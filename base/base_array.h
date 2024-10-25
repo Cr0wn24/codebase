@@ -89,7 +89,7 @@ struct DynamicArray
 };
 
 template <typename T>
-[[nodiscard]] DynamicArray<T> dynamic_array_alloc(void);
+[[nodiscard]] DynamicArray<T> dynamic_array_alloc();
 
 template <typename T>
 [[nodiscard]] U64 array_count(DynamicArray<T> &array);

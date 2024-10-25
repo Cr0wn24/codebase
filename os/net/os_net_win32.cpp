@@ -1,7 +1,7 @@
 #pragma comment(lib, "ws2_32.lib")
 
-function String8
-os_net_get_error_string(void)
+static String8
+os_net_get_error_string()
 {
   S32 error_id = WSAGetLastError();
   U8 buffer[1024] = {};
@@ -11,7 +11,7 @@ os_net_get_error_string(void)
   return result;
 }
 
-function struct sockaddr_in
+static struct sockaddr_in
 os_win32_sockaddr_in_from_net_address(OS_NetAddress address)
 {
   struct sockaddr_in result = {};
@@ -31,7 +31,7 @@ os_win32_sockaddr_in_from_net_address(OS_NetAddress address)
   return result;
 }
 
-function OS_NetAddress
+static OS_NetAddress
 os_win32_net_address_from_sockaddr_in(struct sockaddr_in sockaddr)
 {
   OS_NetAddress result = {};
@@ -51,14 +51,14 @@ os_win32_net_address_from_sockaddr_in(struct sockaddr_in sockaddr)
   return result;
 }
 
-function void
-os_net_init(void)
+static void
+os_net_init()
 {
   WSADATA wsa_data;
   WSAStartup(MAKEWORD(2, 2), &wsa_data);
 }
 
-function OS_Handle
+static OS_Handle
 os_socket_alloc(OS_NetProtocol protocol, OS_NetAddressFamily address_family)
 {
   OS_Handle result = os_handle_zero();
@@ -98,7 +98,7 @@ os_socket_alloc(OS_NetProtocol protocol, OS_NetAddressFamily address_family)
   return result;
 }
 
-function B32
+static B32
 os_socket_free(OS_Handle socket)
 {
   SOCKET sock = (SOCKET)socket.u64[0];
@@ -107,7 +107,7 @@ os_socket_free(OS_Handle socket)
   return result;
 }
 
-function B32
+static B32
 os_socket_bind(OS_Handle socket, OS_NetAddress address)
 {
   struct sockaddr_in sockaddrin = os_win32_sockaddr_in_from_net_address(address);
@@ -117,7 +117,7 @@ os_socket_bind(OS_Handle socket, OS_NetAddress address)
   return result;
 }
 
-function B32
+static B32
 os_socket_set_blocking_mode(OS_Handle socket, B32 should_block)
 {
   u_long mode = (u_long)(should_block ? 0 : 1);
@@ -127,7 +127,7 @@ os_socket_set_blocking_mode(OS_Handle socket, B32 should_block)
   return result;
 }
 
-function OS_NetAddress
+static OS_NetAddress
 os_address_from_socket(OS_Handle socket)
 {
   OS_NetAddress result = {};
@@ -142,7 +142,7 @@ os_address_from_socket(OS_Handle socket)
   return result;
 }
 
-function B32
+static B32
 os_socket_connect(OS_Handle socket, OS_NetAddress address)
 {
   struct sockaddr_in sockaddrin = os_win32_sockaddr_in_from_net_address(address);
@@ -152,7 +152,7 @@ os_socket_connect(OS_Handle socket, OS_NetAddress address)
   return result;
 }
 
-function OS_NetAcceptResult
+static OS_NetAcceptResult
 os_socket_accept(OS_Handle socket)
 {
   OS_NetAcceptResult result = {};
@@ -173,7 +173,7 @@ os_socket_accept(OS_Handle socket)
   return result;
 }
 
-function B32
+static B32
 os_socket_send(OS_Handle socket, String8 data)
 {
   SOCKET sock = (SOCKET)socket.u64[0];
@@ -182,7 +182,7 @@ os_socket_send(OS_Handle socket, String8 data)
   return result;
 }
 
-function OS_NetReceiveResult
+static OS_NetReceiveResult
 os_socket_receive(Arena *arena, OS_Handle connected_socket, U64 cap)
 {
   OS_NetReceiveResult result = {};
@@ -198,7 +198,7 @@ os_socket_receive(Arena *arena, OS_Handle connected_socket, U64 cap)
   return result;
 }
 
-function B32
+static B32
 os_socket_send_to(OS_Handle socket, OS_NetAddress address, String8 data)
 {
   SOCKET sock = (SOCKET)socket.u64[0];
@@ -208,7 +208,7 @@ os_socket_send_to(OS_Handle socket, OS_NetAddress address, String8 data)
   return result;
 }
 
-function OS_NetReceiveResult
+static OS_NetReceiveResult
 os_socket_receive_from(Arena *arena, OS_Handle listen_socket, U64 cap)
 {
   OS_NetReceiveResult result = {};

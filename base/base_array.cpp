@@ -1,7 +1,7 @@
-function void *os_memory_reserve(U64 size);
-function void os_memory_commit(void *ptr, U64 size);
-function void os_memory_decommit(void *ptr, U64 size);
-function void os_memory_release(void *ptr, U64 size);
+static void *os_memory_reserve(U64 size);
+static void os_memory_commit(void *ptr, U64 size);
+static void os_memory_decommit(void *ptr, U64 size);
+static void os_memory_release(void *ptr, U64 size);
 
 template <typename T>
 Array<T>
@@ -51,7 +51,7 @@ array_count(Array<T> array)
 
 template <typename T>
 DynamicArray<T>
-dynamic_array_alloc(void)
+dynamic_array_alloc()
 {
   DynamicArray<T> result = {};
   result.cap = DYNAMIC_ARRAY_DEFAULT_RESERVE_SIZE;

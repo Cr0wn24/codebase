@@ -171,7 +171,7 @@ RECENT REVISION HISTORY:
 //       4           red, green, blue, alpha
 //
 // If image loading fails for any reason, the return value will be 0,
-// and *x, *y, *channels_in_file will be unchanged. The function
+// and *x, *y, *channels_in_file will be unchanged. The static
 // stbi_failure_reason() can be queried for an extremely brief, end-user
 // unfriendly explanation of why the load failed. Define STBI_NO_FAILURE_STRINGS
 // to avoid compiling these strings at all, and STBI_FAILURE_USERMSG to get slightly
@@ -512,8 +512,8 @@ extern "C"
   // flip the image vertically, so the first pixel in the output array is the bottom left
   STBIDEF void stbi_set_flip_vertically_on_load(int flag_true_if_should_flip);
 
-  // as above, but only applies to images loaded on the thread that calls the function
-  // this function is only available if your compiler supports thread-local variables;
+  // as above, but only applies to images loaded on the thread that calls the static
+  // this static is only available if your compiler supports thread-local variables;
   // calling it will fail to link if your compiler doesn't
   STBIDEF void stbi_set_unpremultiply_on_load_thread(int flag_true_if_should_unpremultiply);
   STBIDEF void stbi_convert_iphone_png_to_rgb_thread(int flag_true_if_should_convert);
@@ -8073,7 +8073,7 @@ stbi__process_gif_raster(stbi__context *s, stbi__gif *g)
   }
 }
 
-// this function is designed to support animated gifs, although stb_image doesn't support it
+// this static is designed to support animated gifs, although stb_image doesn't support it
 // two back is the image from two frames ago, used for a very specific disposal format
 static stbi_uc *
 stbi__gif_load_next(stbi__context *s, stbi__gif *g, int *comp, int req_comp, stbi_uc *two_back)
@@ -9355,7 +9355,7 @@ stbi_is_16_bit_from_callbacks(stbi_io_callbacks const *c, void *user)
       1.33  (2011-07-14)
               make stbi_is_hdr work in STBI_NO_HDR (as specified), minor compiler-friendly improvements
       1.32  (2011-07-13)
-              support for "info" function for all supported filetypes (SpartanJ)
+              support for "info" static for all supported filetypes (SpartanJ)
       1.31  (2011-06-20)
               a few more leak fixes, bug in PNG handling (SpartanJ)
       1.30  (2011-06-11)
@@ -9401,7 +9401,7 @@ stbi_is_16_bit_from_callbacks(stbi_io_callbacks const *c, void *user)
       1.11    Support installable IDCT, colorspace conversion routines
       1.10    Fixes for 64-bit (don't use "unsigned long")
               optimized upsampling by Fabian "ryg" Giesen
-      1.09    Fix format-conversion for PSD code (bad global variables!)
+      1.09    Fix format-conversion for PSD code (bad static variables!)
       1.08    Thatcher Ulrich's PSD code integrated by Nicolas Schulz
       1.07    attempt to fix C++ warning/errors again
       1.06    attempt to fix C++ warning/errors again

@@ -7,8 +7,8 @@
 
 #if PROFILING_ENABLED
 
-function U64 os_get_microseconds(void);
-function U32 os_get_current_thread_id(void);
+static U64 os_get_microseconds();
+static U32 os_get_current_thread_id();
 
 #  pragma warning(push, 0)
 #  include "third_party/spall/spall.h"
@@ -25,8 +25,8 @@ static SpallBuffer spall_buffer;
 
 #  define profile_scope_end() spall_buffer_end(&spall_ctx, &spall_buffer, (F64)os_get_microseconds(), os_get_current_thread_id(), 0)
 
-#  define profile_function_begin() profile_scope_begin(__FUNCTION__)
-#  define profile_function_end() profile_scope_end()
+#  define profile_static_begin() profile_scope_begin(__FUNCTION__)
+#  define profile_static_end() profile_scope_end()
 
 #  define profile_init(string) spall_ctx = spall_init_file(string, 1)
 #  define profile_quit() spall_quit(&spall_ctx)
@@ -51,8 +51,8 @@ static SpallBuffer spall_buffer;
 
 #  define profile_scope_end()
 
-#  define profile_function_begin()
-#  define profile_function_end()
+#  define profile_static_begin()
+#  define profile_static_end()
 
 #  define profile_init(string)
 #  define profile_quit()

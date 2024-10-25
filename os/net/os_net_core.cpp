@@ -1,4 +1,4 @@
-function OS_NetAddress
+static OS_NetAddress
 os_net_address_from_str8(String8 string)
 {
   OS_NetAddress address = os_net_address_zero();
@@ -18,7 +18,7 @@ os_net_address_from_str8(String8 string)
   return (address);
 }
 
-function String8
+static String8
 os_str8_from_net_address(Arena *arena, OS_NetAddress address)
 {
   String8 string = str8_push(arena, (char *)"%d.%d.%d.%d:%d",
@@ -27,15 +27,15 @@ os_str8_from_net_address(Arena *arena, OS_NetAddress address)
   return (string);
 }
 
-function B32
+static B32
 os_net_address_match(OS_NetAddress a, OS_NetAddress b)
 {
   B32 result = a.port == b.port && a.ip.u32[0] == b.ip.u32[0];
   return result;
 }
 
-function OS_NetAddress
-os_net_address_zero(void)
+static OS_NetAddress
+os_net_address_zero()
 {
   OS_NetAddress result = {};
   return result;

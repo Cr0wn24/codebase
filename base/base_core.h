@@ -246,13 +246,6 @@ typedef float F32;
 typedef double F64;
 
 //////////////////////////////
-// NOTE(hampus): Static defines
-
-#define function static
-#define global static
-#define local static
-
-//////////////////////////////
 // NOTE(hampus): Basic helper macros
 
 #if COMPILER_CLANG
@@ -458,18 +451,18 @@ struct Date
 
 struct String8;
 
-[[nodiscard]] function OperatingSystem os_from_context(void);
-[[nodiscard]] function Architecture arch_from_context(void);
-[[nodiscard]] function DateTime build_date_from_context(void);
+[[nodiscard]] static OperatingSystem os_from_context();
+[[nodiscard]] static Architecture arch_from_context();
+[[nodiscard]] static DateTime build_date_from_context();
 
-[[nodiscard]] function String8 string_from_arch(Architecture arc);
-[[nodiscard]] function String8 string_from_os(OperatingSystem os);
-[[nodiscard]] function String8 string_from_day_of_week(DayOfWeek day);
-[[nodiscard]] function String8 string_from_month(Month month);
+[[nodiscard]] static String8 string_from_arch(Architecture arc);
+[[nodiscard]] static String8 string_from_os(OperatingSystem os);
+[[nodiscard]] static String8 string_from_day_of_week(DayOfWeek day);
+[[nodiscard]] static String8 string_from_month(Month month);
 
-[[nodiscard]] function DenseTime dense_time_from_date_time(DateTime date_time);
-[[nodiscard]] function DateTime date_time_from_dense_time(DenseTime dense_time);
-[[nodiscard]] function B32 date_match(Date a, Date b);
+[[nodiscard]] static DenseTime dense_time_from_date_time(DateTime date_time);
+[[nodiscard]] static DateTime date_time_from_dense_time(DenseTime dense_time);
+[[nodiscard]] static B32 date_match(Date a, Date b);
 
 struct MemorySize
 {
@@ -478,6 +471,6 @@ struct MemorySize
   U64 unit_length;
 };
 
-[[nodiscard]] function MemorySize memory_size_from_bytes(U64 bytes);
+[[nodiscard]] static MemorySize memory_size_from_bytes(U64 bytes);
 
 #endif // BASE_CORE_H

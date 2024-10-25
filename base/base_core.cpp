@@ -1,5 +1,5 @@
-function OperatingSystem
-os_from_context(void)
+static OperatingSystem
+os_from_context()
 {
   OperatingSystem result = OperatingSystem_Null;
 #if OS_WINDOWS
@@ -12,8 +12,8 @@ os_from_context(void)
   return result;
 }
 
-function Architecture
-arch_from_context(void)
+static Architecture
+arch_from_context()
 {
   Architecture result = Architecture_Null;
 #if ARCH_X64
@@ -28,8 +28,8 @@ arch_from_context(void)
   return result;
 }
 
-function DateTime
-build_date_from_context(void)
+static DateTime
+build_date_from_context()
 {
   DateTime result = {};
   TempArena scratch = get_scratch(0, 0);
@@ -73,7 +73,7 @@ build_date_from_context(void)
   return result;
 }
 
-function String8
+static String8
 string_from_os(OperatingSystem os)
 {
   String8 result = str8_lit("");
@@ -104,7 +104,7 @@ string_from_os(OperatingSystem os)
   return result;
 }
 
-function String8
+static String8
 string_from_arch(Architecture arc)
 {
   String8 result = str8_lit("");
@@ -141,7 +141,7 @@ string_from_arch(Architecture arc)
   return result;
 }
 
-function String8
+static String8
 string_from_day_of_week(DayOfWeek day)
 {
   String8 result = str8_lit("");
@@ -187,7 +187,7 @@ string_from_day_of_week(DayOfWeek day)
   return result;
 }
 
-function String8
+static String8
 string_from_month(Month month)
 {
   String8 result = str8_lit("");
@@ -258,7 +258,7 @@ string_from_month(Month month)
   return result;
 }
 
-function DenseTime
+static DenseTime
 dense_time_from_date_time(DateTime date_time)
 {
   DenseTime result = {};
@@ -278,7 +278,7 @@ dense_time_from_date_time(DateTime date_time)
   return result;
 }
 
-function DateTime
+static DateTime
 date_time_from_dense_time(DenseTime dense_time)
 {
   DateTime result = {};
@@ -298,14 +298,14 @@ date_time_from_dense_time(DenseTime dense_time)
   return result;
 }
 
-function B32
+static B32
 date_match(Date a, Date b)
 {
   B32 result = a.year == b.year && a.month == b.month && a.day == b.day;
   return result;
 }
 
-function MemorySize
+static MemorySize
 memory_size_from_bytes(U64 bytes)
 {
   StaticArray<String8, 4> units =

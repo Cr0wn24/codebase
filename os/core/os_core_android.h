@@ -68,8 +68,8 @@ struct OS_Android_BacktraceState
   OS_Backtrace *backtrace;
 };
 
-global OS_Android_State *os_android_state;
-global struct android_app *android_app;
+static OS_Android_State *os_android_state;
+static struct android_app *android_app;
 
 void os_android_sig_action_handler(int sig, siginfo_t *info, void *ucontext);
 

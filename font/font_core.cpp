@@ -1,5 +1,5 @@
-function void
-f_init(void)
+static void
+f_init()
 {
   Arena *arena = arena_alloc();
   f_state = push_array<F_State>(arena, 1);
@@ -9,35 +9,35 @@ f_init(void)
                                                    safe_u32_from_u64(f_state->atlas.atlas.dim.x), safe_u32_from_u64(f_state->atlas.atlas.dim.y));
 }
 
-function void
-F_Destroy(void)
+static void
+F_Destroy()
 {
   arena_free(f_state->arena);
   f_state = 0;
 }
 
-function F_Handle
-f_handle_zero(void)
+static F_Handle
+f_handle_zero()
 {
   F_Handle result = {};
   return result;
 }
 
-function B32
+static B32
 f_handle_match(F_Handle a, F_Handle b)
 {
   B32 result = memory_match(&a, &b, sizeof(F_Handle));
   return result;
 }
 
-function B32
+static B32
 f_tag_match(F_Tag a, F_Tag b)
 {
-  B32 result = str8_match(a.name, b.name);
+  B32 result = str8_match(a.path, b.path);
   return result;
 }
 
-function FP_Handle
+static FP_Handle
 fp_handle_from_tag(F_Tag tag)
 {
   FP_Handle result = fp_handle_zero();
@@ -64,15 +64,7 @@ fp_handle_from_tag(F_Tag tag)
   {
     if(cold_idx != U64_MAX)
     {
-      FP_Handle fp_handle = {};
-      if(tag.data.size == 0)
-      {
-        fp_handle = fp_font_open_file(f_state->arena, tag.name);
-      }
-      else
-      {
-        fp_handle = fp_font_open_memory(f_state->arena, tag.data);
-      }
+      FP_Handle fp_handle = fp_font_open_file(f_state->arena, tag.path);
       ASSERT(!fp_handle_match(fp_handle, fp_handle_zero()));
 
       // TODO(hampus): Close the old font handle
@@ -91,7 +83,7 @@ fp_handle_from_tag(F_Tag tag)
   return result;
 }
 
-function F_Glyph *
+static F_Glyph *
 f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp)
 {
   profile_function();
@@ -142,17 +134,17 @@ f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp)
 
     // hampus: Fill cache glyph node
 
-    FP_GlyphMetrics metrics = fp_metrics_From_font_size_cp(fp_handle, size, cp);
+    FP_GlyphMetrics metrics = fp_get_glyph_metrics(fp_handle, size, cp);
     glyph_node->bearing = metrics.bearing;
     glyph_node->advance = metrics.advance;
     glyph_node->bitmap_size = v2f32((F32)raster_result.dim.x, (F32)raster_result.dim.y);
 
     // f_state->atlas_texture_dirty = true;
   }
-  return (glyph_node);
+  return glyph_node;
 }
 
-function F_GlyphRun
+static F_GlyphRun
 f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
 {
   TempArena scratch = get_scratch(&arena, 1);
@@ -180,7 +172,7 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
   return result;
 }
 
-function F_GlyphRun
+static F_GlyphRun
 f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
 {
   TempArena scratch = get_scratch(&arena, 1);
@@ -189,7 +181,7 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
   return result;
 }
 
-function F32
+static F32
 f_get_advance(F_Tag tag, U32 size, String32 string)
 {
   F32 result = {};
@@ -202,7 +194,7 @@ f_get_advance(F_Tag tag, U32 size, String32 string)
   return result;
 }
 
-function F32
+static F32
 f_get_advance(F_Tag tag, U32 size, String8 string)
 {
   F32 result = {};
@@ -215,7 +207,7 @@ f_get_advance(F_Tag tag, U32 size, String8 string)
   return result;
 }
 
-function F32
+static F32
 f_get_advance(F_Tag tag, U32 size, U32 cp)
 {
   F32 result = {};
@@ -224,29 +216,29 @@ f_get_advance(F_Tag tag, U32 size, U32 cp)
   return result;
 }
 
-function F32
+static F32
 f_line_height_from_tag_size(F_Tag tag, U32 size)
 {
   F32 result = 0;
   FP_Handle fp_handle = fp_handle_from_tag(tag);
   ASSERT(!fp_handle_match(fp_handle, fp_handle_zero()));
-  FP_FontMetrics metrics = fp_metrics_from_font_size(fp_handle, size);
+  FP_FontMetrics metrics = fp_get_font_metrics(fp_handle, size);
   result = metrics.line_height;
   return result;
 }
 
-function F32
+static F32
 f_descent_from_tag_size(F_Tag tag, U32 size)
 {
   F32 result = 0;
   FP_Handle fp_handle = fp_handle_from_tag(tag);
   ASSERT(!fp_handle_match(fp_handle, fp_handle_zero()));
-  FP_FontMetrics metrics = fp_metrics_from_font_size(fp_handle, size);
+  FP_FontMetrics metrics = fp_get_font_metrics(fp_handle, size);
   result = metrics.descent;
   return result;
 }
 
-function F32
+static F32
 f_max_height_from_tag_size_string(F_Tag tag, U32 size, String8 string)
 {
   F32 result = 0;
@@ -259,8 +251,8 @@ f_max_height_from_tag_size_string(F_Tag tag, U32 size, String8 string)
   return result;
 }
 
-function F_Atlas *
-f_atlas(void)
+static F_Atlas *
+f_atlas()
 {
   F_Atlas *result = &f_state->atlas;
   return result;

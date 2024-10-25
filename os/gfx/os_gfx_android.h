@@ -101,11 +101,11 @@ struct OS_Android_GfxState
   B32 active;
 };
 
-function RectF32 os_android_get_inset_rect_px(OS_Android_Inset inset);
-function F32 os_android_get_pixel_density(void);
-function F32 os_android_get_font_scale(void);
-function String8 os_android_get_internal_data_path(void);
-function String8 os_android_get_external_data_path(void);
-function String8 os_android_load_asset(Arena *arena, String8 name);
+static RectF32 os_android_get_inset_rect_px(OS_Android_Inset inset);
+static F32 os_android_get_pixel_density();
+static F32 os_android_get_font_scale();
+static String8 os_android_get_internal_data_path();
+static String8 os_android_get_external_data_path();
+static String8 os_android_load_asset(Arena *arena, String8 name);
 
 #endif

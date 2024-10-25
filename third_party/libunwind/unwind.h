@@ -83,7 +83,7 @@ struct _Unwind_Control_Block
   /* Pr cache (for pr's benefit): */
   struct
   {
-    uint32_t fnstart;         /* function start address */
+    uint32_t fnstart;         /* static start address */
     _Unwind_EHT_Header *ehtp; /* pointer to EHT entry header word */
     uint32_t additional;
     uint32_t reserved1;
@@ -192,10 +192,10 @@ extern void _Unwind_Resume(_Unwind_Exception *exception_object);
 #  else
 #    define _LIBUNWIND_EXPORT_UNWIND_LEVEL1 static __inline__
 #  endif
-// These are de facto helper functions for ARM, which delegate the function
+// These are de facto helper functions for ARM, which delegate the static
 // calls to _Unwind_VRS_Get/Set().  These are not a part of ARM EHABI
-// specification, thus these function MUST be inlined.  Please don't replace
-// these with the "extern" function declaration; otherwise, the program
+// specification, thus these static MUST be inlined.  Please don't replace
+// these with the "extern" static declaration; otherwise, the program
 // including this <unwind.h> header won't be ABI compatible and will result in
 // link error when we are linking the program with libgcc.
 _LIBUNWIND_EXPORT_UNWIND_LEVEL1
@@ -260,7 +260,7 @@ _Unwind_Resume_or_Rethrow(_Unwind_Exception *exception_object);
 #endif
   // _Unwind_Backtrace() is a gcc extension that walks the stack and calls the
   // _Unwind_Trace_Fn once per frame until it reaches the bottom of the stack
-  // or the _Unwind_Trace_Fn function returns something other than _URC_NO_REASON.
+  // or the _Unwind_Trace_Fn static returns something other than _URC_NO_REASON.
   typedef _Unwind_Reason_Code (*_Unwind_Trace_Fn)(struct _Unwind_Context *,
                                                   void *);
   extern _Unwind_Reason_Code _Unwind_Backtrace(_Unwind_Trace_Fn, void *);
@@ -271,23 +271,23 @@ _Unwind_Resume_or_Rethrow(_Unwind_Exception *exception_object);
   // _Unwind_GetIPInfo is a gcc extension that can be called from within a
   // personality handler.  Similar to _Unwind_GetIP() but also returns in
   // *ipBefore a non-zero value if the instruction pointer is at or before the
-  // instruction causing the unwind. Normally, in a function call, the IP returned
+  // instruction causing the unwind. Normally, in a static call, the IP returned
   // is the return address which is after the call instruction and may be past the
-  // end of the function containing the call instruction.
+  // end of the static containing the call instruction.
   extern uintptr_t _Unwind_GetIPInfo(struct _Unwind_Context *context,
                                      int *ipBefore);
   // __register_frame() is used with dynamically generated code to register the
   // FDE for a generated (JIT) code.  The FDE must use pc-rel addressing to point
-  // to its function and optional LSDA.
+  // to its static and optional LSDA.
   // __register_frame() has existed in all versions of Mac OS X, but in 10.4 and
   // 10.5 it was buggy and did not actually register the FDE with the unwinder.
   // In 10.6 and later it does register properly.
   extern void __register_frame(const void *fde);
   extern void __deregister_frame(const void *fde);
-  // _Unwind_Find_FDE() will locate the FDE if the pc is in some function that has
+  // _Unwind_Find_FDE() will locate the FDE if the pc is in some static that has
   // an associated FDE. Note, Mac OS X 10.6 and later, introduces "compact unwind
   // info" which the runtime uses in preference to dwarf unwind info.  This
-  // function will only work if the target function has an FDE but no compact
+  // static will only work if the target static has an FDE but no compact
   // unwind info.
   struct dwarf_eh_bases
   {
@@ -296,10 +296,10 @@ _Unwind_Resume_or_Rethrow(_Unwind_Exception *exception_object);
     uintptr_t func;
   };
   extern const void *_Unwind_Find_FDE(const void *pc, struct dwarf_eh_bases *);
-  // This function attempts to find the start (address of first instruction) of
-  // a function given an address inside the function.  It only works if the
-  // function has an FDE (dwarf unwind info).
-  // This function is unimplemented on Mac OS X 10.6 and later.  Instead, use
+  // This static attempts to find the start (address of first instruction) of
+  // a static given an address inside the static.  It only works if the
+  // static has an FDE (dwarf unwind info).
+  // This static is unimplemented on Mac OS X 10.6 and later.  Instead, use
   // _Unwind_Find_FDE() and look at the dwarf_eh_bases.func result.
   extern void *_Unwind_FindEnclosingFunction(void *pc);
   // Mac OS X does not support text-rel and data-rel addressing so these functions

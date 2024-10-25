@@ -57,6 +57,6 @@ struct Tokenizer
   U8 *opl;
 };
 
-function B32 is_at_end_of_stream(Tokenizer *tokenizer, U64 offset);
+static B32 is_at_end_of_stream(Tokenizer *tokenizer, U64 offset);
 
 #endif // META_MAIN_H

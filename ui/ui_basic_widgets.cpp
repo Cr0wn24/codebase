@@ -1,4 +1,4 @@
-function void
+static void
 ui_spacer(UI_Size size)
 {
   Axis2 axis = ui_top_parent()->child_layout_axis;
@@ -7,14 +7,14 @@ ui_spacer(UI_Size size)
   ui_box_make(0);
 }
 
-function void
+static void
 ui_text(String8 string)
 {
   UI_Box *box = ui_box_make(UI_BoxFlag_DrawText);
   ui_box_equip_display_string(box, string);
 }
 
-function void
+static void
 ui_text(char *fmt, ...)
 {
   va_list args;
@@ -24,7 +24,7 @@ ui_text(char *fmt, ...)
   va_end(args);
 }
 
-function void
+static void
 ui_text(const char *fmt, ...)
 {
   va_list args;
@@ -34,7 +34,7 @@ ui_text(const char *fmt, ...)
   va_end(args);
 }
 
-function UI_Comm
+static UI_Comm
 ui_button(String8 string)
 {
   ui_next_hover_cursor(OS_Cursor_Hand);
@@ -50,7 +50,7 @@ ui_button(String8 string)
   return (comm);
 }
 
-function UI_Comm
+static UI_Comm
 ui_button(char *fmt, ...)
 {
   va_list args;
@@ -61,7 +61,7 @@ ui_button(char *fmt, ...)
   return (comm);
 }
 
-function UI_Comm
+static UI_Comm
 ui_check(B32 b32, String8 string)
 {
   UI_Box *box = ui_box_make(UI_BoxFlag_DrawBackground |
@@ -73,7 +73,7 @@ ui_check(B32 b32, String8 string)
   UI_Comm comm = ui_comm_from_box(box);
   ui_parent(box)
   {
-    ui_next_font_tag(ui_state->icon_font_tag);
+    ui_next_font_tag(ui_state->default_icon_font_tag);
     ui_next_pref_width(ui_pct(1, 1));
     ui_next_pref_height(ui_pct(1, 1));
     UI_Box *check_box = ui_box_make(0);
@@ -86,7 +86,7 @@ ui_check(B32 b32, String8 string)
   return (comm);
 }
 
-function UI_Comm
+static UI_Comm
 ui_check(B32 b32, char *fmt, ...)
 {
   va_list args;
@@ -97,7 +97,7 @@ ui_check(B32 b32, char *fmt, ...)
   return (comm);
 }
 
-function String8
+static String8
 ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, Array<U8> buffer, String8 replace_str)
 {
   U64 min_range = (U64)(range.min);
@@ -133,7 +133,7 @@ ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, Array<U8> 
   return (new_buffer);
 }
 
-function S64
+static S64
 ui_codepoint_index_from_mouse_pos(UI_Box *box, String8 edit_str)
 {
   TempArena scratch = get_scratch(0, 0);
@@ -167,7 +167,7 @@ ui_codepoint_index_from_mouse_pos(UI_Box *box, String8 edit_str)
   return result;
 }
 
-function UI_Comm
+static UI_Comm
 ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length, String8 string)
 {
   UI_Comm comm = {};
@@ -295,7 +295,7 @@ ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length,
 
   return (comm);
 }
-function UI_Comm
+static UI_Comm
 ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length, char *fmt, ...)
 {
   va_list args;
@@ -306,7 +306,7 @@ ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length,
   return (comm);
 }
 
-function UI_Box *
+static UI_Box *
 ui_begin_named_row(String8 string)
 {
   ui_next_child_layout_axis(Axis2_X);
@@ -315,13 +315,13 @@ ui_begin_named_row(String8 string)
   return box;
 }
 
-function void
-ui_end_named_row(void)
+static void
+ui_end_named_row()
 {
   ui_pop_parent();
 }
 
-function UI_Box *
+static UI_Box *
 ui_begin_named_row(char *fmt, ...)
 {
   va_list args;
@@ -332,20 +332,20 @@ ui_begin_named_row(char *fmt, ...)
   return box;
 }
 
-function UI_Box *
-ui_begin_row(void)
+static UI_Box *
+ui_begin_row()
 {
   UI_Box *box = ui_begin_named_row(str8_lit(""));
   return box;
 }
 
-function void
-ui_end_row(void)
+static void
+ui_end_row()
 {
   ui_end_named_row();
 }
 
-function UI_Box *
+static UI_Box *
 ui_begin_named_column(String8 string)
 {
   ui_next_child_layout_axis(Axis2_Y);
@@ -354,13 +354,13 @@ ui_begin_named_column(String8 string)
   return box;
 }
 
-function void
-ui_end_named_column(void)
+static void
+ui_end_named_column()
 {
   ui_pop_parent();
 }
 
-function UI_Box *
+static UI_Box *
 ui_begin_named_column(char *fmt, ...)
 {
   va_list args = {};
@@ -371,20 +371,20 @@ ui_begin_named_column(char *fmt, ...)
   return box;
 }
 
-function UI_Box *
-ui_begin_column(void)
+static UI_Box *
+ui_begin_column()
 {
   UI_Box *box = ui_begin_named_column(str8_lit(""));
   return box;
 }
 
-function void
-ui_end_column(void)
+static void
+ui_end_column()
 {
   ui_end_named_column();
 }
 
-function UI_Box *
+static UI_Box *
 ui_push_scrollable_container(String8 string, Axis2 axis)
 {
   ui_push_seed(ui_hash_from_seed_string(ui_top_seed(), string));
@@ -398,8 +398,8 @@ ui_push_scrollable_container(String8 string, Axis2 axis)
   return view_box;
 }
 
-function UI_Comm
-ui_pop_scrollable_container(void)
+static UI_Comm
+ui_pop_scrollable_container()
 {
   UI_Box *content_box = ui_pop_parent();
   UI_Box *view_box = ui_pop_parent();

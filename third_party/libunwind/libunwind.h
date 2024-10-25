@@ -61,8 +61,8 @@ typedef double unw_fpreg_t;
 #endif
 struct unw_proc_info_t
 {
-  unw_word_t start_ip;       /* start address of function */
-  unw_word_t end_ip;         /* address after end of function */
+  unw_word_t start_ip;       /* start address of static */
+  unw_word_t end_ip;         /* address after end of static */
   unw_word_t lsda;           /* address of language specific data area, */
                              /*  or zero if not used */
   unw_word_t handler;        /* personality routine, or zero if not used */

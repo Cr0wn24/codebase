@@ -1,4 +1,4 @@
-function Atlas
+static Atlas
 atlas_make(Arena *arena, Vec2U64 dim)
 {
   Atlas result = {};
@@ -12,7 +12,7 @@ atlas_make(Arena *arena, Vec2U64 dim)
   return result;
 }
 
-function RectU64
+static RectU64
 atlas_region_alloc(Arena *arena, Atlas *atlas, Vec2U64 dim)
 {
   RectU64 result = {};
@@ -104,7 +104,7 @@ atlas_region_alloc(Arena *arena, Atlas *atlas, Vec2U64 dim)
   return result;
 }
 
-function void
+static void
 atlas_region_free(Atlas *atlas, RectU64 region)
 {
   AtlasRegion *node = atlas->root;

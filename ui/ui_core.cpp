@@ -1,17 +1,14 @@
-META_EMBED_FILE("../assets/fontello.ttf", fontello_ttf_data)
-META_EMBED_FILE("../assets/Roboto-Bold.ttf", roboto_regular_ttf_data)
-
 //////////////////////////////
 // NOTE(hampus): Helpers
 
-function Arena *
-ui_frame_arena(void)
+static Arena *
+ui_frame_arena()
 {
   Arena *arena = ui_state->frame_arenas[ui_state->build_idx % array_count(ui_state->frame_arenas)];
   return arena;
 }
 
-function String8
+static String8
 ui_str8_from_icon(UI_Icon icon)
 {
   String8 string = ui_state->ui_icon_to_string_table[icon];
@@ -21,14 +18,14 @@ ui_str8_from_icon(UI_Icon icon)
 //////////////////////////////
 // NOTE(hampus): Keying
 
-function UI_Key
-ui_key_zero(void)
+static UI_Key
+ui_key_zero()
 {
   UI_Key key = {};
   return key;
 }
 
-function U64
+static U64
 ui_hash_from_seed_string(U64 seed, String8 string)
 {
   U64 hash = 0;
@@ -43,7 +40,7 @@ ui_hash_from_seed_string(U64 seed, String8 string)
   return hash;
 }
 
-function UI_Key
+static UI_Key
 ui_key_from_string(U64 seed, String8 string)
 {
   UI_Key key = {};
@@ -54,7 +51,7 @@ ui_key_from_string(U64 seed, String8 string)
 //////////////////////////////
 // NOTE(hampus): Contex Menu
 
-function B32
+static B32
 ui_ctx_menu_begin(UI_Key key)
 {
   B32 is_open = key == ui_state->ctx_menu_key;
@@ -84,8 +81,8 @@ ui_ctx_menu_begin(UI_Key key)
   return (is_open);
 }
 
-function void
-ui_ctx_menu_end(void)
+static void
+ui_ctx_menu_end()
 {
 #if 0
     ui_end_column();
@@ -94,7 +91,7 @@ ui_ctx_menu_end(void)
   ui_pop_parent();
 }
 
-function void
+static void
 ui_ctx_menu_open(UI_Key anchor, Vec2F32 offset, UI_Key menu)
 {
   ui_state->next_ctx_menu_key = menu;
@@ -102,22 +99,22 @@ ui_ctx_menu_open(UI_Key anchor, Vec2F32 offset, UI_Key menu)
   ui_state->next_anchor_offset = offset;
 }
 
-function void
-ui_ctx_menu_close(void)
+static void
+ui_ctx_menu_close()
 {
   ui_state->next_ctx_menu_key = ui_key_zero();
   ui_state->next_ctx_menu_anchor_key = ui_key_zero();
 }
 
-function B32
-ui_ctx_menu_is_open(void)
+static B32
+ui_ctx_menu_is_open()
 {
   B32 result = ui_state->ctx_menu_key != ui_key_zero();
   return result;
 }
 
-function UI_Key
-ui_ctx_menu_key(void)
+static UI_Key
+ui_ctx_menu_key()
 {
   UI_Key result = ui_state->ctx_menu_key;
   return result;
@@ -126,7 +123,7 @@ ui_ctx_menu_key(void)
 //////////////////////////////
 // NOTE(hampus): Text action
 
-function UI_TextAction
+static UI_TextAction
 ui_text_action_from_event(OS_Event *event)
 {
   UI_TextAction result = {};
@@ -228,7 +225,7 @@ ui_text_action_from_event(OS_Event *event)
   return result;
 }
 
-function UI_TextActionList
+static UI_TextActionList
 ui_text_action_list_from_events(Arena *arena, OS_EventList *event_list)
 {
   UI_TextActionList result = {};
@@ -249,7 +246,7 @@ ui_text_action_list_from_events(Arena *arena, OS_EventList *event_list)
   return result;
 }
 
-function UI_TextOp
+static UI_TextOp
 ui_text_of_from_state_and_action(Arena *arena, String8 edit_str, UI_TextEditState *state, UI_TextAction *action)
 {
   UI_TextOp result = {};
@@ -430,8 +427,8 @@ ui_text_of_from_state_and_action(Arena *arena, String8 edit_str, UI_TextEditStat
 //////////////////////////////
 // NOTE(hampus): Init
 
-function void
-ui_init(void)
+static void
+ui_init(String8 default_font_path, String8 default_icon_path)
 {
   // hampus: Allocate state
 
@@ -451,8 +448,8 @@ ui_init(void)
 
   // hampus: Init icon strings
 
-  // ui_state->icon_font_tag.name = str8_lit("fontello.ttf");
-  ui_state->icon_font_tag.data = fontello_ttf_data;
+  ui_state->default_font_tag.path = default_font_path;
+  ui_state->default_icon_font_tag.path = default_icon_path;
 
   for(U64 i = 0; i < array_count(ui_state->ui_icon_to_string_table); ++i)
   {
@@ -462,8 +459,8 @@ ui_init(void)
   }
 }
 
-function void
-ui_destroy(void)
+static void
+ui_destroy()
 {
   arena_free(ui_state->arena);
 
@@ -477,7 +474,7 @@ ui_destroy(void)
 //////////////////////////////
 // NOTE(hampus): Begin/End
 
-function B32
+static B32
 ui_tree_contains_click(UI_Box *root, Vec2F32 mouse_pos)
 {
   B32 result = r4f32_contains_2f32(root->fixed_rect, mouse_pos) && (root->flags & UI_BoxFlag_Clickable) != 0;
@@ -497,7 +494,7 @@ ui_tree_contains_click(UI_Box *root, Vec2F32 mouse_pos)
   return result;
 }
 
-function void
+static void
 ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
 {
   profile_function();
@@ -667,8 +664,7 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
   ui_push_fixed_pos(v2f32(0, 0));
   ui_push_child_layout_axis(Axis2_Y);
   ui_push_box_flags(0);
-  F_Tag ui_font_tag = (F_Tag){.name = str8_lit("res/Roboto-Regular.ttf"), .data = roboto_regular_ttf_data};
-  ui_push_font_tag(ui_font_tag);
+  ui_push_font_tag(ui_state->default_font_tag);
   ui_push_font_size(15);
   ui_push_text_padding(v2f32(1.0f, 0.5f));
   ui_push_pref_width(ui_text_content(1));
@@ -705,8 +701,8 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
   ui_push_parent(ui_state->normal_root);
 }
 
-function void
-ui_end_build(void)
+static void
+ui_end_build()
 {
   profile_function();
 
@@ -752,8 +748,8 @@ ui_end_build(void)
 //////////////////////////////
 // NOTE(hampus): Box implementation
 
-function UI_Box *
-ui_box_alloc(void)
+static UI_Box *
+ui_box_alloc()
 {
   UI_Box *box = (UI_Box *)ui_state->first_free_box;
   if(!ui_box_is_nil(box))
@@ -769,7 +765,7 @@ ui_box_alloc(void)
   return box;
 }
 
-function void
+static void
 ui_box_free(UI_Box *box)
 {
   UI_FreeBox *free_box = (UI_FreeBox *)box;
@@ -778,41 +774,41 @@ ui_box_free(UI_Box *box)
   ASAN_POISON_MEMORY_REGION(box, sizeof(UI_Box));
 }
 
-function B32
+static B32
 ui_box_is_hot(UI_Box *box)
 {
   B32 result = box->key == ui_state->hot_key && ui_state->hot_key != ui_key_zero();
   return result;
 }
 
-function B32
+static B32
 ui_box_is_active(UI_Box *box)
 {
   B32 result = box->key == ui_state->active_key && ui_state->active_key != ui_key_zero();
   return result;
 }
 
-function B32
+static B32
 ui_box_is_focus(UI_Box *box)
 {
   B32 result = box->key == ui_state->focus_key && ui_state->focus_key != ui_key_zero();
   return result;
 }
 
-function void
+static void
 ui_focus_box(UI_Box *box)
 {
   ui_state->focus_key = box->key;
 }
 
-function B32
+static B32
 ui_box_is_nil(UI_Box *box)
 {
   B32 result = box == 0 || box == &ui_nil_box;
   return result;
 }
 
-function UI_Box *
+static UI_Box *
 ui_box_from_key(UI_Key key)
 {
   UI_Box *box = &ui_nil_box;
@@ -847,7 +843,7 @@ ui_box_from_key(UI_Key key)
   return box;
 }
 
-function UI_Box *
+static UI_Box *
 ui_box_make_from_key(UI_BoxFlags flags, UI_Key key)
 {
   UI_Box *box = ui_box_from_key(key);
@@ -884,7 +880,7 @@ ui_box_make_from_key(UI_BoxFlags flags, UI_Key key)
   return box;
 }
 
-function String8
+static String8
 ui_get_hash_part_from_string(String8 string)
 {
   String8 result = string;
@@ -896,7 +892,7 @@ ui_get_hash_part_from_string(String8 string)
   return result;
 }
 
-function String8
+static String8
 ui_get_display_part_from_string(String8 string)
 {
   String8 result = string;
@@ -908,7 +904,7 @@ ui_get_display_part_from_string(String8 string)
   return result;
 }
 
-function UI_Box *
+static UI_Box *
 ui_box_make(UI_BoxFlags flags, String8 string)
 {
   UI_Key key =
@@ -918,7 +914,7 @@ ui_box_make(UI_BoxFlags flags, String8 string)
   return box;
 }
 
-function UI_Box *
+static UI_Box *
 ui_box_make(UI_BoxFlags flags, char *fmt, ...)
 {
   va_list args;
@@ -929,7 +925,7 @@ ui_box_make(UI_BoxFlags flags, char *fmt, ...)
   return box;
 }
 
-function UI_Box *
+static UI_Box *
 ui_box_make(UI_BoxFlags flags, const char *fmt, ...)
 {
   va_list args;
@@ -940,21 +936,21 @@ ui_box_make(UI_BoxFlags flags, const char *fmt, ...)
   return box;
 }
 
-function UI_Box *
+static UI_Box *
 ui_box_make(UI_BoxFlags flags)
 {
   UI_Box *box = ui_box_make(flags, str8_lit(""));
   return box;
 }
 
-function void
+static void
 ui_box_equip_display_string(UI_Box *box, String8 string)
 {
   String8 display_string = ui_get_display_part_from_string(string);
   box->string = str8_push(ui_frame_arena(), display_string);
 }
 
-function void
+static void
 ui_box_equip_display_string(UI_Box *box, char *fmt, ...)
 {
   va_list args;
@@ -964,7 +960,7 @@ ui_box_equip_display_string(UI_Box *box, char *fmt, ...)
   va_end(args);
 }
 
-function void
+static void
 ui_box_equip_custom_draw_proc(UI_Box *box,
                               UI_CustomDrawFunction *proc,
                               void *user_data)
@@ -973,7 +969,7 @@ ui_box_equip_custom_draw_proc(UI_Box *box,
   box->custom_draw_user_data = user_data;
 }
 
-function B32
+static B32
 ui_point_is_inside_context_menu(Vec2F32 point)
 {
   B32 result = false;
@@ -988,7 +984,7 @@ ui_point_is_inside_context_menu(Vec2F32 point)
   return result;
 }
 
-function B32
+static B32
 ui_box_is_part_of_ctx_menu(UI_Box *box)
 {
   B32 result = false;
@@ -1007,7 +1003,7 @@ ui_box_is_part_of_ctx_menu(UI_Box *box)
   return result;
 }
 
-function B32
+static B32
 ui_point_is_inside_parent_tree(UI_Box *box, Vec2F32 point)
 {
   B32 result = false;
@@ -1023,7 +1019,7 @@ ui_point_is_inside_parent_tree(UI_Box *box, Vec2F32 point)
   return result;
 }
 
-function UI_Comm
+static UI_Comm
 ui_comm_from_box__touch(UI_Box *box)
 {
   // TODO(hampus): Fling began inside and screen and exiting outside
@@ -1148,7 +1144,7 @@ ui_comm_from_box__touch(UI_Box *box)
   return result;
 }
 
-function UI_Comm
+static UI_Comm
 ui_comm_from_box__mouse(UI_Box *box)
 {
   UI_Comm result = {};
@@ -1298,7 +1294,7 @@ ui_comm_from_box__mouse(UI_Box *box)
 //////////////////////////////
 // NOTE(hampus): Layouting
 
-function UI_Size
+static UI_Size
 ui_size_make(UI_SizeKind kind, F32 val, F32 strictness)
 {
   UI_Size size = {};
@@ -1308,7 +1304,7 @@ ui_size_make(UI_SizeKind kind, F32 val, F32 strictness)
   return (size);
 }
 
-function void
+static void
 ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
 {
   if(!(root->flags & (UI_BoxFlag_FixedWidth << axis)))
@@ -1347,7 +1343,7 @@ ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
   }
 }
 
-function void
+static void
 ui_solve_upward_dependent_sizes(UI_Box *root, Axis2 axis)
 {
   if(!(root->flags & (UI_BoxFlag_FixedWidth << axis)))
@@ -1367,7 +1363,7 @@ ui_solve_upward_dependent_sizes(UI_Box *root, Axis2 axis)
   }
 }
 
-function void
+static void
 ui_solve_downward_dependent_sizes(UI_Box *root, Axis2 axis)
 {
   for(UI_Box *child = root->first; !ui_box_is_nil(child);
@@ -1402,7 +1398,7 @@ ui_solve_downward_dependent_sizes(UI_Box *root, Axis2 axis)
   }
 }
 
-function void
+static void
 ui_solve_other_axis_dependent_sizes(UI_Box *root, Axis2 axis)
 {
   if(!(root->flags & (UI_BoxFlag_FixedWidth << axis)))
@@ -1420,7 +1416,7 @@ ui_solve_other_axis_dependent_sizes(UI_Box *root, Axis2 axis)
   }
 }
 
-function void
+static void
 ui_solve_size_violations(UI_Box *root, Axis2 axis)
 {
   F32 available_space = root->fixed_size[axis];
@@ -1505,7 +1501,7 @@ ui_solve_size_violations(UI_Box *root, Axis2 axis)
   }
 }
 
-function void
+static void
 ui_calculate_final_rect(UI_Box *root, Axis2 axis)
 {
   if(root->first_build_touched_idx == root->last_build_touched_idx)
@@ -1595,7 +1591,7 @@ ui_calculate_final_rect(UI_Box *root, Axis2 axis)
   }
 }
 
-function void
+static void
 ui_calculate_sizes(UI_Box *root)
 {
   for_each_enum_val(Axis2, axis)
@@ -1616,7 +1612,7 @@ ui_calculate_sizes(UI_Box *root)
   }
 }
 
-function void
+static void
 ui_layout(UI_Box *root)
 {
   ui_calculate_sizes(root);
@@ -1630,7 +1626,7 @@ ui_layout(UI_Box *root)
   }
 }
 
-function UI_Size
+static UI_Size
 ui_dp(F32 val, F32 strictness)
 {
   UI_Size result = {};
@@ -1640,7 +1636,7 @@ ui_dp(F32 val, F32 strictness)
   return result;
 }
 
-function UI_Size
+static UI_Size
 ui_px(F32 val, F32 strictness)
 {
   UI_Size result = {};
@@ -1650,7 +1646,7 @@ ui_px(F32 val, F32 strictness)
   return result;
 }
 
-function UI_Size
+static UI_Size
 ui_text_content(F32 strictness)
 {
   UI_Size result = {};
@@ -1659,7 +1655,7 @@ ui_text_content(F32 strictness)
   return result;
 }
 
-function UI_Size
+static UI_Size
 ui_pct(F32 val, F32 strictness)
 {
   UI_Size result = {};
@@ -1669,7 +1665,7 @@ ui_pct(F32 val, F32 strictness)
   return result;
 }
 
-function UI_Size
+static UI_Size
 ui_children_sum(F32 strictness)
 {
   UI_Size result = {};
@@ -1678,7 +1674,7 @@ ui_children_sum(F32 strictness)
   return result;
 }
 
-function UI_Size
+static UI_Size
 ui_other_axis(F32 strictness)
 {
   UI_Size result = {};
@@ -1687,8 +1683,8 @@ ui_other_axis(F32 strictness)
   return result;
 }
 
-function UI_Size
-ui_fill(void)
+static UI_Size
+ui_fill()
 {
   UI_Size result = {};
   result.kind = UI_SizeKind_Pct;
@@ -1697,7 +1693,7 @@ ui_fill(void)
   return result;
 }
 
-function UI_Size
+static UI_Size
 ui_em(F32 val, F32 strictness)
 {
   UI_Size result = {};
@@ -1707,7 +1703,7 @@ ui_em(F32 val, F32 strictness)
   return result;
 }
 
-function void
+static void
 ui_push_parent(UI_Box *box)
 {
   UI_ParentStackNode *n = push_array<UI_ParentStackNode>(ui_frame_arena(), 1);
@@ -1715,22 +1711,22 @@ ui_push_parent(UI_Box *box)
   sll_stack_push(ui_state->parent_stack, n);
 }
 
-function UI_Box *
-ui_pop_parent(void)
+static UI_Box *
+ui_pop_parent()
 {
   UI_Box *box = ui_top_parent();
   sll_stack_pop(ui_state->parent_stack);
   return box;
 }
 
-function UI_Box *
-ui_top_parent(void)
+static UI_Box *
+ui_top_parent()
 {
   UI_Box *box = ui_state->parent_stack->box;
   return box;
 }
 
-function void
+static void
 ui_push_seed(U64 seed)
 {
   UI_SeedNode *node = push_array<UI_SeedNode>(ui_frame_arena(), 1);
@@ -1738,21 +1734,21 @@ ui_push_seed(U64 seed)
   sll_stack_push(ui_state->seed_stack, node);
 }
 
-function void
-ui_pop_seed(void)
+static void
+ui_pop_seed()
 {
   sll_stack_pop(ui_state->seed_stack);
 }
 
-function U64
-ui_top_seed(void)
+static U64
+ui_top_seed()
 {
   U64 seed = ui_state->seed_stack->seed;
   return seed;
 }
 
-function F32
-ui_top_font_line_height(void)
+static F32
+ui_top_font_line_height()
 {
   F32 line_height = 0;
   F_Tag tag = ui_top_font_tag();
@@ -1761,7 +1757,7 @@ ui_top_font_line_height(void)
   return line_height;
 }
 
-function void
+static void
 ui_push_pref_size(Axis2 axis, UI_Size size)
 {
   if(axis == Axis2_X)
@@ -1774,7 +1770,7 @@ ui_push_pref_size(Axis2 axis, UI_Size size)
   }
 }
 
-function void
+static void
 ui_next_pref_size(Axis2 axis, UI_Size size)
 {
   if(axis == Axis2_X)
@@ -1787,7 +1783,7 @@ ui_next_pref_size(Axis2 axis, UI_Size size)
   }
 }
 
-function void
+static void
 ui_pop_pref_size(Axis2 axis)
 {
   if(axis == Axis2_X)
@@ -1800,7 +1796,7 @@ ui_pop_pref_size(Axis2 axis)
   }
 }
 
-function void
+static void
 ui_next_rect_color(Vec4F32 color)
 {
   ui_next_rect_color00(color);
@@ -1809,7 +1805,7 @@ ui_next_rect_color(Vec4F32 color)
   ui_next_rect_color11(color);
 }
 
-function void
+static void
 ui_push_rect_color(Vec4F32 color)
 {
   ui_push_rect_color00(color);
@@ -1818,8 +1814,8 @@ ui_push_rect_color(Vec4F32 color)
   ui_push_rect_color11(color);
 }
 
-function void
-ui_pop_rect_color(void)
+static void
+ui_pop_rect_color()
 {
   ui_pop_rect_color00();
   ui_pop_rect_color01();
@@ -1827,29 +1823,29 @@ ui_pop_rect_color(void)
   ui_pop_rect_color11();
 }
 
-function void
+static void
 ui_next_fixed_rect(RectF32 rect)
 {
   ui_next_fixed_pos(rect.min);
   ui_next_fixed_size(rect.max - rect.min);
 }
 
-function void
+static void
 ui_push_fixed_rect(RectF32 rect)
 {
   ui_push_fixed_pos(rect.min);
   ui_push_fixed_size(rect.max - rect.min);
 }
 
-function void
-ui_pop_fixed_rect(void)
+static void
+ui_pop_fixed_rect()
 {
   ui_pop_fixed_pos();
   ui_pop_fixed_size();
 }
 
 #define X(name_upper, name_lower, type)                                                   \
-  function ui_##name_upper##Node *                                                        \
+  static ui_##name_upper##Node *                                                          \
   ui_push_##name_lower(type new_val)                                                      \
   {                                                                                       \
     ui_##name_upper##Node *node = push_array<ui_##name_upper##Node>(ui_frame_arena(), 1); \
@@ -1858,7 +1854,7 @@ ui_pop_fixed_rect(void)
     return ui_state->name_lower##_stack;                                                  \
   }                                                                                       \
                                                                                           \
-  function ui_##name_upper##Node *                                                        \
+  static ui_##name_upper##Node *                                                          \
   ui_next_##name_lower(type val)                                                          \
   {                                                                                       \
     ui_##name_upper##Node *node = ui_push_##name_lower(val);                              \
@@ -1866,15 +1862,15 @@ ui_pop_fixed_rect(void)
     return ui_state->name_lower##_stack;                                                  \
   }                                                                                       \
                                                                                           \
-  function ui_##name_upper##Node *                                                        \
-  ui_pop_##name_lower(void)                                                               \
+  static ui_##name_upper##Node *                                                          \
+  ui_pop_##name_lower()                                                                   \
   {                                                                                       \
     sll_stack_pop(ui_state->name_lower##_stack);                                          \
     return ui_state->name_lower##_stack;                                                  \
   }                                                                                       \
                                                                                           \
-  function type                                                                           \
-  ui_top_##name_lower(void)                                                               \
+  static type                                                                             \
+  ui_top_##name_lower()                                                                   \
   {                                                                                       \
     return ui_state->name_lower##_stack->val;                                             \
   }

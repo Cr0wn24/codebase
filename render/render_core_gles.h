@@ -51,6 +51,6 @@ struct R_GLES_State
   R_GLES_Tex2D *active_tex2d;
 };
 
-function void r_gles_set_uniform_4x4f32(String8 name, U8 *data);
+static void r_gles_set_uniform_4x4f32(String8 name, U8 *data);
 
 #endif // RENDER_GLES_H

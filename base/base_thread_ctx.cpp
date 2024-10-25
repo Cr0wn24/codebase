@@ -6,7 +6,7 @@ per_thread ThreadCtx *thread_ctx;
 //////////////////////////////
 // NOTE(hampus): Thread ctx functions
 
-function ThreadCtx *
+static ThreadCtx *
 thread_ctx_init(String8 name)
 {
   thread_ctx = thread_ctx_alloc();
@@ -15,8 +15,8 @@ thread_ctx_init(String8 name)
   return (thread_ctx);
 }
 
-function ThreadCtx *
-thread_ctx_alloc(void)
+static ThreadCtx *
+thread_ctx_alloc()
 {
   Arena *arena = arena_alloc();
   ThreadCtx *result = push_array<ThreadCtx>(arena, 1);
@@ -28,7 +28,7 @@ thread_ctx_alloc(void)
   return result;
 }
 
-function void
+static void
 thread_ctx_release(ThreadCtx *tctx)
 {
   for(U64 i = 0; i < array_count(tctx->scratch_arenas); ++i)
@@ -37,20 +37,20 @@ thread_ctx_release(ThreadCtx *tctx)
   }
 }
 
-function void
+static void
 set_thread_ctx(ThreadCtx *tctx)
 {
   thread_ctx = tctx;
 }
 
-function ThreadCtx *
-get_thread_ctx(void)
+static ThreadCtx *
+get_thread_ctx()
 {
   ThreadCtx *result = thread_ctx;
   return result;
 }
 
-function void
+static void
 set_thread_ctx_name(String8 string)
 {
   ThreadCtx *ctx = get_thread_ctx();
@@ -63,8 +63,8 @@ set_thread_ctx_name(String8 string)
   }
 }
 
-function String8
-get_thread_ctx_name(void)
+static String8
+get_thread_ctx_name()
 {
   ThreadCtx *ctx = get_thread_ctx();
   String8 result = str8_cstr((char *)ctx->name.val);
@@ -74,7 +74,7 @@ get_thread_ctx_name(void)
 //////////////////////////////
 // NOTE(hampus): Scratch functions
 
-function Arena *
+static Arena *
 get_scratch_arena(Arena **conflicts, U32 count)
 {
   Arena *selected = 0;

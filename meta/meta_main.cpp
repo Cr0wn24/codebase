@@ -6,7 +6,7 @@
 
 #include "meta/meta_main.h"
 
-function B32
+static B32
 is_whitespace(U8 ch)
 {
   B32 result = ((ch == ' ') ||
@@ -14,21 +14,21 @@ is_whitespace(U8 ch)
   return result;
 }
 
-function B32
+static B32
 is_alpha(U8 ch)
 {
   B32 result = ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z');
   return result;
 }
 
-function B32
+static B32
 is_numeric(U8 ch)
 {
   B32 result = ('0' <= ch && ch <= '9');
   return result;
 }
 
-function void
+static void
 eat_all_whitespace(Tokenizer *tokenizer)
 {
   while(!is_at_end_of_stream(tokenizer, 0))
@@ -68,17 +68,17 @@ eat_all_whitespace(Tokenizer *tokenizer)
   }
 }
 
-function B32
+static B32
 is_at_end_of_stream(Tokenizer *tokenizer, U64 offset)
 {
   B32 result = (tokenizer->at + offset) >= tokenizer->opl;
   return result;
 }
 
-function Token
+static Token
 get_token(Tokenizer *tokenizer)
 {
-  profile_function_begin();
+  profile_static_begin();
   Token result = {};
   result.string = str8(tokenizer->at, 1);
   eat_all_whitespace(tokenizer);
@@ -255,11 +255,11 @@ get_token(Tokenizer *tokenizer)
     break;
   }
 
-  profile_function_end();
+  profile_static_end();
   return result;
 }
 
-function B32
+static B32
 require_token(Tokenizer *tokenizer, TokenKind kind)
 {
   Token token = get_token(tokenizer);
@@ -267,14 +267,14 @@ require_token(Tokenizer *tokenizer, TokenKind kind)
   return result;
 }
 
-function B32
+static B32
 token_is_kind(Token token, TokenKind kind)
 {
   B32 result = token.kind == kind;
   return result;
 }
 
-function void
+static void
 display_error(String8 error, String8 file_path, U64 line_number)
 {
   TempArena scratch = get_scratch(0, 0);
@@ -283,7 +283,7 @@ display_error(String8 error, String8 file_path, U64 line_number)
   os_exit(1);
 }
 
-function void
+static void
 get_all_source_files_from_directory_recursively(Arena *arena, String8 directory, SourceFileList *list)
 {
   TempArena scratch = get_scratch(&arena, 1);
@@ -313,7 +313,7 @@ get_all_source_files_from_directory_recursively(Arena *arena, String8 directory,
   }
 }
 
-function S32
+static S32
 os_entry_point(String8List args)
 {
   profile_init("meta");
@@ -330,9 +330,9 @@ os_entry_point(String8List args)
     TempArena scratch = get_scratch(0, 0);
     String8 base_meta_file_data = str8_lit("#ifndef BASE_META_H\n"
                                            "#define BASE_META_H\n\n"
-                                           "#define META_EMBED_FILE(path, name)\n\n"
+                                           "#define META_EMBED_FILE(path, name) extern String8 name;\n\n"
                                            "#endif // BASE_META_H");
-    String8 base_meta_file_path = str8_append(scratch.arena, code_path, str8_lit("base/base_meta.h"));
+    String8 base_meta_file_path = str8_append(scratch.arena, code_path, str8_lit("\\codebase\\base\\base_meta.h"));
     ASSERT_ALWAYS(os_file_write(base_meta_file_path, base_meta_file_data));
   }
 
@@ -367,7 +367,7 @@ os_entry_point(String8List args)
   {
     String8 directory = str8_chop_last_slash(n->path);
     String8 file_name = str8_skip_last_slash(n->path);
-    String8 file_contents = os_read_file(arena, n->path);
+    String8 file_contents = os_file_read(arena, n->path);
     Tokenizer tokenizer = {};
     tokenizer.at = file_contents.data;
     tokenizer.opl = file_contents.data + file_contents.size;
@@ -413,7 +413,7 @@ os_entry_point(String8List args)
                       str8_list_push(scratch.arena, &path_list, file_path);
                       full_file_path = str8_join(scratch.arena, &path_list);
                     }
-                    String8 file_data = os_read_file(scratch.arena, full_file_path);
+                    String8 file_data = os_file_read(scratch.arena, full_file_path);
                     if(file_data.size != 0)
                     {
                       String8 generated_directory_path = str8_append(scratch.arena, directory, str8_lit("\\generated"));
@@ -430,7 +430,7 @@ os_entry_point(String8List args)
                       U64 buffer_used_size = 0;
 
                       {
-                        String8 string = str8_push(scratch.arena, "\nglobal StaticArray<U8, %" PRIU64 "> %S_data =\n{\n", file_data.size, generated_variable_name);
+                        String8 string = str8_push(scratch.arena, "\nStaticArray<U8, %" PRIU64 "> %S_data =\n{\n", file_data.size, generated_variable_name);
                         ASSERT_ALWAYS(os_file_stream_write(n->file_stream_handle, string));
                       }
 

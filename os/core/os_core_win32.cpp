@@ -8,13 +8,13 @@
 //////////////////////////////
 // NOTE(hampus): Global state
 
-global OS_Win32_State *os_win32_state;
+static OS_Win32_State *os_win32_state;
 
 //////////////////////////////
 // NOTE(hampus): Win32 helpers
 
-function OS_Win32_Entity *
-os_win32_entity_alloc(void)
+static OS_Win32_Entity *
+os_win32_entity_alloc()
 {
   OS_Win32_Entity *result = os_win32_state->first_free_entity;
   if(result == 0)
@@ -29,20 +29,20 @@ os_win32_entity_alloc(void)
   return result;
 }
 
-function void
+static void
 os_win32_entity_free(OS_Win32_Entity *e)
 {
   sll_stack_push(os_win32_state->first_free_entity, e);
 }
 
-function B32
+static B32
 os_win32_handle_is_valid(HANDLE handle)
 {
   B32 result = !(handle == INVALID_HANDLE_VALUE || handle == 0);
   return result;
 }
 
-function String16
+static String16
 os_win32_str16_from_wchar(WCHAR *wide_char)
 {
   String16 result = {};
@@ -54,7 +54,7 @@ os_win32_str16_from_wchar(WCHAR *wide_char)
   return result;
 }
 
-function DateTime
+static DateTime
 os_win32_date_time_from_system_time(SYSTEMTIME *system_time)
 {
   DateTime result = {};
@@ -68,7 +68,7 @@ os_win32_date_time_from_system_time(SYSTEMTIME *system_time)
   return result;
 }
 
-function SYSTEMTIME
+static SYSTEMTIME
 os_win32_system_time_from_date_time(DateTime *date_time)
 {
   SYSTEMTIME result = {};
@@ -95,32 +95,32 @@ os_win32_thread_proc(LPVOID data)
 //////////////////////////////
 // NOTE(hampus): Memory allocation
 
-function void *
+static void *
 os_memory_reserve(U64 size)
 {
   void *result = VirtualAlloc(0, size, MEM_RESERVE, PAGE_READWRITE);
   return result;
 }
 
-function void
+static void
 os_memory_commit(void *ptr, U64 size)
 {
   VirtualAlloc(ptr, size, MEM_COMMIT, PAGE_READWRITE);
 }
 
-function void
+static void
 os_memory_decommit(void *ptr, U64 size)
 {
   VirtualFree(ptr, size, MEM_DECOMMIT);
 }
 
-function void
+static void
 os_memory_release(void *ptr, U64 size)
 {
   VirtualFree(ptr, 0, MEM_RELEASE);
 }
 
-function void *
+static void *
 os_memory_alloc(U64 size)
 {
   void *result = os_memory_reserve(size);
@@ -128,7 +128,7 @@ os_memory_alloc(U64 size)
   return result;
 }
 
-function void
+static void
 os_memory_free(void *memory)
 {
   os_memory_release(memory, 0);
@@ -137,7 +137,7 @@ os_memory_free(void *memory)
 //////////////////////////////
 // NOTE(hampus): File attributes
 
-function OS_FileAttributes
+static OS_FileAttributes
 os_get_file_attributes(String8 path)
 {
   OS_FileAttributes result = {};
@@ -154,8 +154,8 @@ os_get_file_attributes(String8 path)
 //////////////////////////////
 // NOTE(hampus): Basic file operations
 
-function String8
-os_read_file(Arena *arena, String8 path)
+static String8
+os_file_read(Arena *arena, String8 path)
 {
   String8 result = {};
   ASSERT(path.size < MAX_PATH);
@@ -193,18 +193,37 @@ os_read_file(Arena *arena, String8 path)
   return result;
 }
 
-function B32
-os_file_write(String8 path, String8 data)
+static B32
+os_file_write(String8 path, String8 data, OS_FileWriteMode mode)
 {
   B32 result = false;
   if(path.size <= OS_WIN32_MAX_PATH)
   {
+    DWORD m = 0;
+    switch(mode)
+    {
+      case OS_FileWriteMode_CreateAlways:
+      {
+        m = CREATE_ALWAYS;
+      }
+      break;
+      case OS_FileWriteMode_OpenAlways:
+      {
+        m = OPEN_ALWAYS;
+      }
+      break;
+      default:
+      {
+        invalid_code_path;
+      }
+      break;
+    }
     TempArena scratch = get_scratch(0, 0);
     HANDLE file = CreateFileW((LPCWSTR)cstr16_from_str8(scratch.arena, path),
                               GENERIC_READ | GENERIC_WRITE,
                               0,
                               0,
-                              OPEN_ALWAYS,
+                              m,
                               FILE_ATTRIBUTE_NORMAL,
                               0);
     if(os_win32_handle_is_valid(file))
@@ -217,7 +236,7 @@ os_file_write(String8 path, String8 data)
   return result;
 }
 
-function B32
+static B32
 os_file_copy(String8 old_path, String8 new_path)
 {
   B32 result = false;
@@ -231,7 +250,7 @@ os_file_copy(String8 old_path, String8 new_path)
   return result;
 }
 
-function B32
+static B32
 os_file_rename(String8 old_path, String8 new_path)
 {
   B32 result = false;
@@ -245,7 +264,7 @@ os_file_rename(String8 old_path, String8 new_path)
   return result;
 }
 
-function B32
+static B32
 os_file_delete(String8 path)
 {
   B32 result = false;
@@ -260,7 +279,7 @@ os_file_delete(String8 path)
 //////////////////////////////
 // NOTE(hampus): File stream
 
-function OS_Handle
+static OS_Handle
 os_file_stream_open(String8 path)
 {
   OS_Handle result = os_handle_zero();
@@ -279,7 +298,7 @@ os_file_stream_open(String8 path)
   return result;
 }
 
-function B32
+static B32
 os_file_stream_close(OS_Handle file)
 {
   B32 success = false;
@@ -292,7 +311,7 @@ os_file_stream_close(OS_Handle file)
   return (success);
 }
 
-function B32
+static B32
 os_file_stream_write(OS_Handle file, String8 data)
 {
   B32 result = false;
@@ -313,7 +332,7 @@ os_file_stream_write(OS_Handle file, String8 data)
 //////////////////////////////
 // NOTE(hampus): Directory operations
 
-function B32
+static B32
 os_directory_create(String8 path)
 {
   B32 result = false;
@@ -321,11 +340,19 @@ os_directory_create(String8 path)
   {
     TempArena scratch = get_scratch(0, 0);
     result = (B32)CreateDirectoryW((LPCWSTR)cstr16_from_str8(scratch.arena, path), 0);
+    if(!result)
+    {
+      DWORD error = GetLastError();
+      if(error == ERROR_ALREADY_EXISTS)
+      {
+        result = true;
+      }
+    }
   }
   return result;
 }
 
-function B32
+static B32
 os_directory_delete(String8 path)
 {
   B32 result = false;
@@ -337,7 +364,7 @@ os_directory_delete(String8 path)
   return result;
 }
 
-function OS_Handle
+static OS_Handle
 os_file_iterator_init(String8 path)
 {
   OS_Handle result = {};
@@ -358,7 +385,7 @@ os_file_iterator_init(String8 path)
   return result;
 }
 
-function void
+static void
 os_file_iterator_end(OS_Handle iterator)
 {
   OS_Win32_Entity *win32_iter = (OS_Win32_Entity *)ptr_from_int(iterator.u64[0]);
@@ -368,7 +395,7 @@ os_file_iterator_end(OS_Handle iterator)
   }
 }
 
-function B32
+static B32
 os_file_iterator_next(Arena *arena, OS_Handle iterator, String8 *result_name)
 {
   B32 result = false;
@@ -401,7 +428,7 @@ os_file_iterator_next(Arena *arena, OS_Handle iterator, String8 *result_name)
   return result;
 }
 
-function String8
+static String8
 os_get_executable_path(Arena *arena)
 {
   String8 result = {};
@@ -414,8 +441,8 @@ os_get_executable_path(Arena *arena)
 //////////////////////////////
 // NOTE(hampus): Time
 
-function DateTime
-os_get_universal_time(void)
+static DateTime
+os_get_universal_time()
 {
   SYSTEMTIME universal_time = {};
   GetSystemTime(&universal_time);
@@ -423,8 +450,8 @@ os_get_universal_time(void)
   return result;
 }
 
-function DateTime
-os_get_local_time(void)
+static DateTime
+os_get_local_time()
 {
   SYSTEMTIME local_time = {};
   GetLocalTime(&local_time);
@@ -432,8 +459,8 @@ os_get_local_time(void)
   return result;
 }
 
-function Date
-os_get_local_date(void)
+static Date
+os_get_local_date()
 {
   SYSTEMTIME local_time = {};
   GetLocalTime(&local_time);
@@ -445,7 +472,7 @@ os_get_local_date(void)
   return result;
 }
 
-function DateTime
+static DateTime
 os_local_time_from_universal(DateTime *date_time)
 {
   TIME_ZONE_INFORMATION time_zone_information;
@@ -457,7 +484,7 @@ os_local_time_from_universal(DateTime *date_time)
   return result;
 }
 
-function DateTime
+static DateTime
 os_universal_time_from_local(DateTime *date_time)
 {
   TIME_ZONE_INFORMATION time_zone_information;
@@ -469,8 +496,8 @@ os_universal_time_from_local(DateTime *date_time)
   return result;
 }
 
-function U64
-os_get_microseconds(void)
+static U64
+os_get_microseconds()
 {
   U64 result = 0;
   LARGE_INTEGER counter;
@@ -481,13 +508,13 @@ os_get_microseconds(void)
   return result;
 }
 
-function void
+static void
 os_sleep(U64 ms)
 {
   Sleep((DWORD)ms);
 }
 
-function void
+static void
 os_wait_microseconds(U64 end_time_us)
 {
   U64 begin_time_us = os_get_microseconds();
@@ -504,7 +531,7 @@ os_wait_microseconds(U64 end_time_us)
 //////////////////////////////
 // NOTE(hampus): Library
 
-function OS_Handle
+static OS_Handle
 os_library_open(String8 path)
 {
   OS_Handle result = {};
@@ -523,7 +550,7 @@ os_library_open(String8 path)
   return result;
 }
 
-function void
+static void
 os_library_close(OS_Handle library)
 {
   if(library.u64[0])
@@ -533,8 +560,8 @@ os_library_close(OS_Handle library)
   }
 }
 
-function void *
-os_libary_load_function(OS_Handle library, String8 name)
+static void *
+os_libary_load_static(OS_Handle library, String8 name)
 {
   void *result = 0;
   if(library.u64[0])
@@ -549,7 +576,7 @@ os_libary_load_function(OS_Handle library, String8 name)
 //////////////////////////////
 // NOTE(hampus): Threading
 
-function OS_Handle
+static OS_Handle
 os_semaphore_alloc(U32 initial_value)
 {
   OS_Handle result = {};
@@ -561,7 +588,7 @@ os_semaphore_alloc(U32 initial_value)
   return result;
 }
 
-function void
+static void
 os_semaphore_free(OS_Handle handle)
 {
   HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
@@ -571,7 +598,7 @@ os_semaphore_free(OS_Handle handle)
   }
 }
 
-function void
+static void
 os_semaphore_signal(OS_Handle handle)
 {
   HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
@@ -581,7 +608,7 @@ os_semaphore_signal(OS_Handle handle)
   }
 }
 
-function void
+static void
 os_semaphore_wait(OS_Handle handle)
 {
   HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
@@ -591,8 +618,8 @@ os_semaphore_wait(OS_Handle handle)
   }
 }
 
-function OS_Handle
-os_mutex_alloc(void)
+static OS_Handle
+os_mutex_alloc()
 {
   OS_Handle result = {};
   HANDLE win32_handle = CreateMutex(0, FALSE, 0);
@@ -603,7 +630,7 @@ os_mutex_alloc(void)
   return result;
 }
 
-function void
+static void
 os_mutex_free(OS_Handle handle)
 {
   HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
@@ -613,7 +640,7 @@ os_mutex_free(OS_Handle handle)
   }
 }
 
-function void
+static void
 os_mutex_take(OS_Handle handle)
 {
   HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
@@ -623,7 +650,7 @@ os_mutex_take(OS_Handle handle)
   }
 }
 
-function void
+static void
 os_mutex_release(OS_Handle handle)
 {
   HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
@@ -633,7 +660,7 @@ os_mutex_release(OS_Handle handle)
   }
 }
 
-function OS_Handle
+static OS_Handle
 os_thread_create(ThreadProc *proc, void *data)
 {
   OS_Handle result = {};
@@ -645,7 +672,7 @@ os_thread_create(ThreadProc *proc, void *data)
   return result;
 }
 
-function void
+static void
 os_thread_join(OS_Handle handle)
 {
   HANDLE win32_handle = ptr_from_int(handle.u64[0]);
@@ -655,7 +682,7 @@ os_thread_join(OS_Handle handle)
   }
 }
 
-function void
+static void
 os_thread_set_name(String8 string)
 {
   HANDLE handle = GetCurrentThread();
@@ -663,8 +690,8 @@ os_thread_set_name(String8 string)
   SetThreadDescription(handle, (PCWSTR)cstr16_from_str8(scratch.arena, string));
 }
 
-function U32
-os_get_current_thread_id(void)
+static U32
+os_get_current_thread_id()
 {
   U32 result = GetCurrentThreadId();
   return result;
@@ -673,7 +700,7 @@ os_get_current_thread_id(void)
 //////////////////////////////
 // NOTE(hampus): Debug output
 
-function void
+static void
 os_print_debug_string(String8 string)
 {
   TempArena scratch = get_scratch(0, 0);
@@ -681,7 +708,7 @@ os_print_debug_string(String8 string)
   OutputDebugStringW((LPCWSTR)cstr16);
 }
 
-function void
+static void
 os_print_debug_string(const char *fmt, ...)
 {
   TempArena scratch = get_scratch(0, 0);
@@ -724,7 +751,7 @@ main(S32 argc, char **argv)
 //////////////////////////////
 // NOTE(hampus): Exit
 
-function void
+static void
 os_exit(S32 exit_code)
 {
   ExitProcess(safe_u32_from_s32(exit_code));

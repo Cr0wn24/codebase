@@ -7,34 +7,51 @@
 // TODO(hampus): Caching of indices for codepoints
 // TODO(hampus): Caching of scaling
 
-function FP_Handle
+static FP_STBTT_State *fp_stbtt_state;
+
+static void
+fp_init()
+{
+  Arena *arena = arena_alloc();
+  fp_stbtt_state = push_array<FP_STBTT_State>(arena, 1);
+  fp_stbtt_state->arena = arena;
+  fp_stbtt_state->read_file = os_file_read;
+}
+
+static void
+fp_set_file_read_proc(FP_FileReadProc *proc)
+{
+  fp_stbtt_state->read_file = proc;
+}
+
+static FP_Handle
 fp_font_open_file(Arena *arena, String8 path)
 {
   FP_Handle result = fp_handle_zero();
-  String8 file_read_result = fp_state->read_file(arena, path);
+  String8 file_read_result = fp_stbtt_state->read_file(arena, path);
   if(file_read_result.size != 0)
   {
-    result = fp_font_open_memory(arena, file_read_result);
+    result = fp_font_open_static_data_string(arena, &file_read_result);
   }
   return result;
 }
 
-function FP_Handle
-fp_font_open_memory(Arena *arena, String8 memory)
+static FP_Handle
+fp_font_open_static_data_string(Arena *arena, String8 *data_ptr)
 {
   FP_Handle result = fp_handle_zero();
   stbtt_fontinfo *stb_font = push_array<stbtt_fontinfo>(arena, 1);
-  stbtt_InitFont(stb_font, memory.data, 0);
+  stbtt_InitFont(stb_font, data_ptr->data, 0);
   result.u64[0] = int_from_ptr(stb_font);
   return result;
 }
 
-function void
+static void
 fp_font_close(FP_Handle font)
 {
 }
 
-function FP_RasterResult
+static FP_RasterResult
 fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
 {
   profile_function();
@@ -87,8 +104,8 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
   return result;
 }
 
-function FP_FontMetrics
-fp_metrics_from_font_size(FP_Handle font, U32 size)
+static FP_FontMetrics
+fp_get_font_metrics(FP_Handle font, U32 size)
 {
   FP_FontMetrics result = {};
   stbtt_fontinfo *stb_font = (stbtt_fontinfo *)ptr_from_int(font.u64[0]);
@@ -103,8 +120,8 @@ fp_metrics_from_font_size(FP_Handle font, U32 size)
   return result;
 }
 
-function FP_GlyphMetrics
-fp_metrics_From_font_size_cp(FP_Handle font, U32 size, U32 cp)
+static FP_GlyphMetrics
+fp_get_glyph_metrics(FP_Handle font, U32 size, U32 cp)
 {
   FP_GlyphMetrics result = {};
   stbtt_fontinfo *stb_font = (stbtt_fontinfo *)ptr_from_int(font.u64[0]);

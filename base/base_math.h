@@ -619,144 +619,144 @@ union RectU64
 
 // hampus: F32
 
-[[nodiscard]] function Vec2F32 v2f32(F32 x, F32 y);
-[[nodiscard]] function F32 distance_2f32(Vec2F32 v);
+[[nodiscard]] static Vec2F32 v2f32(F32 x, F32 y);
+[[nodiscard]] static F32 distance_2f32(Vec2F32 v);
 
-[[nodiscard]] function Vec3F32 v3f32(F32 x, F32 y, F32 z);
-[[nodiscard]] function Vec3F32 cross_3f32(Vec3F32 a, Vec3F32 b);
-[[nodiscard]] function Vec3F32 negate_3f32(Vec3F32 v);
-[[nodiscard]] function F32 length_3f32(Vec3F32 v);
-[[nodiscard]] function Vec3F32 norm_3f32(Vec3F32 v);
+[[nodiscard]] static Vec3F32 v3f32(F32 x, F32 y, F32 z);
+[[nodiscard]] static Vec3F32 cross_3f32(Vec3F32 a, Vec3F32 b);
+[[nodiscard]] static Vec3F32 negate_3f32(Vec3F32 v);
+[[nodiscard]] static F32 length_3f32(Vec3F32 v);
+[[nodiscard]] static Vec3F32 norm_3f32(Vec3F32 v);
 
-[[nodiscard]] function Vec4F32 v4f32(F32 x, F32 y, F32 z, F32 w);
-[[nodiscard]] function Vec4F32 v4f32(F32 x, F32 y, Vec2F32 zw);
+[[nodiscard]] static Vec4F32 v4f32(F32 x, F32 y, F32 z, F32 w);
+[[nodiscard]] static Vec4F32 v4f32(F32 x, F32 y, Vec2F32 zw);
 
 // hampus: F64
 
-[[nodiscard]] function Vec2F64 v2f64(F64 x, F64 y);
+[[nodiscard]] static Vec2F64 v2f64(F64 x, F64 y);
 
-[[nodiscard]] function Vec3F64 v3f64(F64 x, F64 y, F64 z);
+[[nodiscard]] static Vec3F64 v3f64(F64 x, F64 y, F64 z);
 
-[[nodiscard]] function Vec4F64 v4f64(F64 x, F64 y, F64 z, F64 w);
+[[nodiscard]] static Vec4F64 v4f64(F64 x, F64 y, F64 z, F64 w);
 
 // hampus: S32
 
-[[nodiscard]] function Vec2S32 v2s32(S32 x, S32 y);
+[[nodiscard]] static Vec2S32 v2s32(S32 x, S32 y);
 
-[[nodiscard]] function Vec3S32 v3s32(S32 x, S32 y, S32 z);
+[[nodiscard]] static Vec3S32 v3s32(S32 x, S32 y, S32 z);
 
-[[nodiscard]] function Vec4S32 v4s32(S32 x, S32 y, S32 z, S32 w);
+[[nodiscard]] static Vec4S32 v4s32(S32 x, S32 y, S32 z, S32 w);
 
 // hampus: S64
 
-[[nodiscard]] function Vec2S64 v2s64(S64 x, S64 y);
+[[nodiscard]] static Vec2S64 v2s64(S64 x, S64 y);
 
-[[nodiscard]] function Vec3S64 v3s64(S64 x, S64 y, S64 z);
+[[nodiscard]] static Vec3S64 v3s64(S64 x, S64 y, S64 z);
 
-[[nodiscard]] function Vec4S64 v4s64(S64 x, S64 y, S64 z, S64 w);
+[[nodiscard]] static Vec4S64 v4s64(S64 x, S64 y, S64 z, S64 w);
 
 // hampus: U32
 
-[[nodiscard]] function Vec2U32 v2u32(U32 x, U32 y);
+[[nodiscard]] static Vec2U32 v2u32(U32 x, U32 y);
 
-[[nodiscard]] function Vec3U32 v3u32(U32 x, U32 y, U32 z);
+[[nodiscard]] static Vec3U32 v3u32(U32 x, U32 y, U32 z);
 
-[[nodiscard]] function Vec4U32 v4u32(U32 x, U32 y, U32 z, U32 w);
+[[nodiscard]] static Vec4U32 v4u32(U32 x, U32 y, U32 z, U32 w);
 
 // hampus: U64
 
-[[nodiscard]] function Vec2U64 v2u64(U64 x, U64 y);
+[[nodiscard]] static Vec2U64 v2u64(U64 x, U64 y);
 
-[[nodiscard]] function Vec3U64 v3u64(U64 x, U64 y, U64 z);
+[[nodiscard]] static Vec3U64 v3u64(U64 x, U64 y, U64 z);
 
-[[nodiscard]] function Vec4U64 v4u64(U64 x, U64 y, U64 z, U64 w);
+[[nodiscard]] static Vec4U64 v4u64(U64 x, U64 y, U64 z, U64 w);
 
 //////////////////////////////
 // NOTE(hampus): Mat4 functions
 
-[[nodiscard]] function Mat4F32 make_4x4f32(F32 x);
-[[nodiscard]] function Mat4F32 make_perspective_4x4f32(F32 fovy, F32 aspect, F32 front, F32 back);
-[[nodiscard]] function Mat4F32 make_ortho_4x4f32(F32 left, F32 right, F32 bottom, F32 top, F32 n, F32 f);
-[[nodiscard]] function Mat4F32 make_look_at_4x4f32(Vec3F32 pos, Vec3F32 target, Vec3F32 up);
-[[nodiscard]] function Mat4F32 make_translate_4x4f32(Vec3F32 trans);
-[[nodiscard]] function Mat4F32 make_scale_4x4f32(Vec3F32 scale);
-[[nodiscard]] function Mat4F32 make_rotate_4x4f32(F32 radians, Vec3F32 axis);
+[[nodiscard]] static Mat4F32 make_4x4f32(F32 x);
+[[nodiscard]] static Mat4F32 make_perspective_4x4f32(F32 fovy, F32 aspect, F32 front, F32 back);
+[[nodiscard]] static Mat4F32 make_ortho_4x4f32(F32 left, F32 right, F32 bottom, F32 top, F32 n, F32 f);
+[[nodiscard]] static Mat4F32 make_look_at_4x4f32(Vec3F32 pos, Vec3F32 target, Vec3F32 up);
+[[nodiscard]] static Mat4F32 make_translate_4x4f32(Vec3F32 trans);
+[[nodiscard]] static Mat4F32 make_scale_4x4f32(Vec3F32 scale);
+[[nodiscard]] static Mat4F32 make_rotate_4x4f32(F32 radians, Vec3F32 axis);
 
 //////////////////////////////
 // NOTE(hampus): Mat3 functions
 
-[[nodiscard]] function Mat3F32 make_3x3f32(F32 x);
-[[nodiscard]] function Mat3F32 make_translate_3x3f32(Vec2F32 p);
-[[nodiscard]] function Mat3F32 make_scale_3x3f32(Vec2F32 scale);
-[[nodiscard]] function Mat3F32 make_rotate_3x3f32(F32 radians);
+[[nodiscard]] static Mat3F32 make_3x3f32(F32 x);
+[[nodiscard]] static Mat3F32 make_translate_3x3f32(Vec2F32 p);
+[[nodiscard]] static Mat3F32 make_scale_3x3f32(Vec2F32 scale);
+[[nodiscard]] static Mat3F32 make_rotate_3x3f32(F32 radians);
 
 //////////////////////////////
 // NOTE(hampus): Rect functions
 
 // hampus: F32
 
-[[nodiscard]] function RectF32 r4f32(Vec2F32 min, Vec2F32 max);
-[[nodiscard]] function RectF32 r4f32(F32 x0, F32 y0, F32 x1, F32 y1);
-[[nodiscard]] function Vec2F32 center_r4f32(RectF32 rect);
-[[nodiscard]] function Vec2F32 dim_r4f32(RectF32 rect);
-[[nodiscard]] function B32 r4f32_contains_2f32(RectF32 rect, Vec2F32 v);
-[[nodiscard]] function RectF32 r4f32_intersect_r4f32(RectF32 cutter, RectF32 cookie);
+[[nodiscard]] static RectF32 r4f32(Vec2F32 min, Vec2F32 max);
+[[nodiscard]] static RectF32 r4f32(F32 x0, F32 y0, F32 x1, F32 y1);
+[[nodiscard]] static Vec2F32 center_r4f32(RectF32 rect);
+[[nodiscard]] static Vec2F32 dim_r4f32(RectF32 rect);
+[[nodiscard]] static B32 r4f32_contains_2f32(RectF32 rect, Vec2F32 v);
+[[nodiscard]] static RectF32 r4f32_intersect_r4f32(RectF32 cutter, RectF32 cookie);
 
 // hampus: S32
 
-[[nodiscard]] function RectS32 r4s32(Vec2S32 min, Vec2S32 max);
-[[nodiscard]] function Vec2S32 center_r4s32(RectS32 rect);
-[[nodiscard]] function Vec2S32 dim_r4s32(RectS32 rect);
-[[nodiscard]] function B32 r4s32_contains_2f32(RectS32 rect, Vec2S32 v);
+[[nodiscard]] static RectS32 r4s32(Vec2S32 min, Vec2S32 max);
+[[nodiscard]] static Vec2S32 center_r4s32(RectS32 rect);
+[[nodiscard]] static Vec2S32 dim_r4s32(RectS32 rect);
+[[nodiscard]] static B32 r4s32_contains_2f32(RectS32 rect, Vec2S32 v);
 
 // hampus: U32
 
-[[nodiscard]] function RectU32 r4u32(Vec2U32 min, Vec2U32 max);
-[[nodiscard]] function Vec2U32 center_r4u32(RectU32 rect);
-[[nodiscard]] function Vec2U32 dim_r4u32(RectU32 rect);
-[[nodiscard]] function B32 r4u32_contains_2u32(RectU32 rect, Vec2U32 v);
+[[nodiscard]] static RectU32 r4u32(Vec2U32 min, Vec2U32 max);
+[[nodiscard]] static Vec2U32 center_r4u32(RectU32 rect);
+[[nodiscard]] static Vec2U32 dim_r4u32(RectU32 rect);
+[[nodiscard]] static B32 r4u32_contains_2u32(RectU32 rect, Vec2U32 v);
 
 // hampus: U64
 
-[[nodiscard]] function RectU64 r4u64(Vec2U64 min, Vec2U64 max);
-[[nodiscard]] function Vec2U64 center_r4u64(RectU64 rect);
-[[nodiscard]] function Vec2U64 dim_r4u64(RectU64 rect);
-[[nodiscard]] function B32 r4u64_contains_2u64(RectU64 rect, Vec2U64 v);
+[[nodiscard]] static RectU64 r4u64(Vec2U64 min, Vec2U64 max);
+[[nodiscard]] static Vec2U64 center_r4u64(RectU64 rect);
+[[nodiscard]] static Vec2U64 dim_r4u64(RectU64 rect);
+[[nodiscard]] static B32 r4u64_contains_2u64(RectU64 rect, Vec2U64 v);
 
 //////////////////////////////
 // NOTE(hampus): Constants
 
-read_only global S8 S8_MIN = (S8)0x80;
-read_only global S16 S16_MIN = (S16)0x8000;
-read_only global S32 S32_MIN = (S32)0x80000000;
-read_only global S64 S64_MIN = (S64)0x8000000000000000ll;
+read_only static S8 S8_MIN = (S8)0x80;
+read_only static S16 S16_MIN = (S16)0x8000;
+read_only static S32 S32_MIN = (S32)0x80000000;
+read_only static S64 S64_MIN = (S64)0x8000000000000000ll;
 
-read_only global S8 S8_MAX = 0x7F;
-read_only global S16 S16_MAX = 0x7FFF;
-read_only global S32 S32_MAX = 0x7FFFFFFF;
-read_only global S64 S64_MAX = 0x7FFFFFFFFFFFFFFFll;
+read_only static S8 S8_MAX = 0x7F;
+read_only static S16 S16_MAX = 0x7FFF;
+read_only static S32 S32_MAX = 0x7FFFFFFF;
+read_only static S64 S64_MAX = 0x7FFFFFFFFFFFFFFFll;
 
-read_only global U8 U8_MAX = 0xFF;
-read_only global U16 U16_MAX = 0xFFFF;
-read_only global U32 U32_MAX = 0xFFFFFFFF;
-read_only global U64 U64_MAX = 0xFFFFFFFFFFFFFFFFllu;
+read_only static U8 U8_MAX = 0xFF;
+read_only static U16 U16_MAX = 0xFFFF;
+read_only static U32 U32_MAX = 0xFFFFFFFF;
+read_only static U64 U64_MAX = 0xFFFFFFFFFFFFFFFFllu;
 
-read_only global F32 F32_EPSILON = 1.1920929e-7f;
-read_only global F32 F32_PI = 3.14159265359f;
-read_only global F32 F32_TAU = 6.28318530718f;
-read_only global F32 F32_E = 2.71828182846f;
-read_only global U32 F32_BIAS = 127;
-read_only global F32 F32_MAX = 3.402823466e+38F;
-read_only global F32 F32_MIN = 1.175494351e-38F;
+read_only static F32 F32_EPSILON = 1.1920929e-7f;
+read_only static F32 F32_PI = 3.14159265359f;
+read_only static F32 F32_TAU = 6.28318530718f;
+read_only static F32 F32_E = 2.71828182846f;
+read_only static U32 F32_BIAS = 127;
+read_only static F32 F32_MAX = 3.402823466e+38F;
+read_only static F32 F32_MIN = 1.175494351e-38F;
 
-read_only global F64 F64_EPSILON = 2.220446e-16;
-read_only global F64 F64_PI = 3.141592653589793;
-read_only global F64 F64_TAU = 6.28318530718;
-read_only global F64 F64_E = 2.71828182846;
-read_only global U32 F64_BIAS = 1023;
+read_only static F64 F64_EPSILON = 2.220446e-16;
+read_only static F64 F64_PI = 3.141592653589793;
+read_only static F64 F64_TAU = 6.28318530718;
+read_only static F64 F64_E = 2.71828182846;
+read_only static U32 F64_BIAS = 1023;
 
 //////////////////////////////
-// NOTE(hampus): Conversion function
+// NOTE(hampus): Conversion static
 
 #if COMPILER_CLANG || COMPILER_GCC
 
@@ -782,38 +782,38 @@ read_only global U32 F64_BIAS = 1023;
 
 #endif
 
-function U32 u32_from_s64(S64 s64);
-function U64 u64_from_s64(S64 s64);
-function U32 u32_from_u64(U64 u64);
-function S64 s64_from_u64(U64 u64);
-function U32 u32_from_s32(S32 s32);
-function S32 s32_from_u32(U32 u32);
-function S32 s32_from_u64(U64 u64);
-function U64 u64_from_s32(S32 s32);
+static U32 u32_from_s64(S64 s64);
+static U64 u64_from_s64(S64 s64);
+static U32 u32_from_u64(U64 u64);
+static S64 s64_from_u64(U64 u64);
+static U32 u32_from_s32(S32 s32);
+static S32 s32_from_u32(U32 u32);
+static S32 s32_from_u64(U64 u64);
+static U64 u64_from_s32(S32 s32);
 
 //////////////////////////////
 // NOTE(hampus): Integer functions
 
-function U8 round_up_to_power_2_u8(U8 value, U8 power);
-function U16 round_up_to_power_2_u16(U16 value, U16 power);
-function U32 round_up_to_power_2_u32(U32 value, U32 power);
-function U64 round_up_to_power_2_u64(U64 value, U64 power);
+static U8 round_up_to_power_2_u8(U8 value, U8 power);
+static U16 round_up_to_power_2_u16(U16 value, U16 power);
+static U32 round_up_to_power_2_u32(U32 value, U32 power);
+static U64 round_up_to_power_2_u64(U64 value, U64 power);
 
 //////////////////////////////
 // NOTE(hampus): F32 functions
 
-function F32 lerp_f32(F32 a, F32 b, F32 t);
+static F32 lerp_f32(F32 a, F32 b, F32 t);
 
 //////////////////////////////
 // NOTE(hampus): Misc functions
 
-function Vec3F32 hsv_from_rgb(Vec3F32 rgb);
-function Vec3F32 rgb_from_hsv(Vec3F32 hsv);
-function F32 srgb_from_linear_f32(F32 value);
-function Vec4F32 srgb_from_linear_4f32(Vec4F32 linear);
-function F32 linear_from_srgb_f32(F32 value);
-function Vec4F32 linear_from_srgb_4f32(Vec4F32 srgb);
-function Vec4F32 rgba_from_u32(U32 u32);
-function U64 num_digits(U64 x);
+static Vec3F32 hsv_from_rgb(Vec3F32 rgb);
+static Vec3F32 rgb_from_hsv(Vec3F32 hsv);
+static F32 srgb_from_linear_f32(F32 value);
+static Vec4F32 srgb_from_linear_4f32(Vec4F32 linear);
+static F32 linear_from_srgb_f32(F32 value);
+static Vec4F32 linear_from_srgb_4f32(Vec4F32 srgb);
+static Vec4F32 rgba_from_u32(U32 u32);
+static U64 num_digits(U64 x);
 
 #endif // BASE_MATH_H

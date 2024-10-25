@@ -9,7 +9,7 @@
 //////////////////////////////
 // NOTE(hampus): Android helpers
 
-function void *
+static void *
 linux_thread_proc(void *data)
 {
   OS_Android_ThreadArgs args = *(OS_Android_ThreadArgs *)data;
@@ -20,7 +20,7 @@ linux_thread_proc(void *data)
   return (0);
 }
 
-function B32
+static B32
 os_android_sync_file_descriptor(S32 file_descriptor)
 {
   B32 success = true;
@@ -40,7 +40,7 @@ os_android_sync_file_descriptor(S32 file_descriptor)
   return success;
 }
 
-function DateTime
+static DateTime
 os_android_date_time_from_tm_and_milliseconds(struct tm *time, U16 milliseconds)
 {
   DateTime result = {};
@@ -54,7 +54,7 @@ os_android_date_time_from_tm_and_milliseconds(struct tm *time, U16 milliseconds)
   return result;
 }
 
-function struct tm
+static struct tm
 os_android_tm_from_date_time(DateTime *date_time)
 {
   struct tm result = {};
@@ -70,8 +70,8 @@ os_android_tm_from_date_time(DateTime *date_time)
 //////////////////////////////
 // NOTE(hampus): Memory allocation
 
-function OS_MemoryStats
-os_get_memory_stats(void)
+static OS_MemoryStats
+os_get_memory_stats()
 {
   OS_MemoryStats result = {};
   FILE *file = fopen("/proc/self/smaps", "r");
@@ -112,7 +112,7 @@ os_get_memory_stats(void)
   return result;
 }
 
-function void *
+static void *
 os_memory_reserve(U64 size)
 {
   void *result = mmap(0, size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -121,27 +121,27 @@ os_memory_reserve(U64 size)
   return result;
 }
 
-function void
+static void
 os_memory_commit(void *ptr, U64 size)
 {
   mprotect(ptr, size, PROT_READ | PROT_WRITE);
 }
 
-function void
+static void
 os_memory_decommit(void *ptr, U64 size)
 {
   mprotect(ptr, size, PROT_NONE);
   madvise(ptr, size, MADV_DONTNEED);
 }
 
-function void
+static void
 os_memory_release(void *ptr, U64 size)
 {
   S32 munmap_result = munmap(ptr, size);
   ASSERT(munmap_result == 0);
 }
 
-function void *
+static void *
 os_memory_alloc(U64 size)
 {
   not_implemented;
@@ -152,7 +152,7 @@ os_memory_alloc(U64 size)
 //////////////////////////////
 // NOTE(hampus): File attributes
 
-function OS_FileAttributes
+static OS_FileAttributes
 os_get_file_attributes(String8 path)
 {
   not_implemented;
@@ -163,8 +163,8 @@ os_get_file_attributes(String8 path)
 //////////////////////////////
 // NOTE(hampus): Basic file operations
 
-function String8
-os_read_file(Arena *arena, String8 path)
+static String8
+os_file_read(Arena *arena, String8 path)
 {
   String8 result = {};
   B32 success = true;
@@ -221,7 +221,7 @@ os_read_file(Arena *arena, String8 path)
   return result;
 }
 
-function B32
+static B32
 os_file_write(String8 path, String8 data)
 {
   B32 result = false;
@@ -258,7 +258,7 @@ os_file_write(String8 path, String8 data)
   return result;
 }
 
-function B32
+static B32
 os_file_copy(String8 old_path, String8 new_path)
 {
   not_implemented;
@@ -266,7 +266,7 @@ os_file_copy(String8 old_path, String8 new_path)
   return result;
 }
 
-function B32
+static B32
 os_file_rename(String8 old_path, String8 new_path)
 {
   not_implemented;
@@ -274,7 +274,7 @@ os_file_rename(String8 old_path, String8 new_path)
   return result;
 }
 
-function B32
+static B32
 os_file_delete(String8 path)
 {
   not_implemented;
@@ -285,7 +285,7 @@ os_file_delete(String8 path)
 //////////////////////////////
 // NOTE(hampus): File stream
 
-function OS_Handle
+static OS_Handle
 os_file_stream_open(String8 path)
 {
   not_implemented;
@@ -293,7 +293,7 @@ os_file_stream_open(String8 path)
   return result;
 }
 
-function B32
+static B32
 os_file_stream_close(OS_Handle file)
 {
   not_implemented;
@@ -301,7 +301,7 @@ os_file_stream_close(OS_Handle file)
   return result;
 }
 
-function B32
+static B32
 os_file_stream_write(OS_Handle file, String8 data)
 {
   not_implemented;
@@ -312,7 +312,7 @@ os_file_stream_write(OS_Handle file, String8 data)
 //////////////////////////////
 // NOTE(hampus): Directory operations
 
-function B32
+static B32
 os_directory_create(String8 path)
 {
   not_implemented;
@@ -320,7 +320,7 @@ os_directory_create(String8 path)
   return result;
 }
 
-function B32
+static B32
 os_directory_delete(String8 path)
 {
   not_implemented;
@@ -328,7 +328,7 @@ os_directory_delete(String8 path)
   return result;
 }
 
-function OS_Handle
+static OS_Handle
 os_file_iterator_init(String8 path)
 {
   not_implemented;
@@ -336,13 +336,13 @@ os_file_iterator_init(String8 path)
   return result;
 }
 
-function void
+static void
 os_file_iterator_end(OS_Handle iterator)
 {
   not_implemented;
 }
 
-function B32
+static B32
 os_file_iterator_next(Arena *arena, OS_Handle iterator, String8 *result_name)
 {
   not_implemented;
@@ -350,7 +350,7 @@ os_file_iterator_next(Arena *arena, OS_Handle iterator, String8 *result_name)
   return result;
 }
 
-function String8
+static String8
 os_get_executable_path(Arena *arena)
 {
   not_implemented;
@@ -361,24 +361,24 @@ os_get_executable_path(Arena *arena)
 //////////////////////////////
 // NOTE(hampus): Time
 
-function DateTime
-os_get_universal_time(void)
+static DateTime
+os_get_universal_time()
 {
   not_implemented;
   DateTime result = {};
   return result;
 }
 
-function DateTime
-os_get_local_time(void)
+static DateTime
+os_get_local_time()
 {
   not_implemented;
   DateTime result = {};
   return result;
 }
 
-function Date
-os_get_local_date(void)
+static Date
+os_get_local_date()
 {
   Date result = {};
 
@@ -398,7 +398,7 @@ os_get_local_date(void)
   return result;
 }
 
-function DateTime
+static DateTime
 os_local_time_from_universal(DateTime *date_time)
 {
   not_implemented;
@@ -406,7 +406,7 @@ os_local_time_from_universal(DateTime *date_time)
   return result;
 }
 
-function DateTime
+static DateTime
 os_universal_time_from_local(DateTime *date_time)
 {
   not_implemented;
@@ -414,7 +414,7 @@ os_universal_time_from_local(DateTime *date_time)
   return result;
 }
 
-function Date
+static Date
 os_increment_date_by_day(Date date, S64 days)
 {
   DateTime time0 = {};
@@ -433,8 +433,8 @@ os_increment_date_by_day(Date date, S64 days)
   return result;
 }
 
-function U64
-os_get_microseconds(void)
+static U64
+os_get_microseconds()
 {
   struct timespec time = {};
   S32 return_code = clock_gettime(CLOCK_MONOTONIC_RAW, &time);
@@ -443,13 +443,13 @@ os_get_microseconds(void)
   return result;
 }
 
-function void
+static void
 os_sleep(U64 time)
 {
   not_implemented;
 }
 
-function void
+static void
 os_wait_microseconds(U64 end_time_us)
 {
   not_implemented;
@@ -458,7 +458,7 @@ os_wait_microseconds(U64 end_time_us)
 //////////////////////////////
 // NOTE(hampus): Library
 
-function OS_Handle
+static OS_Handle
 os_library_open(String8 path)
 {
   not_implemented;
@@ -466,14 +466,14 @@ os_library_open(String8 path)
   return result;
 }
 
-function void
+static void
 os_library_close(OS_Handle library)
 {
   not_implemented;
 }
 
-function void *
-os_libary_load_function(OS_Handle library, String8 name)
+static void *
+os_libary_load_static(OS_Handle library, String8 name)
 {
   not_implemented;
   void *result = 0;
@@ -483,7 +483,7 @@ os_libary_load_function(OS_Handle library, String8 name)
 //////////////////////////////
 // NOTE(hampus): Threading
 
-function OS_Handle
+static OS_Handle
 os_semaphore_alloc(U32 initial_value)
 {
   ASSERT(initial_value < SEM_VALUE_MAX);
@@ -494,7 +494,7 @@ os_semaphore_alloc(U32 initial_value)
   return result;
 }
 
-function void
+static void
 os_semaphore_free(OS_Handle handle)
 {
   OS_Android_Semaphore *semaphore = (OS_Android_Semaphore *)ptr_from_int(handle.u64[0]);
@@ -502,7 +502,7 @@ os_semaphore_free(OS_Handle handle)
   sem_destroy(&semaphore->semaphore);
 }
 
-function void
+static void
 os_semaphore_signal(OS_Handle handle)
 {
   OS_Android_Semaphore *semaphore = (OS_Android_Semaphore *)ptr_from_int(handle.u64[0]);
@@ -510,7 +510,7 @@ os_semaphore_signal(OS_Handle handle)
   sem_post(&semaphore->semaphore);
 }
 
-function void
+static void
 os_semaphore_wait(volatile OS_Handle handle)
 {
   OS_Android_Semaphore *semaphore = (OS_Android_Semaphore *)ptr_from_int(handle.u64[0]);
@@ -523,8 +523,8 @@ os_semaphore_wait(volatile OS_Handle handle)
   } while(success == -1 && errno == EINTR);
 }
 
-function OS_Handle
-os_mutex_alloc(void)
+static OS_Handle
+os_mutex_alloc()
 {
   OS_Handle result = os_handle_zero();
   OS_Android_Mutex *mutex = push_array<OS_Android_Mutex>(os_android_state->arena, 1);
@@ -541,13 +541,13 @@ os_mutex_alloc(void)
   return result;
 }
 
-function void
+static void
 os_mutex_free(OS_Handle handle)
 {
   not_implemented;
 }
 
-function void
+static void
 os_mutex_take(OS_Handle handle)
 {
   OS_Android_Mutex *mutex = (OS_Android_Mutex *)ptr_from_int(handle.u64[0]);
@@ -555,7 +555,7 @@ os_mutex_take(OS_Handle handle)
   pthread_mutex_lock(&mutex->mutex);
 }
 
-function void
+static void
 os_mutex_release(OS_Handle handle)
 {
   OS_Android_Mutex *mutex = (OS_Android_Mutex *)ptr_from_int(handle.u64[0]);
@@ -563,7 +563,7 @@ os_mutex_release(OS_Handle handle)
   pthread_mutex_unlock(&mutex->mutex);
 }
 
-function OS_Handle
+static OS_Handle
 os_thread_create(ThreadProc *proc, void *data)
 {
   OS_Handle result = os_handle_zero();
@@ -577,13 +577,13 @@ os_thread_create(ThreadProc *proc, void *data)
   return result;
 }
 
-function void
+static void
 os_thread_join(OS_Handle handle)
 {
   not_implemented;
 }
 
-function void
+static void
 os_thread_set_name(String8 string)
 {
   TempArena scratch = get_scratch(0, 0);
@@ -592,8 +592,8 @@ os_thread_set_name(String8 string)
   pthread_setname_np(thread, cstr_name);
 }
 
-function U32
-os_get_current_thread_id(void)
+static U32
+os_get_current_thread_id()
 {
   U32 result = pthread_self();
   return result;
@@ -602,13 +602,13 @@ os_get_current_thread_id(void)
 //////////////////////////////
 // NOTE(hampus): Debug output
 
-function void
+static void
 os_print_debug_string(String8 string)
 {
   __android_log_print(ANDROID_LOG_INFO, "NativeExample", "%.*s", str8_expand(string));
 }
 
-function void
+static void
 os_print_debug_string(char *fmt, ...)
 {
   TempArena scratch = get_scratch(0, 0);
@@ -622,19 +622,19 @@ os_print_debug_string(char *fmt, ...)
 //////////////////////////////
 // NOTE(hampus): Exit
 
-function void
+static void
 os_exit(S32 exit_code)
 {
   ANativeActivity_finish(android_app->activity);
 }
 
-function void
+static void
 os_set_crash_handler(OS_CrashHandlerProc *proc)
 {
   os_android_state->crash_handler_proc = proc;
 }
 
-function void
+static void
 os_android_capture_backtrace__libunwind_register_method(OS_Android_BacktraceState *state)
 {
   OS_Backtrace backtrace = {};

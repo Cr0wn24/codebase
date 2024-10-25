@@ -1,11 +1,11 @@
 #ifndef OS_CORE_WIN32_H
 #define OS_CORE_WIN32_H
 
-#undef function
+#undef static
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <timeapi.h>
-#define function static
+#define static static
 
 //////////////////////////////
 // NOTE(hampus): Win32 specific types
