@@ -21,6 +21,7 @@ fp_init()
 
   {
     FLOAT gamma = 1.0f;
+#if 1
     // FLOAT gamma = base_rendering_params->GetGamma();
     FLOAT enhanced_contrast = fp_dwrite_state->base_rendering_params->GetEnhancedContrast();
     FLOAT clear_type_level = fp_dwrite_state->base_rendering_params->GetClearTypeLevel();
@@ -30,6 +31,17 @@ fp_init()
                                                                   DWRITE_PIXEL_GEOMETRY_FLAT,
                                                                   DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC,
                                                                   &fp_dwrite_state->rendering_params);
+#else
+    // FLOAT gamma = base_rendering_params->GetGamma();
+    FLOAT enhanced_contrast = fp_dwrite_state->base_rendering_params->GetEnhancedContrast();
+    FLOAT clear_type_level = fp_dwrite_state->base_rendering_params->GetClearTypeLevel();
+    error = fp_dwrite_state->factory->CreateCustomRenderingParams(gamma,
+                                                                  enhanced_contrast,
+                                                                  clear_type_level,
+                                                                  DWRITE_PIXEL_GEOMETRY_FLAT,
+                                                                  DWRITE_RENDERING_MODE_GDI_NATURAL,
+                                                                  &fp_dwrite_state->rendering_params);
+#endif
     ASSERT(error == S_OK);
   }
 
@@ -132,7 +144,7 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
   // Render the glyph
   DWRITE_GLYPH_RUN glyph_run = {};
   glyph_run.fontFace = dw_font->font_face;
-  glyph_run.fontEmSize = (F32)size * 96.f / 72.f;
+  glyph_run.fontEmSize = (F32)size * 96.0f / 72.0f;
   glyph_run.glyphCount = 1;
   glyph_run.glyphIndices = &index;
   RECT bounding_box = {};
@@ -142,37 +154,28 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
                                       fp_dwrite_state->rendering_params,
                                       RGB(255, 0, 0),
                                       &bounding_box);
+
   ASSERT(error == S_OK);
-#if 0
-  IDWriteGlyphRunAnalysis *glyphRunAnalysis = {};
-  error = fp_dwrite_state->factory->CreateGlyphRunAnalysis(&glyph_run, 1, 0,
-                                                           DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC,
-                                                           DWRITE_MEASURING_MODE_NATURAL,
-                                                           0, 0,
-                                                           &glyphRunAnalysis);
-  ASSERT(error == S_OK);
-  RECT texture_bounds = {};
-  error = glyphRunAnalysis->GetAlphaTextureBounds(DWRITE_TEXTURE_CLEARTYPE_3x1, &texture_bounds);
-  ASSERT(error == S_OK);
-#endif
+
   // Get the Bitmap
   HBITMAP bitmap = (HBITMAP)GetCurrentObject(dc, OBJ_BITMAP);
   DIBSECTION dib = {};
   GetObject(bitmap, sizeof(dib), &dib);
 
-  //- rjf: get font metrics
-  DWRITE_FONT_METRICS font_metrics = {0};
+  // Get font metrics
+  DWRITE_FONT_METRICS font_metrics = {};
   if(dw_font->font_face != 0)
   {
     dw_font->font_face->GetMetrics(&font_metrics);
   }
 
   F32 design_units_per_em = (F32)font_metrics.designUnitsPerEm;
-  F32 font_scale = (F32)size * (96.f / 72.f) / design_units_per_em;
+  F32 font_scale = (F32)size * (96.0f / 72.0f) / design_units_per_em;
 
   U64 ascent = (U64)((F32)font_metrics.ascent * font_scale);
   U64 descent = (U64)((F32)font_metrics.descent * font_scale);
 
+  // Rasterize into our own RGBA bitmap
   {
     U8 *bitmap_memory = (U8 *)dib.dsBm.bmBits;
     U64 bbox_width = (U64)(bounding_box.right - bounding_box.left);
@@ -180,6 +183,7 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
 
     result.dim = v2u64(bbox_width, ascent + descent);
     result.memory = push_array<U8>(arena, result.dim.x * result.dim.y * 4);
+    result.left_bearing = (F32)bounding_box.left - 100.0f;
 
     U64 src_pitch = raster_target_dim.x * 4;
     U8 *src_line = bitmap_memory + bounding_box.top * src_pitch + bounding_box.left * 4;
@@ -251,7 +255,7 @@ fp_get_glyph_metrics(FP_Handle font, U32 size, U32 cp)
   error = dw_font->font_face->GetGlyphIndices(&cp, 1, &index);
   ASSERT(error == S_OK);
 
-  //- rjf: get font metrics
+  // Get font metrics
   DWRITE_FONT_METRICS font_metrics = {0};
   if(dw_font->font_face != 0)
   {
@@ -259,20 +263,20 @@ fp_get_glyph_metrics(FP_Handle font, U32 size, U32 cp)
   }
   F32 design_units_per_em = (F32)font_metrics.designUnitsPerEm;
 
-  //- rjf: get metrics info
+  // Get metrics info
   U32 glyphs_count = 1;
   DWRITE_GLYPH_METRICS glyphs_metrics = {};
 
   error = dw_font->font_face->GetDesignGlyphMetrics(&index, glyphs_count, &glyphs_metrics);
   ASSERT(error == S_OK);
 
-  F32 font_scale = (F32)size * (96.f / 72.f) / design_units_per_em;
+  F32 font_scale = (F32)size * (96.0f / 72.0f) / design_units_per_em;
 
   F32 advance = (F32)glyphs_metrics.advanceWidth * font_scale;
   F32 left_side_bearing = (F32)glyphs_metrics.leftSideBearing * font_scale;
 
   result.advance = round_f32(advance);
-  result.left_bearing = floor_f32(left_side_bearing);
+  result.left_bearing = left_side_bearing;
 
   return result;
 }

@@ -10,6 +10,7 @@ struct FP_RasterResult
 {
   void *memory;
   Vec2U64 dim;
+  F32 left_bearing;
 };
 
 #define FP_FILE_READ_PROC(name) String8 name(Arena *arena, String8 string)
