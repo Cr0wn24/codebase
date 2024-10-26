@@ -143,7 +143,18 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
                                       RGB(255, 0, 0),
                                       &bounding_box);
   ASSERT(error == S_OK);
-
+#if 0
+  IDWriteGlyphRunAnalysis *glyphRunAnalysis = {};
+  error = fp_dwrite_state->factory->CreateGlyphRunAnalysis(&glyph_run, 1, 0,
+                                                           DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC,
+                                                           DWRITE_MEASURING_MODE_NATURAL,
+                                                           0, 0,
+                                                           &glyphRunAnalysis);
+  ASSERT(error == S_OK);
+  RECT texture_bounds = {};
+  error = glyphRunAnalysis->GetAlphaTextureBounds(DWRITE_TEXTURE_CLEARTYPE_3x1, &texture_bounds);
+  ASSERT(error == S_OK);
+#endif
   // Get the Bitmap
   HBITMAP bitmap = (HBITMAP)GetCurrentObject(dc, OBJ_BITMAP);
   DIBSECTION dib = {};
@@ -251,25 +262,17 @@ fp_get_glyph_metrics(FP_Handle font, U32 size, U32 cp)
   //- rjf: get metrics info
   U32 glyphs_count = 1;
   DWRITE_GLYPH_METRICS glyphs_metrics = {};
-#if 0
-  error = dw_font->font_face->GetGdiCompatibleGlyphMetrics((F32)size * (96.f / 72.f),
-                                                           1.f, 0, 1,
-                                                           &index, glyphs_count,
-                                                           &glyphs_metrics);
-#endif
+
   error = dw_font->font_face->GetDesignGlyphMetrics(&index, glyphs_count, &glyphs_metrics);
+  ASSERT(error == S_OK);
 
   F32 font_scale = (F32)size * (96.f / 72.f) / design_units_per_em;
 
-  ASSERT(error == S_OK);
-
   F32 advance = (F32)glyphs_metrics.advanceWidth * font_scale;
-  F32 top_side_bearing = (F32)glyphs_metrics.topSideBearing * font_scale;
   F32 left_side_bearing = (F32)glyphs_metrics.leftSideBearing * font_scale;
 
-  result.advance = floor_f32(advance);
-  result.bearing.x = floor_f32(left_side_bearing);
-  result.bearing.y = floor_f32(top_side_bearing);
+  result.advance = round_f32(advance);
+  result.left_bearing = floor_f32(left_side_bearing);
 
   return result;
 }

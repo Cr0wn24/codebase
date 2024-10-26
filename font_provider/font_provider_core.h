@@ -25,8 +25,7 @@ struct FP_FontMetrics
 struct FP_GlyphMetrics
 {
   F32 advance;
-  Vec2F32 bearing;
-  F32 test;
+  F32 left_bearing;
 };
 
 struct FP_State

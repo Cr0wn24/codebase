@@ -217,7 +217,7 @@ ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
 
   for(F_GlyphRunNode *node = glyph_run.first; node != 0; node = node->next)
   {
-    F32 xpos = advance + node->bearing.x;
+    F32 xpos = advance + node->metrics.left_bearing;
     F32 ypos = pos.y;
     F32 width = (F32)node->bitmap_size.x;
     F32 height = (F32)node->bitmap_size.y;
@@ -225,13 +225,12 @@ ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
     R_Tex2DSlice slice = {};
     slice.tex = atlas->handle;
     slice.uv = node->region_uv;
-
     UI_DrawRectParams params = {};
     params.color = color;
     params.slice = slice;
     ui_draw_rect(v2f32(xpos, ypos), v2f32(xpos + width, ypos + height), params);
 
-    advance += node->advance;
+    advance += node->metrics.advance;
   }
 
   return (advance - pos.x);

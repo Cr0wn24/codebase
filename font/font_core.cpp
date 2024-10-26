@@ -135,9 +135,8 @@ f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp)
     // hampus: Fill cache glyph node
 
     FP_GlyphMetrics metrics = fp_get_glyph_metrics(fp_handle, size, cp);
-    glyph_node->bearing = metrics.bearing;
-    glyph_node->advance = metrics.advance;
-    glyph_node->bitmap_size = v2f32((F32)raster_result.dim.x, (F32)raster_result.dim.y);
+    glyph_node->metrics = metrics;
+    glyph_node->bitmap_size = raster_result.dim;
 
     // f_state->atlas_texture_dirty = true;
   }
@@ -162,10 +161,9 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
     // hampus: Fill glyph run node
 
     F_GlyphRunNode *run_node = push_array<F_GlyphRunNode>(arena, 1);
-    run_node->bearing = glyph_node->bearing;
     run_node->bitmap_size = glyph_node->bitmap_size;
     run_node->region_uv = glyph_node->region_uv;
-    run_node->advance = glyph_node->advance;
+    run_node->metrics = glyph_node->metrics;
     dll_push_back(result.first, result.last, run_node);
   }
 
@@ -189,7 +187,7 @@ f_get_advance(F_Tag tag, U32 size, String32 string)
   F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);
   for(F_GlyphRunNode *n = glyph_run.first; n != 0; n = n->next)
   {
-    result += n->advance;
+    result += n->metrics.advance;
   }
   return result;
 }
@@ -202,7 +200,7 @@ f_get_advance(F_Tag tag, U32 size, String8 string)
   F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);
   for(F_GlyphRunNode *n = glyph_run.first; n != 0; n = n->next)
   {
-    result += n->advance;
+    result += n->metrics.advance;
   }
   return result;
 }
@@ -212,7 +210,7 @@ f_get_advance(F_Tag tag, U32 size, U32 cp)
 {
   F32 result = {};
   F_Glyph *glyph = f_glyph_from_tag_size_cp(tag, size, cp);
-  result = glyph->advance;
+  result = glyph->metrics.advance;
   return result;
 }
 
@@ -246,7 +244,7 @@ f_max_height_from_tag_size_string(F_Tag tag, U32 size, String8 string)
   F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);
   for(F_GlyphRunNode *n = glyph_run.first; n != 0; n = n->next)
   {
-    result = max(result, n->bitmap_size.y);
+    result = max(result, (F32)n->bitmap_size.y);
   }
   return result;
 }

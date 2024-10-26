@@ -77,6 +77,11 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
 
   // hampus: Rasterize
 
+  if(cp == 101 && size == 14)
+  {
+    os_print_debug_string("%" PRIU32 ", Bitmap size: %" PRIU64 ", %" PRIU64 "\n", size, bitmap_dim.x, bitmap_dim.y);
+  }
+
   TempArena scratch = get_scratch(0, 0);
   U8 *bitmap_memory = push_array_no_zero<U8>(arena, bitmap_size);
   stbtt_MakeGlyphBitmap(stb_font,
@@ -136,8 +141,9 @@ fp_get_glyph_metrics(FP_Handle font, U32 size, U32 cp)
   stbtt_GetCodepointHMetrics(stb_font, safe_s32_from_u64(cp), &advance, &left_side_bearing);
   RectS32 glyph_bounding_box = {};
   stbtt_GetCodepointBox(stb_font, safe_s32_from_u64(cp), &glyph_bounding_box.x0, &glyph_bounding_box.y0, &glyph_bounding_box.x1, &glyph_bounding_box.y1);
-  result.advance = round_f32((F32)advance * scale);
-  result.bearing.x = floor_f32((F32)left_side_bearing * scale);
-  result.bearing.y = floor_f32((F32)glyph_bounding_box.y1 * scale);
+  F32 bearing_x = (F32)left_side_bearing * scale;
+  F32 advance_x = (F32)advance * scale;
+  result.advance = round_f32(advance_x);
+  result.left_bearing = floor_f32(bearing_x);
   return result;
 }

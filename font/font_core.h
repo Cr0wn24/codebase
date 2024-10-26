@@ -19,9 +19,8 @@ struct F_Glyph
   F_Tag tag;
 
   RectF32 region_uv;
-  Vec2F32 bearing;
-  Vec2F32 bitmap_size;
-  F32 advance;
+  FP_GlyphMetrics metrics;
+  Vec2U64 bitmap_size;
 };
 
 struct F_BakedFont
@@ -36,9 +35,8 @@ struct F_GlyphRunNode
   F_GlyphRunNode *prev;
 
   RectF32 region_uv;
-  Vec2F32 bearing;
-  Vec2F32 bitmap_size;
-  F32 advance;
+  FP_GlyphMetrics metrics;
+  Vec2U64 bitmap_size;
 };
 
 struct F_GlyphRun
