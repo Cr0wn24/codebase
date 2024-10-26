@@ -149,24 +149,38 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
   DIBSECTION dib = {};
   GetObject(bitmap, sizeof(dib), &dib);
 
+  //- rjf: get font metrics
+  DWRITE_FONT_METRICS font_metrics = {0};
+  if(dw_font->font_face != 0)
+  {
+    dw_font->font_face->GetMetrics(&font_metrics);
+  }
+
+  F32 design_units_per_em = (F32)font_metrics.designUnitsPerEm;
+  F32 font_scale = (F32)size * (96.f / 72.f) / design_units_per_em;
+
+  U64 ascent = (U64)((F32)font_metrics.ascent * font_scale);
+  U64 descent = (U64)((F32)font_metrics.descent * font_scale);
+
   {
     U8 *bitmap_memory = (U8 *)dib.dsBm.bmBits;
-
     U64 bbox_width = (U64)(bounding_box.right - bounding_box.left);
     U64 bbox_height = (U64)(bounding_box.bottom - bounding_box.top);
 
-    result.dim = v2u64(bbox_width, bbox_height);
-    result.memory = push_array_no_zero<U8>(arena, result.dim.x * result.dim.y * 4);
+    result.dim = v2u64(bbox_width, ascent + descent);
+    result.memory = push_array<U8>(arena, result.dim.x * result.dim.y * 4);
 
     U64 src_pitch = raster_target_dim.x * 4;
     U8 *src_line = bitmap_memory + bounding_box.top * src_pitch + bounding_box.left * 4;
-    U8 *dst = (U8 *)result.memory;
+    U64 dst_pitch = result.dim.x * 4;
+    U64 bbox_distance_over_baseline = (U64)(100 - bounding_box.top);
+    U8 *dst_line = (U8 *)result.memory + (ascent - bbox_distance_over_baseline) * dst_pitch;
     for(U64 y = 0; y < bbox_height; ++y)
     {
       U8 *src = src_line;
+      U8 *dst = dst_line;
       for(U64 x = 0; x < bbox_width; ++x)
       {
-        U32 *src0 = (U32 *)src;
         dst[0] = 0xff;
         dst[1] = 0xff;
         dst[2] = 0xff;
@@ -175,6 +189,7 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
         dst += 4;
       }
       src_line += src_pitch;
+      dst_line += dst_pitch;
     }
   }
 
@@ -198,13 +213,15 @@ fp_get_font_metrics(FP_Handle font, U32 size)
     dw_font->font_face->GetMetrics(&font_metrics);
   }
   F32 design_units_per_em = (F32)font_metrics.designUnitsPerEm;
+  F32 font_scale = (F32)size * (96.f / 72.f) / design_units_per_em;
 
-  F32 line_height = ((F32)size * (F32)(font_metrics.lineGap) * (96.f / 72.f) / design_units_per_em);
-  F32 ascent = ((F32)size * (F32)(font_metrics.ascent) * (96.f / 72.f) / design_units_per_em);
-  F32 descent = ceil_f32((F32)size * (F32)(font_metrics.descent) * (96.f / 72.f) / design_units_per_em);
+  F32 line_gap = floor_f32((F32)font_metrics.lineGap * font_scale);
+  F32 ascent = floor_f32((F32)font_metrics.ascent * font_scale);
+  F32 descent = floor_f32((F32)font_metrics.descent * font_scale);
 
-  result.line_height = round_f32(ascent + descent + line_height);
-  result.descent = (descent);
+  result.line_gap = line_gap;
+  result.descent = descent;
+  result.ascent = ascent;
   return result;
 }
 
@@ -234,22 +251,25 @@ fp_get_glyph_metrics(FP_Handle font, U32 size, U32 cp)
   //- rjf: get metrics info
   U32 glyphs_count = 1;
   DWRITE_GLYPH_METRICS glyphs_metrics = {};
-  error = dw_font->font_face->GetDesignGlyphMetrics(&index,
-                                                    glyphs_count,
-                                                    &glyphs_metrics,
-                                                    false);
+#if 0
+  error = dw_font->font_face->GetGdiCompatibleGlyphMetrics((F32)size * (96.f / 72.f),
+                                                           1.f, 0, 1,
+                                                           &index, glyphs_count,
+                                                           &glyphs_metrics);
+#endif
+  error = dw_font->font_face->GetDesignGlyphMetrics(&index, glyphs_count, &glyphs_metrics);
+
+  F32 font_scale = (F32)size * (96.f / 72.f) / design_units_per_em;
+
   ASSERT(error == S_OK);
-  F32 advance_width = ((F32)size * (F32)glyphs_metrics.advanceWidth * (96.f / 72.f) / design_units_per_em);
 
-  F32 vertical = ((F32)size * (F32)(glyphs_metrics.verticalOriginY) * (96.f / 72.f) / design_units_per_em);
-  F32 top_side_bearing = ((F32)size * (F32)(glyphs_metrics.topSideBearing) * (96.f / 72.f) / design_units_per_em);
-  F32 bottom_side_bearing = ((F32)size * (F32)(glyphs_metrics.topSideBearing) * (96.f / 72.f) / design_units_per_em);
+  F32 advance = (F32)glyphs_metrics.advanceWidth * font_scale;
+  F32 top_side_bearing = (F32)glyphs_metrics.topSideBearing * font_scale;
+  F32 left_side_bearing = (F32)glyphs_metrics.leftSideBearing * font_scale;
 
-  F32 left_side_bearing = floor_f32((F32)size * (F32)(glyphs_metrics.leftSideBearing) * (96.f / 72.f) / design_units_per_em);
-
-  result.advance = floor_f32(advance_width);
+  result.advance = floor_f32(advance);
   result.bearing.x = floor_f32(left_side_bearing);
-  result.bearing.y = round_f32(top_side_bearing - vertical);
+  result.bearing.y = floor_f32(top_side_bearing);
 
   return result;
 }

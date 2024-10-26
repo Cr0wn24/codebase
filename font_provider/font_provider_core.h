@@ -18,7 +18,8 @@ typedef FP_FILE_READ_PROC(FP_FileReadProc);
 struct FP_FontMetrics
 {
   F32 descent;
-  F32 line_height;
+  F32 ascent;
+  F32 line_gap;
 };
 
 struct FP_GlyphMetrics

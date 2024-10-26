@@ -223,7 +223,7 @@ f_line_height_from_tag_size(F_Tag tag, U32 size)
   FP_Handle fp_handle = fp_handle_from_tag(tag);
   ASSERT(!fp_handle_match(fp_handle, fp_handle_zero()));
   FP_FontMetrics metrics = fp_get_font_metrics(fp_handle, size);
-  result = metrics.line_height;
+  result = metrics.line_gap + metrics.ascent + metrics.descent;
   return result;
 }
 

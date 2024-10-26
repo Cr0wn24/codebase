@@ -86,14 +86,18 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
                         safe_s32_from_u64(bitmap_dim.x),
                         scale, scale,
                         safe_s32_from_u64(stb_glyph_idx));
-  result.dim = bitmap_dim;
+
+  FP_FontMetrics font_metrics = fp_get_font_metrics(font, size);
+
+  result.dim = v2u64(bitmap_dim.x, (U64)(font_metrics.ascent + font_metrics.descent));
   result.memory = (void *)push_array<U8>(arena, result.dim.x * result.dim.y * 4);
 
-  U8 *dst = (U8 *)result.memory;
+  U64 dst_pitch = result.dim.x * 4;
+  U8 *dst = (U8 *)result.memory + (U64)((S32)font_metrics.ascent + bitmap_rect.y0) * dst_pitch;
   U8 *src = (U8 *)bitmap_memory;
-  for(U64 y = 0; y < result.dim.y; ++y)
+  for(U64 y = 0; y < bitmap_dim.y; ++y)
   {
-    for(U64 x = 0; x < result.dim.x; ++x)
+    for(U64 x = 0; x < bitmap_dim.x; ++x)
     {
       *dst++ = 0xff;
       *dst++ = 0xff;
@@ -115,8 +119,9 @@ fp_get_font_metrics(FP_Handle font, U32 size)
   S32 line_gap = 0;
   stbtt_GetFontVMetrics(stb_font, &ascent, &descent, &line_gap);
   result.ascent = floor_f32((F32)ascent * scale);
-  result.descent = floor_f32((F32)descent * scale);
-  result.line_height = floor_f32(((F32)ascent - (F32)descent + (F32)line_gap) * scale);
+  // NOTE(hampus): stbtt uses negative values for the descent, hence the negation to get positive.
+  result.descent = floor_f32((F32)-descent * scale);
+  result.line_gap = floor_f32((F32)line_gap * scale);
   return result;
 }
 

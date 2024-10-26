@@ -18,4 +18,3 @@ fp_handle_zero()
   FP_Handle result = {};
   return result;
 }
-
