@@ -94,8 +94,16 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
 
   FP_FontMetrics font_metrics = fp_get_font_metrics(font, size);
 
+  S32 advance = 0;
+  S32 left_side_bearing = 0;
+  stbtt_GetCodepointHMetrics(stb_font, safe_s32_from_u64(cp), &advance, &left_side_bearing);
+  RectS32 glyph_bounding_box = {};
+  stbtt_GetCodepointBox(stb_font, safe_s32_from_u64(cp), &glyph_bounding_box.x0, &glyph_bounding_box.y0, &glyph_bounding_box.x1, &glyph_bounding_box.y1);
+
   result.dim = v2u64(bitmap_dim.x, (U64)(font_metrics.ascent + font_metrics.descent));
   result.memory = (void *)push_array<U8>(arena, result.dim.x * result.dim.y * 4);
+  result.metrics.left_bearing = floor_f32((F32)left_side_bearing * scale);
+  result.metrics.advance = round_f32((F32)advance * scale);
 
   U64 dst_pitch = result.dim.x * 4;
   U8 *dst = (U8 *)result.memory + (U64)((S32)font_metrics.ascent + bitmap_rect.y0) * dst_pitch;
@@ -136,14 +144,6 @@ fp_get_glyph_metrics(FP_Handle font, U32 size, U32 cp)
   FP_GlyphMetrics result = {};
   stbtt_fontinfo *stb_font = (stbtt_fontinfo *)ptr_from_int(font.u64[0]);
   F32 scale = stbtt_ScaleForMappingEmToPixels(stb_font, (F32)size * 1.33f);
-  S32 advance = 0;
-  S32 left_side_bearing = 0;
-  stbtt_GetCodepointHMetrics(stb_font, safe_s32_from_u64(cp), &advance, &left_side_bearing);
-  RectS32 glyph_bounding_box = {};
-  stbtt_GetCodepointBox(stb_font, safe_s32_from_u64(cp), &glyph_bounding_box.x0, &glyph_bounding_box.y0, &glyph_bounding_box.x1, &glyph_bounding_box.y1);
-  F32 bearing_x = (F32)left_side_bearing * scale;
-  F32 advance_x = (F32)advance * scale;
-  result.advance = round_f32(advance_x);
-  result.left_bearing = floor_f32(bearing_x);
+
   return result;
 }

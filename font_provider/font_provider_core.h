@@ -6,13 +6,6 @@ struct FP_Handle
   U64 u64[1];
 };
 
-struct FP_RasterResult
-{
-  void *memory;
-  Vec2U64 dim;
-  F32 left_bearing;
-};
-
 #define FP_FILE_READ_PROC(name) String8 name(Arena *arena, String8 string)
 typedef FP_FILE_READ_PROC(FP_FileReadProc);
 
@@ -27,6 +20,13 @@ struct FP_GlyphMetrics
 {
   F32 advance;
   F32 left_bearing;
+};
+
+struct FP_RasterResult
+{
+  void *memory;
+  Vec2U64 dim;
+  FP_GlyphMetrics metrics;
 };
 
 struct FP_State
@@ -46,7 +46,6 @@ static void fp_set_file_read_proc(FP_FileReadProc *proc);
 [[nodiscard]] static FP_RasterResult fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp);
 
 [[nodiscard]] static FP_FontMetrics fp_get_font_metrics(FP_Handle font, U32 size);
-[[nodiscard]] static FP_GlyphMetrics fp_get_glyph_metrics(FP_Handle font, U32 size, U32 cp);
 
 static FP_State *fp_state;
 

@@ -169,6 +169,12 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
     dw_font->font_face->GetMetrics(&font_metrics);
   }
 
+  // Get glyph metrics
+  U32 glyphs_count = 1;
+  DWRITE_GLYPH_METRICS glyphs_metrics = {};
+  error = dw_font->font_face->GetDesignGlyphMetrics(&index, glyphs_count, &glyphs_metrics);
+  ASSERT(error == S_OK);
+
   F32 design_units_per_em = (F32)font_metrics.designUnitsPerEm;
   F32 font_scale = (F32)size * (96.0f / 72.0f) / design_units_per_em;
 
@@ -183,7 +189,8 @@ fp_raster(Arena *arena, FP_Handle font, U32 size, U32 cp)
 
     result.dim = v2u64(bbox_width, ascent + descent);
     result.memory = push_array<U8>(arena, result.dim.x * result.dim.y * 4);
-    result.left_bearing = (F32)bounding_box.left - 100.0f;
+    result.metrics.advance = round_f32((F32)glyphs_metrics.advanceWidth * font_scale);
+    result.metrics.left_bearing = (F32)bounding_box.left - 100.0f;
 
     U64 src_pitch = raster_target_dim.x * 4;
     U8 *src_line = bitmap_memory + bounding_box.top * src_pitch + bounding_box.left * 4;
@@ -237,46 +244,5 @@ fp_get_font_metrics(FP_Handle font, U32 size)
   result.line_gap = line_gap;
   result.descent = descent;
   result.ascent = ascent;
-  return result;
-}
-
-static FP_GlyphMetrics
-fp_get_glyph_metrics(FP_Handle font, U32 size, U32 cp)
-{
-  profile_function();
-
-  FP_GlyphMetrics result = {};
-  ASSERT(!fp_handle_match(font, fp_handle_zero()));
-  FP_DWrite_Font *dw_font = (FP_DWrite_Font *)ptr_from_int(font.u64[0]);
-
-  HRESULT error = 0;
-  // Find the glyph index for the codepoint we want to render
-  uint16_t index = 0;
-  error = dw_font->font_face->GetGlyphIndices(&cp, 1, &index);
-  ASSERT(error == S_OK);
-
-  // Get font metrics
-  DWRITE_FONT_METRICS font_metrics = {0};
-  if(dw_font->font_face != 0)
-  {
-    dw_font->font_face->GetMetrics(&font_metrics);
-  }
-  F32 design_units_per_em = (F32)font_metrics.designUnitsPerEm;
-
-  // Get metrics info
-  U32 glyphs_count = 1;
-  DWRITE_GLYPH_METRICS glyphs_metrics = {};
-
-  error = dw_font->font_face->GetDesignGlyphMetrics(&index, glyphs_count, &glyphs_metrics);
-  ASSERT(error == S_OK);
-
-  F32 font_scale = (F32)size * (96.0f / 72.0f) / design_units_per_em;
-
-  F32 advance = (F32)glyphs_metrics.advanceWidth * font_scale;
-  F32 left_side_bearing = (F32)glyphs_metrics.leftSideBearing * font_scale;
-
-  result.advance = round_f32(advance);
-  result.left_bearing = left_side_bearing;
-
   return result;
 }

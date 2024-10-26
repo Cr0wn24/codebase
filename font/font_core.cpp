@@ -134,9 +134,7 @@ f_glyph_from_tag_size_cp(F_Tag tag, U32 size, U32 cp)
 
     // hampus: Fill cache glyph node
 
-    FP_GlyphMetrics metrics = fp_get_glyph_metrics(fp_handle, size, cp);
-    glyph_node->metrics = metrics;
-    glyph_node->metrics.left_bearing = raster_result.left_bearing;
+    glyph_node->metrics = raster_result.metrics;
     glyph_node->bitmap_size = raster_result.dim;
 
     // f_state->atlas_texture_dirty = true;
