@@ -68,6 +68,14 @@ array_count(DynamicArray<T> &array)
 }
 
 template <typename T>
+U64
+array_count(const DynamicArray<T> &array)
+{
+  U64 result = array.pos / sizeof(T);
+  return result;
+}
+
+template <typename T>
 void
 dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count)
 {

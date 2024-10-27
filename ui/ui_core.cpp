@@ -1318,8 +1318,7 @@ ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
         Vec2F32 text_dim = {};
         if(axis == Axis2_X)
         {
-          F32 advance = f_get_advance(
-          root->font_tag, root->font_size, root->string);
+          F32 advance = f_get_advance(root->font_tag, root->font_size, root->string);
           root->fixed_size[Axis2_X] = floor_f32((F32)advance + root->text_padding[Axis2_X] * (F32)root->font_size);
         }
         else if(axis == Axis2_Y)
