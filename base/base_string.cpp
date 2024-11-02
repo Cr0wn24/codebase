@@ -776,7 +776,6 @@ static StringDecode
 string_decode_utf16(U16 *string, U64 size)
 {
   StringDecode result = {};
-  ;
   result.codepoint = 0xFFFD;
   result.size = 0;
 
@@ -978,6 +977,33 @@ cstr16_from_str8(Arena *arena, String8 string)
   U64 unused_size = allocated_size - string_size - 1;
   arena_pop_amount(arena, unused_size * sizeof(*memory));
   return (memory);
+}
+
+static String16
+cstr16_from_str32(Arena *arena, String32 string)
+{
+  U64 allocated_size = string.size * 2 + 1;
+  U16 *memory = push_array_no_zero<U16>(arena, allocated_size);
+
+  U16 *dst_ptr = memory;
+  U32 *ptr = string.data;
+  U32 *opl = string.data + string.size;
+
+  while(ptr < opl)
+  {
+    U16 size = string_encode_utf16(dst_ptr, *ptr);
+    dst_ptr += size;
+    ptr += 1;
+  }
+
+  U64 string_size = (U64)(dst_ptr - memory);
+  U64 unused_size = allocated_size - string_size - 1;
+  arena_pop_amount(arena, unused_size * sizeof(*memory));
+
+  String16 result = {};
+  result.data = memory;
+  result.size = string_size;
+  return result;
 }
 
 //////////////////////////////

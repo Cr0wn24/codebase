@@ -91,6 +91,7 @@ push_array_no_zero(Arena *arena, U64 count)
 #define memory_copy(dst, source, size) memcpy((U8 *)(dst), (U8 *)(source), size)
 #define memory_copy_struct(dst, source) memory_copy((dst), (source), min(sizeof(*(dst)), sizeof(*(source))))
 #define memory_copy_array(dst, source) memory_copy((dst), (source), min(sizeof(dst), sizeof(source)))
+#define memory_copy_typed(dst, source, count) memory_copy((U8 *)(dst), (U8 *)(source), sizeof(*(dst)) * count)
 
 #define arena_clear(arena) arena_pop_to(arena, 0)
 

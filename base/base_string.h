@@ -169,6 +169,7 @@ static U64 string_encode_utf16(U16 *dst, U32 codepoint);
 
 [[nodiscard]] static char *cstr_from_str8(Arena *arena, String8 string);
 [[nodiscard]] static U16 *cstr16_from_str8(Arena *arena, String8 string);
+[[nodiscard]] static String16 cstr16_from_str32(Arena *arena, String32 string);
 
 //////////////////////////////
 // NOTE(hampus): String to integers
