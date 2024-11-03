@@ -73,9 +73,7 @@ f_init()
   //----------------------------------------------------------
   // hampus: create d2d device
 
-  ID2D1Device4 *d2d_device = 0;
-
-  hr = f_d2d_state->d2d_factory->CreateDevice(r_d3d11_state->dxgi_device, &d2d_device);
+  hr = f_d2d_state->d2d_factory->CreateDevice(r_d3d11_state->dxgi_device, &f_d2d_state->d2d_device);
   ASSERT(SUCCEEDED(hr));
 
   D2D1_DEVICE_CONTEXT_OPTIONS d2d_deice_context_options = {};
@@ -131,7 +129,7 @@ f_init()
 
   // TODO(hampus): properly query DPI
   // UINT dpi = os_window_dpi(OS_Handle window)
-  UINT dpi = 90;
+  FLOAT dpi = 90;
 
   B32 use_cleartype = true;
   D2D1_BITMAP_PROPERTIES1 bitmap_props = {};
@@ -195,14 +193,14 @@ f_handle_from_tag(F_Tag tag)
 
   for(U64 i = 0; i < array_count(f_d2d_state->font_tag_table); ++i)
   {
-    if((f_d2d_state->dwrite_font_table[i] == 0) &&
+    if(f_handle_match(f_d2d_state->dwrite_font_table[i], f_handle_zero()) &&
        cold_idx == U64_MAX)
     {
       cold_idx = i;
     }
     else if(f_tag_match(f_d2d_state->font_tag_table[i], tag))
     {
-      result.u64[0] = int_from_ptr(f_d2d_state->dwrite_font_table[i]);
+      result = f_d2d_state->dwrite_font_table[i];
     }
   }
 
@@ -213,13 +211,13 @@ f_handle_from_tag(F_Tag tag)
     if(cold_idx != U64_MAX)
     {
       F_Handle f_handle = f_open_font(f_d2d_state->arena, tag.path);
-      ASSERT(!f_handle_match(f_handle, fp_handle_zero()));
+      ASSERT(!f_handle_match(f_handle, f_handle_zero()));
 
       // TODO(hampus): Close the old font handle
-      f_state->tag_table[cold_idx] = tag;
-      f_state->fp_table[cold_idx] = fp_handle;
+      f_d2d_state->font_tag_table[cold_idx] = tag;
+      f_d2d_state->dwrite_font_table[cold_idx] = f_handle;
 
-      result = fp_handle;
+      result = f_handle;
     }
     else
     {
@@ -238,12 +236,16 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
 
   TempArena scratch = get_scratch(&arena, 1);
   String16 str16 = cstr16_from_str32(scratch.arena, str32);
+
+  // TODO(hampus): Convert the tag to a dwrite font
+  // and query the name and use that instead of "Segoe UI"
+
   F_DWrite_MapTextToGlyphsResult map_text_to_glyphs_result = f_dwrite_map_text_to_glyphs(f_d2d_state->font_fallback1,
                                                                                          f_d2d_state->font_collection,
                                                                                          f_d2d_state->text_analyzer1,
                                                                                          f_d2d_state->locale,
                                                                                          L"Segoe UI",
-                                                                                         (F32)size, (const wchar_t *)str16.data, str16.size);
+                                                                                         (F32)size, (const wchar_t *)str16.data, (U32)str16.size);
 
   for(F_DWrite_TextToGlyphsSegmentNode *n = map_text_to_glyphs_result.first_segment; n != 0; n = n->next)
   {
@@ -273,7 +275,7 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
           DWRITE_GLYPH_RUN dwrite_glyph_run = {};
           dwrite_glyph_run.glyphCount = 1;
           dwrite_glyph_run.fontFace = font_face;
-          dwrite_glyph_run.fontEmSize = size;
+          dwrite_glyph_run.fontEmSize = (FLOAT)size;
           dwrite_glyph_run.glyphIndices = &glyph_idx;
           dwrite_glyph_run.glyphOffsets = &segment.glyph_offsets[idx];
           dwrite_glyph_run.glyphAdvances = &segment.glyph_advances[idx];
@@ -294,10 +296,12 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
           RectU64 atlas_region = {};
           if(!is_whitespace)
           {
-            bitmap_dim = v2u64(glyph_world_bounds.right - glyph_world_bounds.left, glyph_world_bounds.bottom - glyph_world_bounds.top);
+            f_d2d_state->d2d_device_context->BeginDraw();
+            bitmap_dim = v2u64((U64)(glyph_world_bounds.right - glyph_world_bounds.left), (U64)(glyph_world_bounds.bottom - glyph_world_bounds.top));
             atlas_region = atlas_region_alloc(f_d2d_state->arena, &f_d2d_state->atlas.atlas, bitmap_dim);
-            D2D1_POINT_2F baseline = {atlas_region.x0 + glyph_world_bounds.left, atlas_region.y0 + glyph_world_bounds.top};
+            D2D1_POINT_2F baseline = {(FLOAT)atlas_region.x0 + (FLOAT)glyph_world_bounds.left, (FLOAT)atlas_region.y0 - (FLOAT)glyph_world_bounds.top};
             f_d2d_state->d2d_device_context->DrawGlyphRun(baseline, &dwrite_glyph_run, f_d2d_state->foreground_brush);
+            f_d2d_state->d2d_device_context->EndDraw();
           }
 
           glyph = push_array<F_Glyph>(f_d2d_state->arena, 1);
@@ -380,10 +384,30 @@ static F32
 f_line_height_from_tag_size(F_Tag tag, U32 size)
 {
   F32 result = 0;
-  FP_Handle fp_handle = fp_handle_from_tag(tag);
-  ASSERT(!fp_handle_match(fp_handle, fp_handle_zero()));
-  FP_FontMetrics metrics = fp_get_font_metrics(fp_handle, size);
-  result = metrics.line_gap + metrics.ascent + metrics.descent;
+  F_FontMetrics font_metrics = f_get_font_metrics(tag, size);
+  result = font_metrics.ascent + font_metrics.descent + font_metrics.line_gap;
+  return result;
+}
+
+static F_FontMetrics
+f_get_font_metrics(F_Tag tag, U32 size)
+{
+  F_Handle f_handle = f_handle_from_tag(tag);
+  F_DWrite_Font *dwrite_font = (F_DWrite_Font *)ptr_from_int(f_handle.u64[0]);
+  ASSERT(dwrite_font != 0);
+  DWRITE_FONT_METRICS font_metrics = {0};
+  dwrite_font->font_face->GetMetrics(&font_metrics);
+  F32 design_units_per_em = (F32)font_metrics.designUnitsPerEm;
+  F32 font_scale = (F32)size * (96.0f / 72.0f) / design_units_per_em;
+
+  F32 line_gap = floor_f32((F32)font_metrics.lineGap * font_scale);
+  F32 ascent = floor_f32((F32)font_metrics.ascent * font_scale);
+  F32 descent = floor_f32((F32)font_metrics.descent * font_scale);
+
+  F_FontMetrics result = {};
+  result.line_gap = line_gap;
+  result.descent = descent;
+  result.ascent = ascent;
   return result;
 }
 

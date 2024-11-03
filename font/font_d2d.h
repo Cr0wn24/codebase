@@ -1,7 +1,9 @@
 #ifndef FONT_D2D_H
 #define FONT_D2D_H
 
+#pragma warning(push, 0)
 #include <d2d1_3.h>
+#pragma warning(pop)
 
 struct F_Handle
 {
@@ -11,6 +13,19 @@ struct F_Handle
 struct F_Tag
 {
   String8 path;
+};
+
+struct F_FontMetrics
+{
+  F32 descent;
+  F32 ascent;
+  F32 line_gap;
+};
+
+struct F_GlyphMetrics
+{
+  F32 advance;
+  F32 left_bearing;
 };
 
 struct F_Glyph
@@ -24,7 +39,7 @@ struct F_Glyph
 
   // hampus: layouting
   RectF32 region_uv;
-  FP_GlyphMetrics metrics;
+  F_GlyphMetrics metrics;
   Vec2U64 bitmap_size;
 };
 
@@ -34,7 +49,7 @@ struct F_GlyphRunNode
   F_GlyphRunNode *prev;
 
   RectF32 region_uv;
-  FP_GlyphMetrics metrics;
+  F_GlyphMetrics metrics;
   Vec2U64 bitmap_size;
 };
 
@@ -60,7 +75,7 @@ struct F_D2D_State
 {
   Arena *arena;
 
-  StaticArray<F_DWrite_Font, 6> dwrite_font_table;
+  StaticArray<F_Handle, 6> dwrite_font_table;
   StaticArray<F_Tag, 6> font_tag_table;
 
   StaticArray<F_Glyph *, 256> glyph_from_idx_lookup_table;
@@ -89,6 +104,8 @@ struct F_D2D_State
 
 [[nodiscard]] static B32 f_tag_match(F_Tag a, F_Tag b);
 
+static F_Handle f_handle_from_tag(F_Tag tag);
+
 [[nodiscard]] static F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
 [[nodiscard]] static F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
 
@@ -98,5 +115,7 @@ struct F_D2D_State
 [[nodiscard]] static F32 f_line_height_from_tag_size(F_Tag tag, U32 size);
 
 [[nodiscard]] static F_Atlas *f_atlas();
+
+static F_FontMetrics f_get_font_metrics(F_Tag tag, U32 size);
 
 #endif // FONT_D2D_H

@@ -1,7 +1,9 @@
 #ifndef FONT_DWRITE_MAP_TEXT_TO_GLYPHS_H
 #define FONT_DWRITE_MAP_TEXT_TO_GLYPHS_H
 
+#pragma warning(push, 0)
 #include <dwrite_3.h>
+#pragma warning(pop)
 
 struct F_DWrite_GlyphArrayChunk;
 

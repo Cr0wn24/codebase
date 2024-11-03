@@ -24,7 +24,7 @@ r_init()
 
   // NOTE(hampus): Create D3D11 device & context
   {
-    UINT flags = 0;
+    UINT flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #ifndef NDEBUG
     flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -50,6 +50,15 @@ r_init()
     dxgi_info->Release();
   }
 #endif
+
+  hr = r_d3d11_state->device->QueryInterface(IID_IDXGIDevice, (void **)&r_d3d11_state->dxgi_device);
+  assert_hr(hr);
+
+  hr = r_d3d11_state->dxgi_device->GetAdapter(&r_d3d11_state->dxgi_adapter);
+  assert_hr(hr);
+
+  hr = r_d3d11_state->dxgi_adapter->GetParent(IID_IDXGIFactory2, (void **)&r_d3d11_state->factory);
+  assert_hr(hr);
 }
 
 static R_Handle
@@ -62,15 +71,6 @@ r_make_render_window_context(OS_Handle window)
   d3d11_window->window = window;
 
   HRESULT hr = {};
-
-  hr = r_d3d11_state->device->QueryInterface(IID_IDXGIDevice, (void **)&r_d3d11_state->dxgi_device);
-  assert_hr(hr);
-
-  hr = r_d3d11_state->dxgi_device->GetAdapter(&r_d3d11_state->dxgi_adapter);
-  assert_hr(hr);
-
-  hr = r_d3d11_state->dxgi_adapter->GetParent(IID_IDXGIFactory2, (void **)&r_d3d11_state->factory);
-  assert_hr(hr);
 
   {
     DXGI_SWAP_CHAIN_DESC1 desc = {};

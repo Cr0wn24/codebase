@@ -1,3 +1,5 @@
+#pragma comment(lib, "dwrite.lib")
+
 struct TextAnalysisSource final : IDWriteTextAnalysisSource
 {
   TextAnalysisSource(const wchar_t *locale, const wchar_t *text, const U32 text_length) noexcept
@@ -387,7 +389,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
 
         {
           S32 *design_advances = (S32 *)calloc(glyph_array->count, sizeof(S32));
-          hr = mapped_font_face->GetDesignGlyphAdvances(glyph_array->count, glyph_array->indices, design_advances);
+          hr = mapped_font_face->GetDesignGlyphAdvances((U32)glyph_array->count, glyph_array->indices, design_advances);
           F32 scale = font_size / (F32)font_metrics.designUnitsPerEm;
           for(U64 idx = 0; idx < glyph_array->count; idx++)
           {
@@ -465,7 +467,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
                                             0,
                                             0,
                                             0,
-                                            max_glyph_indices_count,
+                                            (U32)max_glyph_indices_count,
                                             cluster_map,
                                             text_props,
                                             glyph_indices,

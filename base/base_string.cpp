@@ -991,7 +991,7 @@ cstr16_from_str32(Arena *arena, String32 string)
 
   while(ptr < opl)
   {
-    U16 size = string_encode_utf16(dst_ptr, *ptr);
+    U64 size = string_encode_utf16(dst_ptr, *ptr);
     dst_ptr += size;
     ptr += 1;
   }
