@@ -131,7 +131,7 @@ f_init()
   // UINT dpi = os_window_dpi(OS_Handle window)
   FLOAT dpi = 90;
 
-  B32 use_cleartype = true;
+  B32 use_cleartype = false;
   D2D1_BITMAP_PROPERTIES1 bitmap_props = {};
   bitmap_props.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
   bitmap_props.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -244,7 +244,7 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
                                                                                          f_d2d_state->font_collection,
                                                                                          f_d2d_state->text_analyzer1,
                                                                                          f_d2d_state->locale,
-                                                                                         L"Segoe UI",
+                                                                                         L"Consolas",
                                                                                          (F32)size, (const wchar_t *)str16.data, (U32)str16.size);
 
   for(F_DWrite_TextToGlyphsSegmentNode *n = map_text_to_glyphs_result.first_segment; n != 0; n = n->next)
@@ -286,7 +286,8 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
           B32 is_whitespace = false;
           {
             D2D1_POINT_2F baseline = {0, 0};
-            f_d2d_state->d2d_device_context->GetGlyphRunWorldBounds(baseline, &dwrite_glyph_run, DWRITE_MEASURING_MODE_NATURAL, &glyph_world_bounds);
+            HRESULT hr = f_d2d_state->d2d_device_context->GetGlyphRunWorldBounds(baseline, &dwrite_glyph_run, DWRITE_MEASURING_MODE_NATURAL, &glyph_world_bounds);
+            ASSERT(SUCCEEDED(hr));
             is_whitespace = !(glyph_world_bounds.right > glyph_world_bounds.left && glyph_world_bounds.bottom > glyph_world_bounds.top);
           }
 
@@ -296,12 +297,14 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
           RectU64 atlas_region = {};
           if(!is_whitespace)
           {
+            F_FontMetrics font_metrics = f_get_font_metrics(tag, size);
             f_d2d_state->d2d_device_context->BeginDraw();
-            bitmap_dim = v2u64((U64)(glyph_world_bounds.right - glyph_world_bounds.left), (U64)(glyph_world_bounds.bottom - glyph_world_bounds.top));
+            bitmap_dim = v2u64((U64)(glyph_world_bounds.right + glyph_world_bounds.left), (U64)(font_metrics.ascent + font_metrics.descent + font_metrics.line_gap));
             atlas_region = atlas_region_alloc(f_d2d_state->arena, &f_d2d_state->atlas.atlas, bitmap_dim);
-            D2D1_POINT_2F baseline = {(FLOAT)atlas_region.x0 + (FLOAT)glyph_world_bounds.left, (FLOAT)atlas_region.y0 - (FLOAT)glyph_world_bounds.top};
+            D2D1_POINT_2F baseline = {(FLOAT)atlas_region.x0 - glyph_world_bounds.left, (FLOAT)atlas_region.y1 - font_metrics.descent};
             f_d2d_state->d2d_device_context->DrawGlyphRun(baseline, &dwrite_glyph_run, f_d2d_state->foreground_brush);
-            f_d2d_state->d2d_device_context->EndDraw();
+            HRESULT hr = f_d2d_state->d2d_device_context->EndDraw();
+            ASSERT(SUCCEEDED(hr));
           }
 
           glyph = push_array<F_Glyph>(f_d2d_state->arena, 1);
@@ -314,14 +317,14 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
           glyph->region_uv = r4f32((F32)atlas_region.x0 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)atlas_region.y0 / (F32)f_d2d_state->atlas.atlas.dim.y,
                                    (F32)atlas_region.x1 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)atlas_region.y1 / (F32)f_d2d_state->atlas.atlas.dim.y);
           sll_stack_push_n(f_d2d_state->glyph_from_idx_lookup_table[slot_idx], glyph, hash_next);
-
-          F_GlyphRunNode *glyph_run_node = push_array<F_GlyphRunNode>(arena, 1);
-          glyph_run_node->bitmap_size = glyph->bitmap_size;
-          glyph_run_node->metrics = glyph->metrics;
-          glyph_run_node->region_uv = glyph->region_uv;
-
-          dll_push_back(result.first, result.last, glyph_run_node);
         }
+
+        F_GlyphRunNode *glyph_run_node = push_array<F_GlyphRunNode>(arena, 1);
+        glyph_run_node->bitmap_size = glyph->bitmap_size;
+        glyph_run_node->metrics = glyph->metrics;
+        glyph_run_node->region_uv = glyph->region_uv;
+
+        dll_push_back(result.first, result.last, glyph_run_node);
       }
       else
       {
@@ -416,4 +419,13 @@ f_atlas()
 {
   F_Atlas *result = &f_d2d_state->atlas;
   return result;
+}
+
+static void
+f_destroy()
+{
+  f_d2d_state->foreground_brush->Release();
+  f_d2d_state->d2d_device_context->Release();
+  f_d2d_state->d2d_device->Release();
+  f_d2d_state->d2d_factory->Release();
 }

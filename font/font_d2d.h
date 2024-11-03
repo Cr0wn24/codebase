@@ -114,6 +114,8 @@ static F_Handle f_handle_from_tag(F_Tag tag);
 [[nodiscard]] static F32 f_get_advance(F_Tag tag, U32 size, U32 cp);
 [[nodiscard]] static F32 f_line_height_from_tag_size(F_Tag tag, U32 size);
 
+static void f_destroy();
+
 [[nodiscard]] static F_Atlas *f_atlas();
 
 static F_FontMetrics f_get_font_metrics(F_Tag tag, U32 size);
