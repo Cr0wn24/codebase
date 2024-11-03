@@ -13,8 +13,6 @@
 
 #define assert_hr(hr) ASSERT(SUCCEEDED(hr))
 
-static R_D3D11_State *r_d3d11_state;
-
 static void
 r_init()
 {
@@ -37,19 +35,19 @@ r_init()
   }
 
   // hampus: Enable useful debug break on errors
+  IDXGIInfoQueue *dxgi_info = 0;
+  ID3D11InfoQueue *info = 0;
 #ifndef NDEBUG
   {
-    r_d3d11_state->device->QueryInterface(IID_ID3D11InfoQueue, (void **)&r_d3d11_state->info);
-    r_d3d11_state->info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-    r_d3d11_state->info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
-    r_d3d11_state->info->Release();
-  }
+    r_d3d11_state->device->QueryInterface(IID_ID3D11InfoQueue, (void **)&info);
+    info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+    info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
+    info->Release();
 
-  {
-    hr = DXGIGetDebugInterface1(0, IID_IDXGIInfoQueue, (void **)&r_d3d11_state->dxgi_info);
-    r_d3d11_state->dxgi_info->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-    r_d3d11_state->dxgi_info->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, TRUE);
-    r_d3d11_state->dxgi_info->Release();
+    hr = DXGIGetDebugInterface1(0, IID_IDXGIInfoQueue, (void **)&dxgi_info);
+    dxgi_info->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+    dxgi_info->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, TRUE);
+    dxgi_info->Release();
   }
 #endif
 }
@@ -367,7 +365,7 @@ r_destroy_buffer(R_Handle handle)
 }
 
 static R_Handle
-r_make_tex2d_from_bitmap(void *data, U32 width, U32 height)
+r_make_tex2d_from_bitmap(void *data, U32 width, U32 height, R_PixelFormat pixel_format, R_TextureBindFlags texture_bind_flags)
 {
   R_Handle result = {};
   TempArena scratch = get_scratch(0, 0);
@@ -381,16 +379,42 @@ r_make_tex2d_from_bitmap(void *data, U32 width, U32 height)
     d3d11_texture = push_array<R_D3D11_Texture>(r_d3d11_state->arena, 1);
   }
 
+  DXGI_FORMAT format = {};
+  switch(pixel_format)
+  {
+    case R_PixelFormat_RGBA:
+    {
+      format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    }
+    break;
+    case R_PixelFormat_BGRA:
+    {
+      format = DXGI_FORMAT_B8G8R8A8_UNORM;
+    }
+    break;
+    default:
+    {
+      invalid_code_path;
+    }
+    break;
+  }
+
+  UINT bind_flags = D3D11_BIND_SHADER_RESOURCE;
+  if(texture_bind_flags & R_TextureBindFlags_RenderTarget)
+  {
+    bind_flags |= D3D11_BIND_RENDER_TARGET;
+  }
+
   D3D11_TEXTURE2D_DESC desc =
   {
     .Width = width,
     .Height = height,
     .MipLevels = 1,
     .ArraySize = 1,
-    .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+    .Format = format,
     .SampleDesc = {1, 0},
     .Usage = D3D11_USAGE_DEFAULT,
-    .BindFlags = D3D11_BIND_SHADER_RESOURCE,
+    .BindFlags = bind_flags,
     .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
   };
 

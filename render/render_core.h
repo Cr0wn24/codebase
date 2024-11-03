@@ -46,6 +46,18 @@ enum R_SampleFilter
   R_SampleFilter_Nearest,
 };
 
+enum R_PixelFormat
+{
+  R_PixelFormat_RGBA,
+  R_PixelFormat_BGRA,
+};
+
+typedef U32 R_TextureBindFlags;
+enum
+{
+  R_TextureBindFlags_RenderTarget = (1 << 0),
+};
+
 struct R_InputLayoutAttribute
 {
   String8 name;
@@ -109,7 +121,7 @@ static R_Handle r_make_pipeline(R_PipelineDesc desc);
 static void r_destroy_pipeline(R_Handle handle);
 static R_Handle r_make_buffer(R_BufferDesc desc);
 static void r_destroy_buffer(R_Handle handle);
-static R_Handle r_make_tex2d_from_bitmap(void *data, U32 width, U32 height);
+static R_Handle r_make_tex2d_from_bitmap(void *data, U32 width, U32 height, R_PixelFormat pixel_format = R_PixelFormat_RGBA, R_TextureBindFlags texture_bind_flags = 0);
 static R_Handle r_make_tex2d_from_memory(String8 data);
 static void r_destroy_tex2d(R_Handle handle);
 static void r_fill_tex2d_region(R_Handle texture, RectU64 region, void *memory);
