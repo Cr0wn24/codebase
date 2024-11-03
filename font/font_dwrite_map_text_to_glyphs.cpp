@@ -296,6 +296,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
         // NOTE(hampus): This means that no font was available for this character.
         // mapped_text_length is the number of characters to skip.
         // TODO(hampus): Should be replaced by a missing glyph, typically glyph index 0 in fonts
+        fallback_offset += mapped_text_length;
         continue;
       }
     }
