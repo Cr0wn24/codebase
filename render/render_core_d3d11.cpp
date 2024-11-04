@@ -265,7 +265,7 @@ r_make_pipeline(R_PipelineDesc desc)
     blend_desc.RenderTarget[0] =
     {
       .BlendEnable = TRUE,
-      .SrcBlend = D3D11_BLEND_SRC_ALPHA,
+      .SrcBlend = D3D11_BLEND_ONE,
       .DestBlend = D3D11_BLEND_INV_SRC_ALPHA,
       .BlendOp = D3D11_BLEND_OP_ADD,
       .SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA,

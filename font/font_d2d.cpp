@@ -257,13 +257,13 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
   String16 str16 = cstr16_from_str32(scratch.arena, str32);
 
   // TODO(hampus): Convert the tag to a dwrite font
-  // and query the name and use that instead of "Segoe UI"
+  // and query the name and use that instead of "Fira Code"
 
   F_DWrite_MapTextToGlyphsResult map_text_to_glyphs_result = f_dwrite_map_text_to_glyphs(f_d2d_state->font_fallback1,
                                                                                          f_d2d_state->font_collection,
                                                                                          f_d2d_state->text_analyzer1,
                                                                                          f_d2d_state->locale,
-                                                                                         L"Fira Code",
+                                                                                         L"Consolas",
                                                                                          (F32)size, (const wchar_t *)str16.data, (U32)str16.size);
 
   for(F_DWrite_TextToGlyphsSegmentNode *n = map_text_to_glyphs_result.first_segment; n != 0; n = n->next)
@@ -275,6 +275,8 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
       IDWriteFontFace5 *font_face = segment.font_face;
       if(font_face != 0)
       {
+        // hampus: lookup glyph in table
+
         F_Glyph *glyph = 0;
         U64 slot_idx = glyph_idx % array_count(f_d2d_state->glyph_from_idx_lookup_table);
         for(glyph = f_d2d_state->glyph_from_idx_lookup_table[slot_idx];
@@ -332,7 +334,7 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
           glyph->idx = glyph_idx;
           glyph->font_face = font_face;
           glyph->bitmap_size = bitmap_dim;
-          glyph->metrics.advance = segment.glyph_advances[idx];
+          glyph->metrics.advance = round_f32(segment.glyph_advances[idx]);
           glyph->metrics.left_bearing = glyph_world_bounds.left;
           glyph->size = size;
           glyph->region_uv = r4f32((F32)atlas_region.x0 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)atlas_region.y0 / (F32)f_d2d_state->atlas.atlas.dim.y,
