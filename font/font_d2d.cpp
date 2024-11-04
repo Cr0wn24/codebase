@@ -2,6 +2,25 @@
 
 static F_D2D_State *f_d2d_state = 0;
 
+static F_FontMetrics
+f_dwrite_get_font_metrics(IDWriteFontFace *font_face, U32 size)
+{
+  DWRITE_FONT_METRICS font_metrics = {0};
+  font_face->GetMetrics(&font_metrics);
+  F32 design_units_per_em = (F32)font_metrics.designUnitsPerEm;
+  F32 font_scale = (F32)size * (96.0f / 72.0f) / design_units_per_em;
+
+  F32 line_gap = floor_f32((F32)font_metrics.lineGap * font_scale);
+  F32 ascent = floor_f32((F32)font_metrics.ascent * font_scale);
+  F32 descent = floor_f32((F32)font_metrics.descent * font_scale);
+
+  F_FontMetrics result = {};
+  result.line_gap = line_gap;
+  result.descent = descent;
+  result.ascent = ascent;
+  return result;
+}
+
 static F_Handle
 f_handle_zero()
 {
@@ -244,7 +263,7 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
                                                                                          f_d2d_state->font_collection,
                                                                                          f_d2d_state->text_analyzer1,
                                                                                          f_d2d_state->locale,
-                                                                                         L"Consolas",
+                                                                                         L"Fira Code",
                                                                                          (F32)size, (const wchar_t *)str16.data, (U32)str16.size);
 
   for(F_DWrite_TextToGlyphsSegmentNode *n = map_text_to_glyphs_result.first_segment; n != 0; n = n->next)
@@ -297,15 +316,17 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
           RectU64 atlas_region = {};
           if(!is_whitespace)
           {
-            F_FontMetrics font_metrics = f_get_font_metrics(tag, size);
+            F_FontMetrics font_metrics = f_dwrite_get_font_metrics(font_face, size);
             f_d2d_state->d2d_device_context->BeginDraw();
-            bitmap_dim = v2u64((U64)(glyph_world_bounds.right + glyph_world_bounds.left), (U64)(font_metrics.ascent + font_metrics.descent + font_metrics.line_gap));
+            bitmap_dim = v2u64((U64)(glyph_world_bounds.right - glyph_world_bounds.left), (U64)(font_metrics.ascent + font_metrics.descent + font_metrics.line_gap));
             atlas_region = atlas_region_alloc(f_d2d_state->arena, &f_d2d_state->atlas.atlas, bitmap_dim);
             D2D1_POINT_2F baseline = {(FLOAT)atlas_region.x0 - glyph_world_bounds.left, (FLOAT)atlas_region.y1 - font_metrics.descent};
             f_d2d_state->d2d_device_context->DrawGlyphRun(baseline, &dwrite_glyph_run, f_d2d_state->foreground_brush);
             HRESULT hr = f_d2d_state->d2d_device_context->EndDraw();
             ASSERT(SUCCEEDED(hr));
           }
+
+          // hampus: fill in glyph data
 
           glyph = push_array<F_Glyph>(f_d2d_state->arena, 1);
           glyph->idx = glyph_idx;
@@ -318,6 +339,8 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
                                    (F32)atlas_region.x1 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)atlas_region.y1 / (F32)f_d2d_state->atlas.atlas.dim.y);
           sll_stack_push_n(f_d2d_state->glyph_from_idx_lookup_table[slot_idx], glyph, hash_next);
         }
+
+        // hampus: fill in glyph run data
 
         F_GlyphRunNode *glyph_run_node = push_array<F_GlyphRunNode>(arena, 1);
         glyph_run_node->bitmap_size = glyph->bitmap_size;
@@ -398,19 +421,7 @@ f_get_font_metrics(F_Tag tag, U32 size)
   F_Handle f_handle = f_handle_from_tag(tag);
   F_DWrite_Font *dwrite_font = (F_DWrite_Font *)ptr_from_int(f_handle.u64[0]);
   ASSERT(dwrite_font != 0);
-  DWRITE_FONT_METRICS font_metrics = {0};
-  dwrite_font->font_face->GetMetrics(&font_metrics);
-  F32 design_units_per_em = (F32)font_metrics.designUnitsPerEm;
-  F32 font_scale = (F32)size * (96.0f / 72.0f) / design_units_per_em;
-
-  F32 line_gap = floor_f32((F32)font_metrics.lineGap * font_scale);
-  F32 ascent = floor_f32((F32)font_metrics.ascent * font_scale);
-  F32 descent = floor_f32((F32)font_metrics.descent * font_scale);
-
-  F_FontMetrics result = {};
-  result.line_gap = line_gap;
-  result.descent = descent;
-  result.ascent = ascent;
+  F_FontMetrics result = f_dwrite_get_font_metrics(dwrite_font->font_face, size);
   return result;
 }
 
