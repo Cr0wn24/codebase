@@ -497,8 +497,6 @@ ui_tree_contains_click(UI_Box *root, Vec2F32 mouse_pos)
 static void
 ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
 {
-  profile_function();
-
   ui_state->parent_stack = 0;
   ui_state->seed_stack = 0;
   ui_state->build_idx += 1;
@@ -669,7 +667,7 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
   ui_push_text_padding(v2f32(1.0f, 0.5f));
   ui_push_pref_width(ui_text_content(1));
   ui_push_pref_height(ui_text_content(1));
-  ui_push_text_align(UI_TextAlign_Center);
+  ui_push_text_align(UI_TextAlign_Left);
   ui_push_fixed_size(v2f32(50, 50));
   ui_push_seed(12345);
 
@@ -703,8 +701,6 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
 static void
 ui_end_build()
 {
-  profile_function();
-
   ui_pop_parent(); // pop normal root
   ui_pop_parent(); // pop root
 
@@ -1303,20 +1299,23 @@ ui_size_make(UI_SizeKind kind, F32 val, F32 strictness)
   return (size);
 }
 
+static int test_count = 0;
+
 static void
 ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
 {
+  profile_function();
   if(!(root->flags & (UI_BoxFlag_FixedWidth << axis)))
   {
     UI_Size size = ui_size_from_axis(root, axis);
     switch(size.kind)
     {
-      default:
       case UI_SizeKind_TextContent:
       {
-        Vec2F32 text_dim = {};
         if(axis == Axis2_X)
         {
+          profile_scope("UI_SizeKind_TextContent Axis X");
+          test_count += 1;
           F32 advance = f_get_advance(root->font_tag, root->font_size, root->string);
           root->fixed_size[Axis2_X] = floor_f32((F32)advance + root->text_padding[Axis2_X] * (F32)root->font_size);
         }
@@ -1330,6 +1329,10 @@ ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
       case UI_SizeKind_Pixels:
       {
         root->fixed_size[axis] = floor_f32(size.value);
+      }
+      break;
+      default:
+      {
       }
       break;
     }
@@ -1613,6 +1616,7 @@ ui_calculate_sizes(UI_Box *root)
 static void
 ui_layout(UI_Box *root)
 {
+  profile_function();
   ui_calculate_sizes(root);
   for_each_enum_val(Axis2, axis)
   {
@@ -1622,6 +1626,8 @@ ui_layout(UI_Box *root)
   {
     ui_calculate_final_rect(root, axis);
   }
+  os_print_debug_string("%d\n", test_count);
+  test_count = 0;
 }
 
 static UI_Size

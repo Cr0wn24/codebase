@@ -33,7 +33,7 @@ static SpallBuffer spall_buffer;
 
 #  define profile_init_thread()                          \
     {                                                    \
-      size_t buffer_size = 1024;                         \
+      size_t buffer_size = 4096;                         \
       spall_buffer.data = malloc(buffer_size);           \
       spall_buffer.length = buffer_size;                 \
       memset(spall_buffer.data, 1, spall_buffer.length); \

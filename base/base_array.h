@@ -19,13 +19,13 @@ struct Array
 };
 
 template <typename T>
-[[nodiscard]] Array<T> array_make(T *val, U64 count);
+[[nodiscard]] static Array<T> array_make(T *val, U64 count);
 
 template <typename T>
-[[nodiscard]] Array<T> array_make(Arena *arena, U64 count);
+[[nodiscard]] static Array<T> array_make(Arena *arena, U64 count);
 
 template <typename T>
-[[nodiscard]] Array<T> array_make_no_zero(Arena *arena, U64 count);
+[[nodiscard]] static Array<T> array_make_no_zero(Arena *arena, U64 count);
 
 template <typename T, U64 N>
 struct StaticArray
@@ -54,10 +54,10 @@ struct StaticArray
 };
 
 template <typename T, U64 N>
-[[nodiscard]] U64 array_count(StaticArray<T, N> array);
+[[nodiscard]] static U64 array_count(StaticArray<T, N> array);
 
 template <typename T>
-[[nodiscard]] U64 array_count(Array<T> array);
+[[nodiscard]] static U64 array_count(Array<T> array);
 
 template <typename T>
 struct DynamicArray
@@ -89,21 +89,27 @@ struct DynamicArray
 };
 
 template <typename T>
-[[nodiscard]] DynamicArray<T> dynamic_array_alloc();
+[[nodiscard]] static DynamicArray<T> dynamic_array_alloc();
 
 template <typename T>
-[[nodiscard]] U64 array_count(DynamicArray<T> &array);
+[[nodiscard]] static DynamicArray<T> dynamic_array_alloc(U64 size);
 
 template <typename T>
-[[nodiscard]]U64 array_count(const DynamicArray<T> &array);
+static void dynamic_array_free(DynamicArray<T> &array);
 
 template <typename T>
-void dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count);
+[[nodiscard]] static U64 array_count(DynamicArray<T> &array);
 
 template <typename T>
-void dynamic_array_resize(DynamicArray<T> &array, U64 new_count);
+[[nodiscard]] static U64 array_count(const DynamicArray<T> &array);
 
 template <typename T>
-void dynamic_array_move_memory(DynamicArray<T> &array, U64 dst_idx, U64 src_idx, U64 count);
+static void dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count);
+
+template <typename T>
+static void dynamic_array_resize(DynamicArray<T> &array, U64 new_count);
+
+template <typename T>
+static void dynamic_array_move_memory(DynamicArray<T> &array, U64 dst_idx, U64 src_idx, U64 count);
 
 #endif // BASE_ARRAY_H

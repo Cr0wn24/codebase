@@ -464,7 +464,6 @@ r_destroy_tex2d(R_Handle texture)
 static void
 r_fill_tex2d_region(R_Handle texture, RectU64 region, void *memory)
 {
-  profile_function();
   R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)ptr_from_int(texture.u64[0]);
   U32 bytes_per_pixel = 4;
   Vec2S32 dim = v2s32((S32)(region.x1 - region.x0), (S32)(region.y1 - region.y0));
@@ -580,8 +579,6 @@ r_instanced_draw(U64 vertex_count_per_instance, U64 instance_count)
 static void
 r_commit()
 {
-  profile_function();
-
   HRESULT hr;
   R_D3D11_Window *d3d11_window = r_d3d11_state->current_window_context;
   if(d3d11_window->render_target_view)

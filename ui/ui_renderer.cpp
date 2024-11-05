@@ -208,6 +208,7 @@ ui_renderer_destroy()
 static F32
 ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
 {
+  profile_function();
   TempArena scratch = get_scratch(0, 0);
   F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);
   F32 advance = pos.x;
@@ -424,14 +425,13 @@ ui_draw_box_hierarchy(UI_Box *root)
     {
       // root->text_color = linear_from_srgb_4f32(root->text_color);
 
-      F32 advance = f_get_advance(
-      root->font_tag, root->font_size, root->string);
-      F32 height = f_line_height_from_tag_size(root->font_tag, root->font_size);
       Vec2F32 text_pos = {};
       switch(root->text_align)
       {
         case UI_TextAlign_Center:
         {
+          F32 advance = f_get_advance(root->font_tag, root->font_size, root->string);
+          F32 height = f_line_height_from_tag_size(root->font_tag, root->font_size);
           F32 width_left = root->fixed_rect.x1 - root->fixed_rect.x0 - advance;
           F32 height_left = root->fixed_rect.y1 - root->fixed_rect.y0 - height;
 
@@ -441,6 +441,8 @@ ui_draw_box_hierarchy(UI_Box *root)
         break;
         case UI_TextAlign_Right:
         {
+          F32 advance = f_get_advance(root->font_tag, root->font_size, root->string);
+          F32 height = f_line_height_from_tag_size(root->font_tag, root->font_size);
           F32 width_left = root->fixed_rect.x1 - root->fixed_rect.x0 - advance;
           F32 height_left = root->fixed_rect.y1 - root->fixed_rect.y0 - height;
 
@@ -450,7 +452,7 @@ ui_draw_box_hierarchy(UI_Box *root)
         break;
         case UI_TextAlign_Left:
         {
-          F32 width_left = root->fixed_rect.x1 - root->fixed_rect.x0 - advance;
+          F32 height = f_line_height_from_tag_size(root->font_tag, root->font_size);
           F32 height_left = root->fixed_rect.y1 - root->fixed_rect.y0 - height;
 
           text_pos = v2f32(root->fixed_rect.min.x,
@@ -495,7 +497,6 @@ static void
 ui_draw()
 {
   profile_function();
-
   UI_RendererState *renderer = ui_state->renderer;
   renderer->first_batch_node = 0;
   renderer->last_batch_node = 0;

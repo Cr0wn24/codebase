@@ -251,6 +251,8 @@ f_handle_from_tag(F_Tag tag)
 static F_GlyphRun
 f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
 {
+  profile_function();
+
   F_GlyphRun result = {};
 
   TempArena scratch = get_scratch(&arena, 1);
@@ -259,7 +261,7 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
   // TODO(hampus): Convert the tag to a dwrite font
   // and query the name and use that instead of "Fira Code"
 
-  F_DWrite_MapTextToGlyphsResult map_text_to_glyphs_result = f_dwrite_map_text_to_glyphs(f_d2d_state->font_fallback1,
+  F_DWrite_MapTextToGlyphsResult map_text_to_glyphs_result = f_dwrite_map_text_to_glyphs(scratch.arena, f_d2d_state->font_fallback1,
                                                                                          f_d2d_state->font_collection,
                                                                                          f_d2d_state->text_analyzer1,
                                                                                          f_d2d_state->locale,
@@ -318,6 +320,7 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
           RectU64 atlas_region = {};
           if(!is_whitespace)
           {
+            profile_scope("rasterize glyph");
             F_FontMetrics font_metrics = f_dwrite_get_font_metrics(font_face, size);
             f_d2d_state->d2d_device_context->BeginDraw();
             bitmap_dim = v2u64((U64)(glyph_world_bounds.right - glyph_world_bounds.left), (U64)(font_metrics.ascent + font_metrics.descent + font_metrics.line_gap));
@@ -362,14 +365,6 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
     free(segment.glyph_offsets);
     free(segment.glyph_indices);
   }
-  F_DWrite_TextToGlyphsSegmentNode *next_node = 0;
-  for(F_DWrite_TextToGlyphsSegmentNode *n = map_text_to_glyphs_result.first_segment; n != 0; n = next_node)
-  {
-    next_node = n->next;
-    const F_DWrite_TextToGlyphsSegment &segment = n->v;
-    free(n);
-    n = 0;
-  }
 
   return result;
 }
@@ -399,6 +394,7 @@ f_get_advance(F_Tag tag, U32 size, String32 string)
 static F32
 f_get_advance(F_Tag tag, U32 size, String8 string)
 {
+  profile_function();
   F32 result = {};
   TempArena scratch = get_scratch(0, 0);
   F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);

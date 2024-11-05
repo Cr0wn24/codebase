@@ -4,7 +4,7 @@ static void os_memory_decommit(void *ptr, U64 size);
 static void os_memory_release(void *ptr, U64 size);
 
 template <typename T>
-Array<T>
+static Array<T>
 array_make(T *val, U64 count)
 {
   Array<T> result = {};
@@ -14,7 +14,7 @@ array_make(T *val, U64 count)
 }
 
 template <typename T>
-Array<T>
+static Array<T>
 array_make(Arena *arena, U64 count)
 {
   Array<T> result = {};
@@ -24,7 +24,7 @@ array_make(Arena *arena, U64 count)
 }
 
 template <typename T>
-Array<T>
+static Array<T>
 array_make_no_zero(Arena *arena, U64 count)
 {
   Array<T> result = {};
@@ -34,7 +34,7 @@ array_make_no_zero(Arena *arena, U64 count)
 }
 
 template <typename T, U64 N>
-U64
+static U64
 array_count(StaticArray<T, N> array)
 {
   U64 result = N;
@@ -42,7 +42,7 @@ array_count(StaticArray<T, N> array)
 }
 
 template <typename T>
-U64
+static U64
 array_count(Array<T> array)
 {
   U64 result = array.count;
@@ -50,9 +50,10 @@ array_count(Array<T> array)
 }
 
 template <typename T>
-DynamicArray<T>
+static DynamicArray<T>
 dynamic_array_alloc()
 {
+  profile_function();
   DynamicArray<T> result = {};
   result.cap = DYNAMIC_ARRAY_DEFAULT_RESERVE_SIZE;
   result.base = (T *)os_memory_reserve(result.cap);
@@ -60,7 +61,30 @@ dynamic_array_alloc()
 }
 
 template <typename T>
-U64
+static DynamicArray<T>
+dynamic_array_alloc(U64 size)
+{
+  profile_function();
+  DynamicArray<T> result = {};
+  result.cap = DYNAMIC_ARRAY_DEFAULT_RESERVE_SIZE;
+  result.base = (T *)os_memory_reserve(result.cap);
+  dynamic_array_resize(result, size);
+  return result;
+}
+
+template <typename T>
+static void
+dynamic_array_free(DynamicArray<T> &array)
+{
+  profile_function();
+  os_memory_release(array.base, 0);
+  array.cap = 0;
+  array.commit_size = 0;
+  array.pos = 0;
+}
+
+template <typename T>
+static U64
 array_count(DynamicArray<T> &array)
 {
   U64 result = array.pos / sizeof(T);
@@ -68,7 +92,7 @@ array_count(DynamicArray<T> &array)
 }
 
 template <typename T>
-U64
+static U64
 array_count(const DynamicArray<T> &array)
 {
   U64 result = array.pos / sizeof(T);
@@ -76,9 +100,10 @@ array_count(const DynamicArray<T> &array)
 }
 
 template <typename T>
-void
+static void
 dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count)
 {
+  profile_function();
   U64 clamped_dst_idx = min(array_count(array), idx);
   U64 clamped_count = min(array_count(array) - clamped_dst_idx, count);
   U64 clamped_size = clamped_count * sizeof(T);
@@ -87,9 +112,11 @@ dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count)
 }
 
 template <typename T>
-void
+static void
 dynamic_array_resize(DynamicArray<T> &array, U64 new_count)
 {
+  profile_function();
+
   U64 new_size_in_bytes = new_count * sizeof(T);
   ASSERT(new_size_in_bytes <= array.cap);
   U64 size_aligned = round_up_to_power_2_u64(new_size_in_bytes, ARENA_COMMIT_BLOCK_SIZE);
@@ -121,9 +148,10 @@ dynamic_array_resize(DynamicArray<T> &array, U64 new_count)
 }
 
 template <typename T>
-void
+static void
 dynamic_array_move_memory(DynamicArray<T> &array, U64 dst_idx, U64 src_idx, U64 count)
 {
+  profile_function();
   U64 clamped_dst_idx = min(array_count(array), dst_idx);
   U64 clamped_src_idx = min(array_count(array), src_idx);
   T *dst = &array.base[clamped_dst_idx];

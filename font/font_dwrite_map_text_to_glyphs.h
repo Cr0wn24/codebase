@@ -55,6 +55,6 @@ struct F_DWrite_MapTextToGlyphsResult
   F_DWrite_TextToGlyphsSegmentNode *last_segment;
 };
 
-static F_DWrite_MapTextToGlyphsResult f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontCollection *font_collection, IDWriteTextAnalyzer1 *text_analyzer, const wchar_t *locale, const wchar_t *base_family, const F32 font_size, const wchar_t *text, const U32 text_length);
+static F_DWrite_MapTextToGlyphsResult f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, IDWriteFontCollection *font_collection, IDWriteTextAnalyzer1 *text_analyzer, const wchar_t *locale, const wchar_t *base_family, const F32 font_size, const wchar_t *text, const U32 text_length);
 
 #endif
