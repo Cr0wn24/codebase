@@ -670,7 +670,6 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
   ui_push_pref_width(ui_text_content(1));
   ui_push_pref_height(ui_text_content(1));
   ui_push_text_align(UI_TextAlign_Center);
-  ui_push_alpha(1.0f);
   ui_push_fixed_size(v2f32(50, 50));
   ui_push_seed(12345);
 

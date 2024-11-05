@@ -291,8 +291,7 @@ struct UI_FreeBox
   X(TextAlign, text_align, UI_TextAlign)       \
   X(PrefWidth, pref_width, UI_Size)            \
   X(PrefHeight, pref_height, UI_Size)          \
-  X(FixedSize, fixed_size, Vec2F32)            \
-  X(Alpha, alpha, F32)
+  X(FixedSize, fixed_size, Vec2F32)
 
 struct UI_Box;
 #define UI_CUSTOM_DRAW_FUNCTION(name) void name(UI_Box *root)

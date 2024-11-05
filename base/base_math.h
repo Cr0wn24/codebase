@@ -89,7 +89,8 @@ union Vec3F32
   F32 v[3];
 
   [[nodiscard]] Vec3F32 operator-(Vec3F32 v);
-
+  [[nodiscard]] Vec3F32 operator*(F32 t);
+  Vec3F32 &operator*=(F32 t);
   [[nodiscard]] F32 &operator[](U64 idx);
 };
 
@@ -116,6 +117,7 @@ union Vec4F32
 
   [[nodiscard]] Vec4F32 operator+(Vec4F32 v);
   [[nodiscard]] Vec4F32 operator*(F32 t);
+  Vec4F32 &operator*=(F32 t);
   [[nodiscard]] Vec4F32 operator/(F32 t);
 };
 

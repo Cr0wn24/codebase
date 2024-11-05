@@ -106,6 +106,23 @@ Vec3F32::operator-(Vec3F32 other)
   return result;
 }
 
+Vec3F32
+Vec3F32::operator*(F32 t)
+{
+  Vec3F32 result = {};
+  result.x = x * t;
+  result.y = y * t;
+  result.z = z * t;
+  return result;
+}
+
+Vec3F32 &
+Vec3F32::operator*=(F32 t)
+{
+  *this = *this * t;
+  return *this;
+}
+
 F32 &
 Vec3F32::operator[](U64 idx)
 {
@@ -184,6 +201,13 @@ Vec4F32::operator*(F32 t)
   result.z = z * t;
   result.w = w * t;
   return result;
+}
+
+Vec4F32 &
+Vec4F32::operator*=(F32 t)
+{
+  *this = *this * t;
+  return *this;
 }
 
 Vec4F32

@@ -341,7 +341,7 @@ ui_draw_box_hierarchy(UI_Box *root)
       F32 scale = max(max.x - min.x, max.y - min.y) / max(root->fixed_rect.x1 - root->fixed_rect.x0, root->fixed_rect.y1 - root->fixed_rect.y0);
       UI_DrawRectParams params = {};
       params.softness = 10 * pixel_density;
-      params.color = v4f32(0, 0, 0, root->alpha);
+      params.color = v4f32(0, 0, 0, 1);
       UI_RectInstance *instance = ui_draw_rect(min, max, params);
       memory_copy_array(instance->corner_radius.v, (root->corner_radius * scale * 0.7f).v);
     }
@@ -378,12 +378,12 @@ ui_draw_box_hierarchy(UI_Box *root)
       color[Corner_TopRight] = color[Corner_TopRight] + v4f32(d, d, d, 0);
       color[Corner_BottomRight] = color[Corner_BottomRight] + v4f32(d, d, d, 0);
       color[Corner_BottomLeft] = color[Corner_BottomLeft] + v4f32(d, d, d, 0);
-
-      color[Corner_TopLeft].a *= root->alpha;
-      color[Corner_TopRight].a *= root->alpha;
-      color[Corner_BottomRight].a *= root->alpha;
-      color[Corner_BottomLeft].a *= root->alpha;
-
+#if 1
+      color[Corner_TopLeft].rgb *= root->rect_color00.a;
+      color[Corner_TopRight].rgb *= root->rect_color10.a;
+      color[Corner_BottomRight].rgb *= root->rect_color11.a;
+      color[Corner_BottomLeft].rgb *= root->rect_color01.a;
+#endif
       UI_DrawRectParams params = {};
       params.softness = root->softness;
       params.slice = root->slice;
@@ -411,7 +411,7 @@ ui_draw_box_hierarchy(UI_Box *root)
         }
       }
 
-      border_color.a *= root->alpha;
+      border_color.rgb *= border_color.a;
 
       UI_DrawRectParams params = {};
       params.border_thickness = root->border_thickness;
@@ -462,7 +462,7 @@ ui_draw_box_hierarchy(UI_Box *root)
           invalid_case;
       }
       Vec4F32 text_color = root->text_color;
-      text_color.a *= root->alpha;
+      text_color.rgb *= text_color.a;
       ui_draw_text(text_pos, root->font_tag, root->font_size, root->string, text_color);
     }
   }
