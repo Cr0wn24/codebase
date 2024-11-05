@@ -106,8 +106,10 @@ struct F_D2D_State
 
 static F_Handle f_handle_from_tag(F_Tag tag);
 
-[[nodiscard]] static F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
-[[nodiscard]] static F_GlyphRun f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
+[[nodiscard]] static F_GlyphRun f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
+[[nodiscard]] static F_GlyphRun f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
+[[nodiscard]] static F_GlyphRun f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
+[[nodiscard]] static F_GlyphRun f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
 
 [[nodiscard]] static F32 f_get_advance(F_Tag tag, U32 size, String32 string);
 [[nodiscard]] static F32 f_get_advance(F_Tag tag, U32 size, String8 string);

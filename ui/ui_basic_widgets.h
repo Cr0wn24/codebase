@@ -18,6 +18,8 @@ struct UI_LineEditStatePairNode
 static void ui_spacer(UI_Size size);
 static void ui_text(String8 string);
 static void ui_text(char *fmt, ...);
+static void ui_simple_text(String8 string);
+static void ui_simple_text(const char *fmt, ...);
 static UI_Comm ui_button(String8 string);
 static UI_Comm ui_button(char *fmt, ...);
 static UI_Comm ui_check(B32 b32, String8 string);

@@ -256,6 +256,8 @@ enum
   UI_BoxFlag_FixedWidth = (1 << 26),
   UI_BoxFlag_FixedHeight = (1 << 27),
 
+  UI_BoxFlag_SimpleText = (1 << 28),
+
   UI_BoxFlag_FixedPos = UI_BoxFlag_FixedX | UI_BoxFlag_FixedY,
   UI_BoxFlag_FixedDim = UI_BoxFlag_FixedWidth | UI_BoxFlag_FixedHeight,
   UI_BoxFlag_FixedRect = UI_BoxFlag_FixedPos | UI_BoxFlag_FixedDim,

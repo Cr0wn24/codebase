@@ -178,7 +178,7 @@ f_init()
 }
 
 static F_Handle
-f_open_font(Arena *arena, String8 path)
+f_open_font(Arena *arena, String8 name)
 {
   profile_function();
 
@@ -186,7 +186,14 @@ f_open_font(Arena *arena, String8 path)
   F_DWrite_Font *dw_font = push_array<F_DWrite_Font>(arena, 1);
   HRESULT hr = 0;
 
-  hr = f_d2d_state->dwrite_factory->CreateFontFileReference((const WCHAR *)cstr16_from_str8(scratch.arena, path),
+  U32 idx = 0;
+  BOOL exsist = false;
+  U16 *str16 = cstr16_from_str8(scratch.arena, name);
+  f_d2d_state->font_collection->FindFamilyName((WCHAR *)str16, &idx, &exsist);
+
+#if 0
+
+  hr = f_d2d_state->dwrite_factory->CreateFontFileReference((const WCHAR *)cstr16_from_str8(scratch.arena, name),
                                                             0, &dw_font->font_file);
   ASSERT(SUCCEEDED(hr));
 
@@ -197,6 +204,7 @@ f_open_font(Arena *arena, String8 path)
                                                    DWRITE_FONT_SIMULATIONS_NONE,
                                                    &dw_font->font_face);
   ASSERT(SUCCEEDED(hr));
+#endif
   F_Handle result = {};
   result.u64[0] = int_from_ptr(dw_font);
   return result;
@@ -249,7 +257,24 @@ f_handle_from_tag(F_Tag tag)
 }
 
 static F_GlyphRun
-f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
+f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
+{
+  TempArena scratch = get_scratch(0, 0);
+  F_GlyphRun result = {};
+  return result;
+}
+
+static F_GlyphRun
+f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
+{
+  TempArena scratch = get_scratch(&arena, 1);
+  String32 str32 = str32_from_str8(scratch.arena, string);
+  F_GlyphRun result = f_make_simple_glyph_run(arena, tag, size, str32);
+  return result;
+}
+
+static F_GlyphRun
+f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
 {
   profile_function();
 
@@ -367,11 +392,11 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
 }
 
 static F_GlyphRun
-f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
+f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
 {
   TempArena scratch = get_scratch(&arena, 1);
   String32 str32 = str32_from_str8(scratch.arena, string);
-  F_GlyphRun result = f_make_glyph_run(arena, tag, size, str32);
+  F_GlyphRun result = f_make_complex_glyph_run(arena, tag, size, str32);
   return result;
 }
 
@@ -380,7 +405,7 @@ f_get_advance(F_Tag tag, U32 size, String32 string)
 {
   F32 result = {};
   TempArena scratch = get_scratch(0, 0);
-  F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);
+  F_GlyphRun glyph_run = f_make_complex_glyph_run(scratch.arena, tag, size, string);
   for(F_GlyphRunNode *n = glyph_run.first; n != 0; n = n->next)
   {
     result += n->metrics.advance;
@@ -394,7 +419,7 @@ f_get_advance(F_Tag tag, U32 size, String8 string)
   profile_function();
   F32 result = {};
   TempArena scratch = get_scratch(0, 0);
-  F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);
+  F_GlyphRun glyph_run = f_make_complex_glyph_run(scratch.arena, tag, size, string);
   for(F_GlyphRunNode *n = glyph_run.first; n != 0; n = n->next)
   {
     result += n->metrics.advance;
@@ -407,7 +432,7 @@ f_get_advance(F_Tag tag, U32 size, U32 cp)
 {
   F32 result = {};
   TempArena scratch = get_scratch(0, 0);
-  F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, str32(&cp, 1));
+  F_GlyphRun glyph_run = f_make_complex_glyph_run(scratch.arena, tag, size, str32(&cp, 1));
   result = glyph_run.first->metrics.advance;
   return result;
 }

@@ -34,6 +34,23 @@ ui_text(const char *fmt, ...)
   va_end(args);
 }
 
+static void
+ui_simple_text(String8 string)
+{
+  UI_Box *box = ui_box_make(UI_BoxFlag_DrawText | UI_BoxFlag_SimpleText);
+  ui_box_equip_display_string(box, string);
+}
+
+static void
+ui_simple_text(const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  String8 string = str8_push(ui_frame_arena(), (char *)fmt, args);
+  ui_simple_text(string);
+  va_end(args);
+}
+
 static UI_Comm
 ui_button(String8 string)
 {

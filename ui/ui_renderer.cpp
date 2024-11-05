@@ -210,7 +210,7 @@ ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
 {
   profile_function();
   TempArena scratch = get_scratch(0, 0);
-  F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);
+  F_GlyphRun glyph_run = f_make_complex_glyph_run(scratch.arena, tag, size, string);
   F32 result = ui_draw_glyph_run(pos, color, glyph_run);
   return result;
 }
@@ -219,7 +219,6 @@ static F32
 ui_draw_glyph_run(Vec2F32 pos, Vec4F32 color, F_GlyphRun glyph_run)
 {
   profile_function();
-  TempArena scratch = get_scratch(0, 0);
   F32 advance = pos.x;
   F_Atlas *atlas = f_atlas();
 
@@ -241,7 +240,7 @@ ui_draw_glyph_run(Vec2F32 pos, Vec4F32 color, F_GlyphRun glyph_run)
     advance += node->metrics.advance;
   }
 
-  return (advance - pos.x);
+  return advance - pos.x;
 }
 
 static RectF32

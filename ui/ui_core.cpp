@@ -1314,7 +1314,16 @@ ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
         {
           F32 advance = {};
           TempArena scratch = get_scratch(0, 0);
-          F_GlyphRun glyph_run = f_make_glyph_run(ui_frame_arena(), root->font_tag, root->font_size, root->string);
+          F_GlyphRun glyph_run = {};
+          if(root->flags & UI_BoxFlag_SimpleText)
+          {
+            glyph_run = f_make_simple_glyph_run(ui_frame_arena(), root->font_tag, root->font_size, root->string);
+          }
+          else
+          {
+            glyph_run = f_make_complex_glyph_run(ui_frame_arena(), root->font_tag, root->font_size, root->string);
+          }
+
           for(F_GlyphRunNode *n = glyph_run.first; n != 0; n = n->next)
           {
             advance += n->metrics.advance;
