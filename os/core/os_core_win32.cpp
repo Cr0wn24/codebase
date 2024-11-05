@@ -724,7 +724,7 @@ os_print_debug_string(const char *fmt, ...)
 
 #if !defined(OS_NO_ENTRY_POINT)
 
-#  if 1
+#  if 0
 S32 APIENTRY
 WinMain(HINSTANCE instance, HINSTANCE prev_instance, PSTR command_line, S32 show_code)
 #  else

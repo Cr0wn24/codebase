@@ -178,6 +178,7 @@ struct TextAnalysisSink final : IDWriteTextAnalysisSink
     {
       next_chunk = chunk->next;
       free(chunk);
+      chunk = 0;
     }
   }
 };
@@ -257,6 +258,7 @@ fill_segment_with_glyph_array_chunks(F_DWrite_TextToGlyphsSegment *segment, F_DW
       glyph_idx_offset += glyph_array.count;
     }
     free(chunk);
+    chunk = 0;
   }
 }
 
@@ -453,7 +455,6 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
 
             F_DWrite_GlyphArray *glyph_array = allocate_and_push_back_glyph_array(&first_glyph_array_chunk, &last_glyph_array_chunk);
 
-            glyph_array->indices = (U16 *)calloc(max_glyph_indices_count, sizeof(U16));
             BOOL is_right_to_left = (BOOL)(analysis_result.resolved_bidi_level & 1);
             for(int retry = 0;;)
             {
@@ -515,16 +516,20 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
             ASSERT(SUCCEEDED(hr));
 
             free(text_props);
+            text_props = 0;
             free(cluster_map);
+            cluster_map = 0;
 
             last_glyph_array_chunk->total_glyph_count += glyph_array->count;
           }
         }
 
         free(glyph_props);
+        glyph_props = 0;
       }
 
       free(glyph_indices);
+      glyph_indices = 0;
 
       fallback_ptr += complex_mapped_length;
     }

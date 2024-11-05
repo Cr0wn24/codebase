@@ -213,8 +213,6 @@ ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
   F32 advance = pos.x;
   F_Atlas *atlas = f_atlas();
 
-  F_GlyphRunNode *second_node = glyph_run.first->next;
-
   for(F_GlyphRunNode *node = glyph_run.first; node != 0; node = node->next)
   {
     F32 xpos = advance + node->metrics.left_bearing;
