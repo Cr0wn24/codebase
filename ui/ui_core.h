@@ -336,6 +336,8 @@ struct UI_Box
   F32 active_t;
   F32 hot_t;
 
+  F_GlyphRun *glyph_run;
+
   // hampus: Styling values
 #define X(name_upper, name_lower, type) type name_lower;
   stack_values

@@ -1299,8 +1299,6 @@ ui_size_make(UI_SizeKind kind, F32 val, F32 strictness)
   return (size);
 }
 
-static int test_count = 0;
-
 static void
 ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
 {
@@ -1314,10 +1312,18 @@ ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
       {
         if(axis == Axis2_X)
         {
+          F32 advance = {};
+          TempArena scratch = get_scratch(0, 0);
+          F_GlyphRun glyph_run = f_make_glyph_run(ui_frame_arena(), root->font_tag, root->font_size, root->string);
+          for(F_GlyphRunNode *n = glyph_run.first; n != 0; n = n->next)
+          {
+            advance += n->metrics.advance;
+          }
           profile_scope("UI_SizeKind_TextContent Axis X");
-          test_count += 1;
-          F32 advance = f_get_advance(root->font_tag, root->font_size, root->string);
           root->fixed_size[Axis2_X] = floor_f32((F32)advance + root->text_padding[Axis2_X] * (F32)root->font_size);
+
+          root->glyph_run = push_array_no_zero<F_GlyphRun>(ui_frame_arena(), 1);
+          memory_copy_struct(root->glyph_run, &glyph_run);
         }
         else if(axis == Axis2_Y)
         {
@@ -1626,8 +1632,6 @@ ui_layout(UI_Box *root)
   {
     ui_calculate_final_rect(root, axis);
   }
-  os_print_debug_string("%d\n", test_count);
-  test_count = 0;
 }
 
 static UI_Size

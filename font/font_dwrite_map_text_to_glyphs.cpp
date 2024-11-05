@@ -1,5 +1,7 @@
 #pragma comment(lib, "dwrite.lib")
 
+static F_DWrite_MapTextToGlyphsState *f_dwrite_map_text_to_glyphs_state;
+
 struct TextAnalysisSource final : IDWriteTextAnalysisSource
 {
   TextAnalysisSource(const wchar_t *locale, const wchar_t *text, const U32 text_length) noexcept
@@ -78,23 +80,6 @@ private:
   const U32 _text_length;
 };
 
-struct TextAnalysisSinkResult
-{
-  U32 text_position;
-  U32 text_length;
-  DWRITE_SCRIPT_ANALYSIS analysis;
-  U32 resolved_bidi_level;
-  U32 explicit_bidi_level;
-};
-
-struct TextAnalysisSinkResultChunk
-{
-  TextAnalysisSinkResultChunk *next;
-  TextAnalysisSinkResultChunk *prev;
-  U64 count;
-  TextAnalysisSinkResult v[512];
-};
-
 struct TextAnalysisSink final : IDWriteTextAnalysisSink
 {
   TextAnalysisSinkResultChunk *first_result_chunk;
@@ -132,7 +117,16 @@ struct TextAnalysisSink final : IDWriteTextAnalysisSink
     TextAnalysisSinkResultChunk *chunk = last_result_chunk;
     if(chunk == 0 || chunk->count == ARRAYSIZE(chunk->v))
     {
-      chunk = (TextAnalysisSinkResultChunk *)calloc(1, sizeof(TextAnalysisSinkResultChunk));
+      chunk = f_dwrite_map_text_to_glyphs_state->first_text_analsys_sink_chunk;
+      if(chunk == 0)
+      {
+        chunk = push_array<TextAnalysisSinkResultChunk>(f_dwrite_map_text_to_glyphs_state->arena, 1);
+      }
+      else
+      {
+        sll_stack_pop(f_dwrite_map_text_to_glyphs_state->first_text_analsys_sink_chunk);
+        memory_zero_struct(chunk);
+      }
       if(first_result_chunk == 0)
       {
         first_result_chunk = last_result_chunk = chunk;
@@ -178,8 +172,7 @@ struct TextAnalysisSink final : IDWriteTextAnalysisSink
     for(TextAnalysisSinkResultChunk *chunk = first_result_chunk; chunk != 0; chunk = next_chunk)
     {
       next_chunk = chunk->next;
-      free(chunk);
-      chunk = 0;
+      sll_stack_push(f_dwrite_map_text_to_glyphs_state->first_text_analsys_sink_chunk, chunk);
     }
   }
 };
@@ -230,7 +223,7 @@ allocate_and_push_back_segment_node(Arena *arena, F_DWrite_TextToGlyphsSegmentNo
 }
 
 static void
-fill_segment_with_glyph_array_chunks(F_DWrite_TextToGlyphsSegment *segment, F_DWrite_GlyphArrayChunk *first_chunk, F_DWrite_GlyphArrayChunk *last_chunk)
+fill_segment_with_glyph_array_chunks(Arena *arena, F_DWrite_TextToGlyphsSegment *segment, F_DWrite_GlyphArrayChunk *first_chunk, F_DWrite_GlyphArrayChunk *last_chunk)
 {
   profile_function();
   U64 total_glyph_count = 0;
@@ -240,9 +233,9 @@ fill_segment_with_glyph_array_chunks(F_DWrite_TextToGlyphsSegment *segment, F_DW
   }
 
   segment->glyph_count = total_glyph_count;
-  segment->glyph_indices = (U16 *)calloc(segment->glyph_count, sizeof(U16));
-  segment->glyph_advances = (F32 *)calloc(segment->glyph_count, sizeof(F32));
-  segment->glyph_offsets = (DWRITE_GLYPH_OFFSET *)calloc(segment->glyph_count, sizeof(DWRITE_GLYPH_OFFSET));
+  segment->glyph_indices = push_array_no_zero<U16>(arena, segment->glyph_count);
+  segment->glyph_advances = push_array_no_zero<F32>(arena, segment->glyph_count);
+  segment->glyph_offsets = push_array_no_zero<DWRITE_GLYPH_OFFSET>(arena, segment->glyph_count);
   U64 glyph_idx_offset = 0;
   for(F_DWrite_GlyphArrayChunk *chunk = first_chunk; chunk != 0; chunk = chunk->next)
   {
@@ -252,7 +245,6 @@ fill_segment_with_glyph_array_chunks(F_DWrite_TextToGlyphsSegment *segment, F_DW
       memory_copy_typed(segment->glyph_indices + glyph_idx_offset, glyph_array.indices, glyph_array.count);
       memory_copy_typed(segment->glyph_advances + glyph_idx_offset, glyph_array.advances, glyph_array.count);
       memory_copy_typed(segment->glyph_offsets + glyph_idx_offset, glyph_array.offsets, glyph_array.count);
-
       glyph_idx_offset += glyph_array.count;
     }
   }
@@ -262,6 +254,13 @@ static F_DWrite_MapTextToGlyphsResult
 f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, IDWriteFontCollection *font_collection, IDWriteTextAnalyzer1 *text_analyzer, const wchar_t *locale, const wchar_t *base_family, const F32 font_size, const wchar_t *text, const U32 text_length)
 {
   profile_function();
+
+  if(f_dwrite_map_text_to_glyphs_state == 0)
+  {
+    Arena *state_arena = arena_alloc();
+    f_dwrite_map_text_to_glyphs_state = push_array<F_DWrite_MapTextToGlyphsState>(state_arena, 1);
+    f_dwrite_map_text_to_glyphs_state->arena = state_arena;
+  }
 
   F_DWrite_MapTextToGlyphsResult result = {};
 
@@ -359,7 +358,7 @@ f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, I
         {
           if(segment->bidi_level != 0)
           {
-            fill_segment_with_glyph_array_chunks(segment, first_glyph_array_chunk, last_glyph_array_chunk);
+            fill_segment_with_glyph_array_chunks(arena, segment, first_glyph_array_chunk, last_glyph_array_chunk);
             first_glyph_array_chunk = 0;
             last_glyph_array_chunk = 0;
             segment = 0;
@@ -384,7 +383,7 @@ f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, I
         mapped_font_face->GetMetrics(&font_metrics);
         glyph_array->count = complex_mapped_length;
         glyph_array->advances = push_array_no_zero<F32>(scratch.arena, glyph_array->count);
-        glyph_array->offsets = push_array_no_zero<DWRITE_GLYPH_OFFSET>(scratch.arena, glyph_array->count);
+        glyph_array->offsets = push_array<DWRITE_GLYPH_OFFSET>(scratch.arena, glyph_array->count);
         glyph_array->indices = push_array_no_zero<U16>(scratch.arena, glyph_array->count);
 
         // hampus: fill in indices
@@ -433,7 +432,7 @@ f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, I
             {
               if(segment->bidi_level != analysis_result.resolved_bidi_level)
               {
-                fill_segment_with_glyph_array_chunks(segment, first_glyph_array_chunk, last_glyph_array_chunk);
+                fill_segment_with_glyph_array_chunks(arena, segment, first_glyph_array_chunk, last_glyph_array_chunk);
                 first_glyph_array_chunk = 0;
                 last_glyph_array_chunk = 0;
                 segment = 0;
@@ -535,7 +534,7 @@ f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, I
     // hampus: convert our list of glyph arrays into one big array
 
     {
-      fill_segment_with_glyph_array_chunks(segment, first_glyph_array_chunk, last_glyph_array_chunk);
+      fill_segment_with_glyph_array_chunks(arena, segment, first_glyph_array_chunk, last_glyph_array_chunk);
     }
 
     fallback_offset += mapped_text_length;

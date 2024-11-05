@@ -265,7 +265,7 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
                                                                                          f_d2d_state->font_collection,
                                                                                          f_d2d_state->text_analyzer1,
                                                                                          f_d2d_state->locale,
-                                                                                         L"Fira Code",
+                                                                                         L"Consolas",
                                                                                          (F32)size, (const wchar_t *)str16.data, (U32)str16.size);
 
   for(F_DWrite_TextToGlyphsSegmentNode *n = map_text_to_glyphs_result.first_segment; n != 0; n = n->next)
@@ -361,9 +361,6 @@ f_make_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
         ASSERT(!"NOT IMPLEMENTED");
       }
     }
-    free(segment.glyph_advances);
-    free(segment.glyph_offsets);
-    free(segment.glyph_indices);
   }
 
   return result;

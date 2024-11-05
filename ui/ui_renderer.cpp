@@ -211,6 +211,15 @@ ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
   profile_function();
   TempArena scratch = get_scratch(0, 0);
   F_GlyphRun glyph_run = f_make_glyph_run(scratch.arena, tag, size, string);
+  F32 result = ui_draw_glyph_run(pos, color, glyph_run);
+  return result;
+}
+
+static F32
+ui_draw_glyph_run(Vec2F32 pos, Vec4F32 color, F_GlyphRun glyph_run)
+{
+  profile_function();
+  TempArena scratch = get_scratch(0, 0);
   F32 advance = pos.x;
   F_Atlas *atlas = f_atlas();
 
@@ -463,7 +472,14 @@ ui_draw_box_hierarchy(UI_Box *root)
       }
       Vec4F32 text_color = root->text_color;
       text_color.rgb *= text_color.a;
-      ui_draw_text(text_pos, root->font_tag, root->font_size, root->string, text_color);
+      if(root->glyph_run == 0)
+      {
+        ui_draw_text(text_pos, root->font_tag, root->font_size, root->string, text_color);
+      }
+      else
+      {
+        ui_draw_glyph_run(text_pos, text_color, *root->glyph_run);
+      }
     }
   }
 
