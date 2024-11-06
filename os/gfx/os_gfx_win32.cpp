@@ -70,11 +70,39 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
     break;
     case WM_CHAR:
     {
-      if(wparam >= 32)
+      static U16 high_surrogate = 0;
+      static U16 low_surrogate = 0;
+      if(IS_HIGH_SURROGATE(wparam))
       {
+        high_surrogate = (U16)wparam;
+      }
+      else if(IS_LOW_SURROGATE(wparam))
+      {
+        low_surrogate = (U16)wparam;
+      }
+      else
+      {
+        if(wparam >= 32)
+        {
+          event_node = push_array<OS_EventNode>(event_arena, 1);
+          event_node->v.kind = OS_EventKind_Char;
+          event_node->v.cp = (U32)wparam;
+
+          high_surrogate = 0;
+          high_surrogate = 0;
+        }
+      }
+
+      if(IS_SURROGATE_PAIR(high_surrogate, low_surrogate))
+      {
+        U32 cp = (0x10000 +
+                  (((U32)high_surrogate & 0x3FF) << 10) +
+                  ((U32)low_surrogate & 0x3FF));
         event_node = push_array<OS_EventNode>(event_arena, 1);
         event_node->v.kind = OS_EventKind_Char;
-        event_node->v.cp = (U32)wparam;
+        event_node->v.cp = cp;
+        high_surrogate = 0;
+        low_surrogate = 0;
       }
     }
     break;

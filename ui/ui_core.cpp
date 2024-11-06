@@ -867,6 +867,7 @@ ui_box_make_from_key(UI_BoxFlags flags, UI_Key key)
 #undef X
 
   box->flags = flags | box->box_flags;
+  box->glyph_run = 0;
 
   // hampus: Auto pop stacks
 

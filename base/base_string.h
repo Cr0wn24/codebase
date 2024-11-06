@@ -171,6 +171,7 @@ static U64 string_encode_utf16(wchar_t *dst, U32 codepoint);
 
 [[nodiscard]] static char *cstr_from_str8(Arena *arena, String8 string);
 [[nodiscard]] static wchar_t *cstr16_from_str8(Arena *arena, String8 string);
+[[nodiscard]] static String16 cstr16_from_str32(Arena *arena, String32 string);
 
 [[nodiscard]] static String16 str16_from_str32(Arena *arena, String32 string);
 

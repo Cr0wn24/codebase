@@ -404,8 +404,74 @@ f_dwrite_raster_glyph(DWRITE_GLYPH_RUN dwrite_glyph_run, IDWriteFontFace *font_f
     bitmap_dim = v2u64((U64)(glyph_world_bounds.right - glyph_world_bounds.left), (U64)(font_metrics.ascent + font_metrics.descent + font_metrics.line_gap));
     atlas_region = atlas_region_alloc(f_d2d_state->arena, &f_d2d_state->atlas.atlas, bitmap_dim);
     D2D1_POINT_2F baseline = {(FLOAT)atlas_region.x0 - glyph_world_bounds.left, (FLOAT)atlas_region.y1 - font_metrics.descent};
-    f_d2d_state->d2d_device_context->DrawGlyphRun(baseline, &dwrite_glyph_run, f_d2d_state->foreground_brush);
-    HRESULT hr = f_d2d_state->d2d_device_context->EndDraw();
+    IDWriteColorGlyphRunEnumerator1 *run_enumerator = 0;
+    const DWRITE_GLYPH_IMAGE_FORMATS desired_glyph_image_formats = DWRITE_GLYPH_IMAGE_FORMATS_TRUETYPE |
+                                                                   DWRITE_GLYPH_IMAGE_FORMATS_CFF |
+                                                                   DWRITE_GLYPH_IMAGE_FORMATS_COLR |
+                                                                   DWRITE_GLYPH_IMAGE_FORMATS_SVG |
+                                                                   DWRITE_GLYPH_IMAGE_FORMATS_PNG |
+                                                                   DWRITE_GLYPH_IMAGE_FORMATS_JPEG |
+                                                                   DWRITE_GLYPH_IMAGE_FORMATS_TIFF |
+                                                                   DWRITE_GLYPH_IMAGE_FORMATS_PREMULTIPLIED_B8G8R8A8;
+    HRESULT hr = f_d2d_state->dwrite_factory->TranslateColorGlyphRun(baseline, &dwrite_glyph_run, 0, desired_glyph_image_formats, DWRITE_MEASURING_MODE_NATURAL, 0, 0, &run_enumerator);
+    if(hr == DWRITE_E_NOCOLOR)
+    {
+      // NOTE(hampus): There was no colored glyph. We can draw them as normal
+      f_d2d_state->foreground_brush->SetColor({1, 1, 1, 1});
+      f_d2d_state->d2d_device_context->DrawGlyphRun(baseline, &dwrite_glyph_run, f_d2d_state->foreground_brush);
+    }
+    else
+    {
+      // NOTE(hampus): There was colored glyph. We have to draw them differently
+      for(;;)
+      {
+        BOOL have_run = FALSE;
+        hr = run_enumerator->MoveNext(&have_run);
+        Assert(SUCCEEDED(hr));
+        if(!have_run)
+        {
+          break;
+        }
+
+        const DWRITE_COLOR_GLYPH_RUN1 *color_glyph_run = 0;
+        hr = run_enumerator->GetCurrentRun(&color_glyph_run);
+        Assert(SUCCEEDED(hr));
+
+        f_d2d_state->foreground_brush->SetColor(color_glyph_run->runColor);
+
+        switch(color_glyph_run->glyphImageFormat)
+        {
+          case DWRITE_GLYPH_IMAGE_FORMATS_NONE:
+          {
+            // NOTE(hampus): Do nothing
+            // TODO(hampus): Find out when this is the case.
+          }
+          break;
+          case DWRITE_GLYPH_IMAGE_FORMATS_PNG:
+          case DWRITE_GLYPH_IMAGE_FORMATS_JPEG:
+          case DWRITE_GLYPH_IMAGE_FORMATS_TIFF:
+          case DWRITE_GLYPH_IMAGE_FORMATS_PREMULTIPLIED_B8G8R8A8:
+          {
+            Assert(!"Not tested");
+            f_d2d_state->d2d_device_context->DrawColorBitmapGlyphRun(color_glyph_run->glyphImageFormat, {color_glyph_run->baselineOriginX, color_glyph_run->baselineOriginY}, &color_glyph_run->glyphRun, color_glyph_run->measuringMode, D2D1_COLOR_BITMAP_GLYPH_SNAP_OPTION_DEFAULT);
+          }
+          break;
+          case DWRITE_GLYPH_IMAGE_FORMATS_SVG:
+          {
+            Assert(!"Not tested");
+            f_d2d_state->d2d_device_context->DrawSvgGlyphRun({color_glyph_run->baselineOriginX, color_glyph_run->baselineOriginY}, &color_glyph_run->glyphRun, f_d2d_state->foreground_brush, 0, 0, color_glyph_run->measuringMode);
+          }
+          break;
+          default:
+          {
+            f_d2d_state->d2d_device_context->DrawGlyphRun({color_glyph_run->baselineOriginX, color_glyph_run->baselineOriginY}, &color_glyph_run->glyphRun, color_glyph_run->glyphRunDescription, f_d2d_state->foreground_brush, color_glyph_run->measuringMode);
+          }
+          break;
+        }
+      }
+    }
+
+    hr = f_d2d_state->d2d_device_context->EndDraw();
     Assert(SUCCEEDED(hr));
   }
 
@@ -509,7 +575,7 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
   F_GlyphRun result = {};
 
   TempArena scratch = GetScratch(&arena, 1);
-  String16 str16 = str16_from_str32(scratch.arena, str32);
+  String16 str16 = cstr16_from_str32(scratch.arena, str32);
   String16 tag_str16 = str16_from_str8(scratch.arena, tag.string);
 
   F_DWrite_MapTextToGlyphsResult map_text_to_glyphs_result = f_dwrite_map_text_to_glyphs(f_d2d_state->font_fallback1,
