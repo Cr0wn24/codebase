@@ -238,9 +238,9 @@ typedef int32_t S32;
 typedef int64_t S64;
 
 typedef U8 B8;
-typedef U16 B16;
-typedef U32 B32;
-typedef U64 B64;
+typedef S16 B16;
+typedef S32 B32;
+typedef S64 B64;
 
 typedef float F32;
 typedef double F64;

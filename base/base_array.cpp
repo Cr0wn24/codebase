@@ -104,8 +104,8 @@ static void
 dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count)
 {
   ProfileFunction();
-  U64 clamped_dst_idx = min(array_count(array), idx);
-  U64 clamped_count = min(array_count(array) - clamped_dst_idx, count);
+  U64 clamped_dst_idx = Min(array_count(array), idx);
+  U64 clamped_count = Min(array_count(array) - clamped_dst_idx, count);
   U64 clamped_size = clamped_count * sizeof(T);
   T *dst = &array.base[clamped_dst_idx];
   MemoryCopy(dst, val, clamped_size);
@@ -124,7 +124,7 @@ dynamic_array_resize(DynamicArray<T> &array, U64 new_count)
   {
     if(new_size_in_bytes > array.commit_size)
     {
-      U64 next_commit_size = min(size_aligned, array.cap);
+      U64 next_commit_size = Min(size_aligned, array.cap);
       U64 commit_size = next_commit_size - array.commit_size;
       os_memory_commit((U8 *)array.base + array.commit_size, commit_size);
       ASAN_POISON_MEMORY_REGION((U8 *)array.base + array.commit_size, commit_size);
@@ -134,7 +134,7 @@ dynamic_array_resize(DynamicArray<T> &array, U64 new_count)
   }
   else if(new_size_in_bytes < array.pos)
   {
-    U64 next_commit_size = min(size_aligned, array.cap);
+    U64 next_commit_size = Min(size_aligned, array.cap);
     if(next_commit_size < array.commit_size)
     {
       U64 decommit_size = array.commit_size - next_commit_size;
@@ -152,8 +152,8 @@ static void
 dynamic_array_move_memory(DynamicArray<T> &array, U64 dst_idx, U64 src_idx, U64 count)
 {
   ProfileFunction();
-  U64 clamped_dst_idx = min(array_count(array), dst_idx);
-  U64 clamped_src_idx = min(array_count(array), src_idx);
+  U64 clamped_dst_idx = Min(array_count(array), dst_idx);
+  U64 clamped_src_idx = Min(array_count(array), src_idx);
   T *dst = &array.base[clamped_dst_idx];
   T *src = &array.base[clamped_src_idx];
   MemoryMove(dst, src, count * sizeof(T));

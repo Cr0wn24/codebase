@@ -876,7 +876,7 @@ static Vec3F32
 hsv_from_rgb(Vec3F32 rgb)
 {
   F32 c_max = max(rgb.x, max(rgb.y, rgb.z));
-  F32 c_min = min(rgb.x, min(rgb.y, rgb.z));
+  F32 c_min = Min(rgb.x, Min(rgb.y, rgb.z));
   F32 delta = c_max - c_min;
   F32 h = ((delta == 0.f) ? 0.f : (c_max == rgb.x)     ? mod_f32((rgb.y - rgb.z) / delta + 6.f, 6.f)
                                   : (c_max == rgb.y)   ? (rgb.z - rgb.x) / delta + 2.f

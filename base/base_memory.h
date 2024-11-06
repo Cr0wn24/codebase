@@ -84,13 +84,13 @@ push_array_no_zero(Arena *arena, U64 count)
 #define MemoryZeroStruct(dst) MemoryZero((dst), sizeof(*(dst)))
 #define MemoryZeroArray(dst, count) MemoryZero((dst), sizeof(*dst) * count)
 
-#define MemoryMatch(a, b, size) (memcmp((a), (b), (size)) == 0)
+#define MemoryMatch(a, b, size) (!memcmp((a), (b), size))
 
 #define MemoryMove(dst, source, size) memmove((dst), (source), size)
 
 #define MemoryCopy(dst, source, size) memcpy((U8 *)(dst), (U8 *)(source), size)
-#define MemoryCopyStruct(dst, source) MemoryCopy((dst), (source), min(sizeof(*(dst)), sizeof(*(source))))
-#define MemoryCopyArray(dst, source) MemoryCopy((dst), (source), min(sizeof(dst), sizeof(source)))
+#define MemoryCopyStruct(dst, source) MemoryCopy((dst), (source), Min(sizeof(*(dst)), sizeof(*(source))))
+#define MemoryCopyArray(dst, source) MemoryCopy((dst), (source), Min(sizeof(dst), sizeof(source)))
 #define MemoryCopyTyped(dst, source, count) MemoryCopy((U8 *)(dst), (U8 *)(source), sizeof(*(dst)) * count)
 
 #define ArenaClear(arena) arena_pop_to(arena, 0)

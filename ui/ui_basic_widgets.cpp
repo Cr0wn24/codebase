@@ -118,8 +118,8 @@ ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, Array<U8> 
 {
   U64 min_range = (U64)(range.min);
   U64 max_range = (U64)(range.max);
-  min_range = min(min_range, edit_str.size);
-  max_range = min(max_range, edit_str.size);
+  min_range = Min(min_range, edit_str.size);
+  max_range = Min(max_range, edit_str.size);
   if(min_range > max_range)
   {
     U64 temp = min_range;
@@ -145,7 +145,7 @@ ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, Array<U8> 
   {
     MemoryCopy(new_buffer.data + min_range + replace_str.size, after_range.data, after_range.size);
   }
-  new_buffer.size = min(new_buffer.size, array_count(buffer));
+  new_buffer.size = Min(new_buffer.size, array_count(buffer));
   return (new_buffer);
 }
 
@@ -291,7 +291,7 @@ ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length,
         Vec2F32 box_visibility_range = v2f32(box->scroll.x, box->scroll.x + box->fixed_size.x - padding);
         F32 delta_left = cursor_visiblity_range.min - box_visibility_range.min;
         F32 delta_right = cursor_visiblity_range.max - box_visibility_range.max;
-        delta_left = min(delta_left, 0);
+        delta_left = Min(delta_left, 0);
         delta_right = max(delta_right, 0);
 
         box->scroll.x += delta_left + delta_right;

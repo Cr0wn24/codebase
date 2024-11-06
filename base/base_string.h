@@ -136,7 +136,9 @@ static void str8_list_push(Arena *arena, String8List *list, char *fmt, ...);
 //////////////////////////////
 // NOTE(hampus): String16
 
-static String16 str16(U16 *data, U64 size);
+[[nodiscard]] static String16 str16(U16 *data, U64 size);
+[[nodiscard]] static String16 str16_copy(Arena *arena, String16 string);
+[[nodiscard]] static wchar_t *cstr16_from_str16(Arena *arena, String16 string);
 
 //////////////////////////////
 // NOTE(hampus): String32
@@ -169,7 +171,8 @@ static U64 string_encode_utf16(wchar_t *dst, U32 codepoint);
 
 [[nodiscard]] static char *cstr_from_str8(Arena *arena, String8 string);
 [[nodiscard]] static wchar_t *cstr16_from_str8(Arena *arena, String8 string);
-[[nodiscard]] static String16 cstr16_from_str32(Arena *arena, String32 string);
+
+[[nodiscard]] static String16 str16_from_str32(Arena *arena, String32 string);
 
 //////////////////////////////
 // NOTE(hampus): String to integers

@@ -7,13 +7,13 @@
 // NOTE(hampus): Basic macros
 
 #ifndef min
-#  define min(a, b) ((a) < (b) ? (a) : (b))
+#  define Min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 #ifndef max
 #  define max(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
-#define clamp(a, val, b) max((a), min((val), (b)))
+#define clamp(a, val, b) max((a), Min((val), (b)))
 #define abs(x) ((x) < 0 ? (-(x)) : (x))
 
 #define cos_f32(x) cosf(x)

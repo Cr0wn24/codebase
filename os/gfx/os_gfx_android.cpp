@@ -234,8 +234,8 @@ static Vec2F32
 os_android_clamp_fling_velocity(Vec2F32 velocity)
 {
   Vec2F32 result = {};
-  result.x = min(velocity.x, (F32)os_gfx_android_state->view_config.max_fling_velocity_px_s);
-  result.y = min(velocity.y, (F32)os_gfx_android_state->view_config.max_fling_velocity_px_s);
+  result.x = Min(velocity.x, (F32)os_gfx_android_state->view_config.max_fling_velocity_px_s);
+  result.y = Min(velocity.y, (F32)os_gfx_android_state->view_config.max_fling_velocity_px_s);
   result.x = max(velocity.x, -(F32)os_gfx_android_state->view_config.max_fling_velocity_px_s);
   result.y = max(velocity.y, -(F32)os_gfx_android_state->view_config.max_fling_velocity_px_s);
   return result;
@@ -353,7 +353,7 @@ os_android_input_callback(struct android_app *android_app, AInputEvent *event)
             if((event_time_us - current_motion_state->down_timestamp_us) < 300 * 1000)
             {
               Vec2F32 velocity_sum = {};
-              S64 sample_size = min(array_count(current_motion_state->move_actions), current_motion_state->move_actions_pos);
+              S64 sample_size = Min(array_count(current_motion_state->move_actions), current_motion_state->move_actions_pos);
               for(S64 move_action_idx = 0; move_action_idx < sample_size - 2; ++move_action_idx)
               {
                 S64 idx = current_motion_state->move_actions_pos - move_action_idx - 2;

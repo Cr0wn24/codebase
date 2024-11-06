@@ -82,7 +82,7 @@ static String8
 str8_prefix(String8 string, U64 size)
 {
   String8 result = {};
-  U64 clamped_size = min(size, string.size);
+  U64 clamped_size = Min(size, string.size);
   result.data = string.data;
   result.size = clamped_size;
 
@@ -93,7 +93,7 @@ static String8
 str8_postfix(String8 string, U64 size)
 {
   String8 result = {};
-  U64 clamped_size = min(size, string.size);
+  U64 clamped_size = Min(size, string.size);
   result.data = string.data + string.size - clamped_size;
   result.size = clamped_size;
   return result;
@@ -103,7 +103,7 @@ static String8
 str8_skip(String8 string, U64 size)
 {
   String8 result = {};
-  U64 clamped_size = min(size, string.size);
+  U64 clamped_size = Min(size, string.size);
   result.data = string.data + clamped_size;
   result.size = string.size - clamped_size;
   return result;
@@ -113,7 +113,7 @@ static String8
 str8_chop(String8 string, U64 size)
 {
   String8 result = {};
-  U64 clamped_size = min(size, string.size);
+  U64 clamped_size = Min(size, string.size);
   result.data = string.data;
   result.size = string.size - clamped_size;
   return result;
@@ -123,8 +123,8 @@ static String8
 str8_substr8(String8 string, U64 start, U64 size)
 {
   String8 result = {};
-  U64 clamped_start = min(start, string.size);
-  U64 clamped_size = min(size, string.size - clamped_start);
+  U64 clamped_start = Min(start, string.size);
+  U64 clamped_size = Min(size, string.size - clamped_start);
   result.data = string.data + clamped_start;
   result.size = clamped_size;
   return result;
@@ -464,6 +464,25 @@ str16(U16 *data, U64 size)
   return result;
 }
 
+static String16
+str16_copy(Arena *arena, String16 string)
+{
+  String16 result = {};
+  result.data = push_array_no_zero<U16>(arena, string.size);
+  result.size = string.size;
+  MemoryCopyTyped(result.data, string.data, result.size);
+  return result;
+}
+
+static wchar_t *
+cstr16_from_str16(Arena *arena, String16 string)
+{
+  wchar_t *result = push_array_no_zero<wchar_t>(arena, string.size + 1);
+  MemoryCopyTyped(result, string.data, string.size);
+  result[string.size] = 0;
+  return result;
+}
+
 //////////////////////////////
 // NOTE(hampus): String32
 
@@ -579,7 +598,7 @@ static String32
 str32_prefix(String32 string, U64 size)
 {
   String32 result = {};
-  U64 clamped_size = min(size, string.size);
+  U64 clamped_size = Min(size, string.size);
   result.data = string.data;
   result.size = clamped_size;
   return result;
@@ -589,7 +608,7 @@ static String32
 str32_postfix(String32 string, U64 size)
 {
   String32 result = {};
-  U64 clamped_size = min(size, string.size);
+  U64 clamped_size = Min(size, string.size);
   result.data = string.data + string.size - clamped_size;
   result.size = clamped_size;
   return result;
@@ -599,7 +618,7 @@ static String32
 str32_skip(String32 string, U64 size)
 {
   String32 result = {};
-  U64 clamped_size = min(size, string.size);
+  U64 clamped_size = Min(size, string.size);
   result.data = string.data + clamped_size;
   result.size = string.size - clamped_size;
   return result;
@@ -609,7 +628,7 @@ static String32
 str32_chop(String32 string, U64 size)
 {
   String32 result = {};
-  U64 clamped_size = min(size, string.size);
+  U64 clamped_size = Min(size, string.size);
   result.data = string.data;
   result.size = string.size - clamped_size;
   return result;
@@ -980,9 +999,9 @@ cstr16_from_str8(Arena *arena, String8 string)
 }
 
 static String16
-cstr16_from_str32(Arena *arena, String32 string)
+str16_from_str32(Arena *arena, String32 string)
 {
-  U64 allocated_size = string.size * 2 + 1;
+  U64 allocated_size = string.size * 2;
   wchar_t *memory = push_array_no_zero<wchar_t>(arena, allocated_size);
 
   wchar_t *dst_ptr = memory;
@@ -997,7 +1016,7 @@ cstr16_from_str32(Arena *arena, String32 string)
   }
 
   U64 string_size = (U64)(dst_ptr - memory);
-  U64 unused_size = allocated_size - string_size - 1;
+  U64 unused_size = allocated_size - string_size;
   arena_pop_amount(arena, unused_size * sizeof(*memory));
 
   String16 result = {};
@@ -1211,7 +1230,7 @@ cstr_format(U8 *buffer, U64 buffer_size, char *cstr, va_list args)
 {
   TempArena scratch = GetScratch(0, 0);
   String8 string = str8_push(scratch.arena, cstr, args);
-  U64 clamped_size = min(string.size, buffer_size);
+  U64 clamped_size = Min(string.size, buffer_size);
   MemoryCopy(buffer, string.data, clamped_size);
   return (str8(buffer, clamped_size));
 }

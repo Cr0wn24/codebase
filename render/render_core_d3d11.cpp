@@ -667,7 +667,7 @@ static void
 r_fill_buffer(R_Handle buffer, R_FillBufferDesc desc)
 {
   R_D3D11_Buffer *d3d11_buffer = (R_D3D11_Buffer *)PtrFromInt(buffer.u64[0]);
-  U64 clamped_size = min(d3d11_buffer->size, desc.data.size);
+  U64 clamped_size = Min(d3d11_buffer->size, desc.data.size);
   ID3D11Buffer *vertex_buffer = d3d11_buffer->buffer;
   D3D11_MAPPED_SUBRESOURCE mapped = {};
   r_d3d11_state->context->Map((ID3D11Resource *)vertex_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);

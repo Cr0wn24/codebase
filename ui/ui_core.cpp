@@ -268,11 +268,11 @@ ui_text_of_from_state_and_action(Arena *arena, String8 edit_str, UI_TextEditStat
   {
     if(delta < 0)
     {
-      result.new_cursor = min(state->cursor, state->mark);
+      result.new_cursor = Min(state->cursor, state->mark);
     }
     else if(delta > 0)
     {
-      result.new_cursor = min(state->cursor, state->mark);
+      result.new_cursor = Min(state->cursor, state->mark);
     }
   }
   else if(action->flags & UI_TextActionFlag_WordScan)
@@ -362,7 +362,7 @@ ui_text_of_from_state_and_action(Arena *arena, String8 edit_str, UI_TextEditStat
 
   if(action->flags & UI_TextActionFlag_Copy)
   {
-    U64 min = (U64)min(result.new_cursor, result.new_mark);
+    U64 min = (U64)Min(result.new_cursor, result.new_mark);
     U64 max = (U64)max(result.new_cursor, result.new_mark);
     result.copy_string = str8_substr8(edit_str, min, max - min);
   }
@@ -370,7 +370,7 @@ ui_text_of_from_state_and_action(Arena *arena, String8 edit_str, UI_TextEditStat
   if(action->flags & UI_TextActionFlag_Delete)
   {
     result.range = v2s64(result.new_cursor, result.new_mark);
-    result.new_cursor = min(result.new_cursor, result.new_mark);
+    result.new_cursor = Min(result.new_cursor, result.new_mark);
   }
 
   if(!(action->flags & UI_TextActionFlag_KeepMark))

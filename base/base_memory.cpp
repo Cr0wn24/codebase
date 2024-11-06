@@ -38,7 +38,7 @@ arena_push_no_zero(Arena *arena, U64 size)
     if(arena->pos > arena->commit_pos)
     {
       U64 pos_aligned = round_up_to_power_2_u64(arena->pos, ARENA_COMMIT_BLOCK_SIZE);
-      U64 next_commit_pos = min(pos_aligned, arena->cap);
+      U64 next_commit_pos = Min(pos_aligned, arena->cap);
       U64 commit_size = next_commit_pos - arena->commit_pos;
       os_memory_commit(arena->memory + arena->commit_pos, commit_size);
       ASAN_POISON_MEMORY_REGION((U8 *)arena->memory + arena->commit_pos, commit_size);
@@ -62,7 +62,7 @@ arena_pop_to(Arena *arena, U64 pos)
     ASAN_POISON_MEMORY_REGION((U8 *)arena->memory + arena->pos, dpos);
 
     U64 pos_aligned = round_up_to_power_2_u64(arena->pos, ARENA_COMMIT_BLOCK_SIZE);
-    U64 next_commit_pos = min(pos_aligned, arena->cap);
+    U64 next_commit_pos = Min(pos_aligned, arena->cap);
     if(next_commit_pos < arena->commit_pos)
     {
       U64 decommit_size = arena->commit_pos - next_commit_pos;
@@ -116,7 +116,7 @@ static U64
 ring_write(U8 *base, U64 size, U64 offset, String8 string)
 {
   offset %= size;
-  U64 size0 = min(size - offset, string.size);
+  U64 size0 = Min(size - offset, string.size);
   U64 size1 = string.size - size0;
   if(size0 != 0)
   {
@@ -134,7 +134,7 @@ static U64
 ring_read(U8 *base, U64 size, U64 offset, String8 string)
 {
   offset %= size;
-  U64 size0 = min(size - offset, string.size);
+  U64 size0 = Min(size - offset, string.size);
   U64 size1 = string.size - size0;
   if(size0 != 0)
   {

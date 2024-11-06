@@ -190,7 +190,7 @@ os_file_read(Arena *arena, String8 path)
       // call, so we need to loop until all data has been read.
       while(ptr < opl)
       {
-        U64 total_to_read = min((U64)(opl - ptr), SSIZE_MAX);
+        U64 total_to_read = Min((U64)(opl - ptr), SSIZE_MAX);
         errno = 0;
         S64 actual_read = read(file_descriptor, ptr, total_to_read);
         if(!(actual_read == -1 && errno == EINTR) && !(actual_read != -1))
@@ -239,7 +239,7 @@ os_file_write(String8 path, String8 data)
     // call, so we need to loop until all data has been written.
     while(ptr < opl)
     {
-      U64 to_write = min((U64)(opl - ptr), SSIZE_MAX);
+      U64 to_write = Min((U64)(opl - ptr), SSIZE_MAX);
       errno = 0;
       S64 actual_write = write(file_descriptor, ptr, to_write);
       if(!(actual_write == -1 && errno == EINTR) && !(actual_write != -1))

@@ -509,15 +509,15 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
   F_GlyphRun result = {};
 
   TempArena scratch = GetScratch(&arena, 1);
-  String16 str16 = cstr16_from_str32(scratch.arena, str32);
-  wchar_t *tag_str16 = cstr16_from_str8(scratch.arena, tag.string);
+  String16 str16 = str16_from_str32(scratch.arena, str32);
+  String16 tag_str16 = str16_from_str8(scratch.arena, tag.string);
 
-  F_DWrite_MapTextToGlyphsResult map_text_to_glyphs_result = f_dwrite_map_text_to_glyphs(scratch.arena, f_d2d_state->font_fallback1,
+  F_DWrite_MapTextToGlyphsResult map_text_to_glyphs_result = f_dwrite_map_text_to_glyphs(f_d2d_state->font_fallback1,
                                                                                          f_d2d_state->font_collection,
                                                                                          f_d2d_state->text_analyzer1,
                                                                                          f_d2d_state->locale,
                                                                                          tag_str16,
-                                                                                         (F32)size, (const wchar_t *)str16.data, (U32)str16.size);
+                                                                                         size, str16);
 
   for(F_DWrite_TextToGlyphsSegmentNode *n = map_text_to_glyphs_result.first_segment; n != 0; n = n->next)
   {
