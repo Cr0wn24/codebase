@@ -12,7 +12,7 @@ static RectF32
 os_android_call_inset_static(char *string)
 {
   RectF32 result = {};
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   SETUP_FOR_JAVA_CALL_THREAD;
   jobject activity_object = android_app->activity->clazz;
   jclass activity_class = env->GetObjectClass(activity_object);
@@ -81,7 +81,7 @@ static S32
 os_android_show_yes_no_message_box(String8 title, String8 message)
 {
   S32 result = 0;
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   SETUP_FOR_JAVA_CALL_THREAD;
   ANativeActivity *activity = android_app->activity;
   jobject activity_object = activity->clazz;
@@ -149,14 +149,14 @@ static String8
 os_android_load_asset(Arena *arena, String8 name)
 {
   String8 result = {};
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   AAsset *asset = AAssetManager_open(android_app->activity->assetManager, cstr_from_str8(scratch.arena, name), AASSET_MODE_BUFFER);
   if(asset)
   {
     U8 *data = (U8 *)AAsset_getBuffer(asset);
     result.size = AAsset_getLength(asset);
     result.data = push_array<U8>(arena, result.size);
-    memory_copy(result.data, data, result.size);
+    MemoryCopy(result.data, data, result.size);
     AAsset_close(asset);
   }
 
@@ -367,7 +367,7 @@ os_android_input_callback(struct android_app *android_app, AInputEvent *event)
                 velocity_sum += clamped_velocity;
               }
               Vec2F32 velocity = velocity_sum / (F32)sample_size;
-              for_each_enum_val(Axis2, axis)
+              ForEachEnumVal(Axis2, axis)
               {
                 if(abs(velocity[axis]) >= (F32)os_gfx_android_state->view_config.min_fling_velocity_px_s)
                 {
@@ -394,7 +394,7 @@ os_android_input_callback(struct android_app *android_app, AInputEvent *event)
           current_motion_state->up_timestamp_us = event_time_us;
 
           os_gfx_android_state->motion_state_pos += 1;
-          memory_zero_struct(&os_gfx_android_state->motion_states[os_gfx_android_state->motion_state_pos % 2]);
+          MemoryZeroStruct(&os_gfx_android_state->motion_states[os_gfx_android_state->motion_state_pos % 2]);
         }
         break;
 
@@ -565,25 +565,25 @@ os_android_input_callback(struct android_app *android_app, AInputEvent *event)
     break;
     case AINPUT_EVENT_TYPE_FOCUS:
     {
-      os_print_debug_string(str8_lit("AINPUT_EVENT_TYPE_FOCUS"));
+      os_print_debug_string(Str8Lit("AINPUT_EVENT_TYPE_FOCUS"));
       return 1;
     }
     break;
     case AINPUT_EVENT_TYPE_CAPTURE:
     {
-      os_print_debug_string(str8_lit("AINPUT_EVENT_TYPE_CAPTURE"));
+      os_print_debug_string(Str8Lit("AINPUT_EVENT_TYPE_CAPTURE"));
       return 1;
     }
     break;
     case AINPUT_EVENT_TYPE_DRAG:
     {
-      os_print_debug_string(str8_lit("AINPUT_EVENT_TYPE_DRAG"));
+      os_print_debug_string(Str8Lit("AINPUT_EVENT_TYPE_DRAG"));
       return 1;
     }
     break;
     case AINPUT_EVENT_TYPE_TOUCH_MODE:
     {
-      os_print_debug_string(str8_lit("AINPUT_EVENT_TYPE_TOUCH_MODE"));
+      os_print_debug_string(Str8Lit("AINPUT_EVENT_TYPE_TOUCH_MODE"));
       return 1;
     }
     break;
@@ -829,7 +829,7 @@ os_window_open(String8 title, U32 width, U32 height)
   else
   {
     sll_stack_pop(os_gfx_android_state->first_free_window);
-    memory_zero_struct(window);
+    MemoryZeroStruct(window);
   }
   EGLint attribs[] =
   {
@@ -909,14 +909,14 @@ os_window_open(String8 title, U32 width, U32 height)
   }
 
   OS_Handle result = {};
-  result.u64[0] = int_from_ptr(window);
+  result.u64[0] = IntFromPtr(window);
   return result;
 }
 
 static void
 os_window_close(OS_Handle handle)
 {
-  OS_Android_Window *window = (OS_Android_Window *)ptr_from_int(handle.u64[0]);
+  OS_Android_Window *window = (OS_Android_Window *)PtrFromInt(handle.u64[0]);
   if(window->display != EGL_NO_DISPLAY)
   {
     eglMakeCurrent(window->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -936,13 +936,13 @@ os_window_close(OS_Handle handle)
 static void
 os_window_show(OS_Handle handle)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 static Vec2U64
 os_client_area_from_window(OS_Handle handle)
 {
-  OS_Android_Window *window = (OS_Android_Window *)ptr_from_int(handle.u64[0]);
+  OS_Android_Window *window = (OS_Android_Window *)PtrFromInt(handle.u64[0]);
   Vec2U64 result = {};
   EGLint width = 0;
   EGLint height = 0;
@@ -956,19 +956,19 @@ os_client_area_from_window(OS_Handle handle)
 static void
 os_window_equip_repaint(OS_Handle window, OS_WindowRepaintProc *proc, void *user_data)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 static void
 os_window_maximize(OS_Handle window)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 static void
 os_window_toggle_fullscreen(OS_Handle window)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 static OS_EventList
@@ -1090,7 +1090,7 @@ os_mouse_pos(OS_Handle window)
 static void
 os_swap_buffers(OS_Handle handle)
 {
-  OS_Android_Window *window = (OS_Android_Window *)ptr_from_int(handle.u64[0]);
+  OS_Android_Window *window = (OS_Android_Window *)PtrFromInt(handle.u64[0]);
   eglSwapBuffers(window->display, window->surface);
 }
 
@@ -1109,7 +1109,7 @@ os_set_cursor(OS_Cursor cursor)
 static String8
 os_push_clipboard(Arena *arena)
 {
-  not_implemented;
+  NotImplemented;
   String8 result = {};
   return result;
 }
@@ -1117,7 +1117,7 @@ os_push_clipboard(Arena *arena)
 static void
 os_set_clipboard(String8 string)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 static void

@@ -43,14 +43,14 @@ static void ui_end_column();
 static UI_Box *ui_push_scrollable_container(String8 string, Axis2 axis);
 static UI_Comm ui_pop_scrollable_container();
 
-#define ui_row() defer_loop(ui_begin_row(), ui_end_row())
-#define ui_row_named(string) defer_loop(ui_begin_named_row(string), ui_end_named_row())
+#define ui_row() DeferLoop(ui_begin_row(), ui_end_row())
+#define ui_row_named(string) DeferLoop(ui_begin_named_row(string), ui_end_named_row())
 
-#define ui_column() defer_loop(ui_begin_column(), ui_end_column())
-#define ui_column_named(string) defer_loop(ui_begin_named_column(string), ui_end_named_column())
+#define ui_column() DeferLoop(ui_begin_column(), ui_end_column())
+#define ui_column_named(string) DeferLoop(ui_begin_named_column(string), ui_end_named_column())
 
-#define ui_scrollable_container(string, axis) defer_loop(ui_push_scrollable_container(string, axis), ui_pop_scrollable_container())
+#define ui_scrollable_container(string, axis) DeferLoop(ui_push_scrollable_container(string, axis), ui_pop_scrollable_container())
 
-#define ui_padding(size) defer_loop(ui_spacer(size), ui_spacer(size))
+#define ui_padding(size) DeferLoop(ui_spacer(size), ui_spacer(size))
 
 #endif // ui_BASIC_WIDGETS_H

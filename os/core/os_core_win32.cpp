@@ -25,7 +25,7 @@ os_win32_entity_alloc()
   {
     sll_stack_pop(os_win32_state->first_free_entity);
   }
-  memory_zero_struct(result);
+  MemoryZeroStruct(result);
   return result;
 }
 
@@ -141,9 +141,9 @@ static OS_FileAttributes
 os_get_file_attributes(String8 path)
 {
   OS_FileAttributes result = {};
-  TempArena scratch = get_scratch(0, 0);
-  U16 *path_cstr16 = cstr16_from_str8(scratch.arena, path);
-  DWORD attribs = GetFileAttributesW((LPCWSTR)path_cstr16);
+  TempArena scratch = GetScratch(0, 0);
+  wchar_t *path_cstr16 = cstr16_from_str8(scratch.arena, path);
+  DWORD attribs = GetFileAttributesW(path_cstr16);
   result.directory = (attribs & FILE_ATTRIBUTE_DIRECTORY) != 0;
   result.hidden = (attribs & FILE_ATTRIBUTE_HIDDEN) != 0;
   result.writable = (attribs & FILE_ATTRIBUTE_READONLY) == 0;
@@ -158,11 +158,11 @@ static String8
 os_file_read(Arena *arena, String8 path)
 {
   String8 result = {};
-  ASSERT(path.size < MAX_PATH);
+  Assert(path.size < MAX_PATH);
   if(path.size <= OS_WIN32_MAX_PATH)
   {
-    TempArena scratch = get_scratch(&arena, 1);
-    HANDLE file = CreateFileW((LPCWSTR)cstr16_from_str8(scratch.arena, path),
+    TempArena scratch = GetScratch(&arena, 1);
+    HANDLE file = CreateFileW(cstr16_from_str8(scratch.arena, path),
                               GENERIC_READ,
                               FILE_SHARE_READ,
                               0,
@@ -214,12 +214,12 @@ os_file_write(String8 path, String8 data, OS_FileWriteMode mode)
       break;
       default:
       {
-        invalid_code_path;
+        InvalidCodePath;
       }
       break;
     }
-    TempArena scratch = get_scratch(0, 0);
-    HANDLE file = CreateFileW((LPCWSTR)cstr16_from_str8(scratch.arena, path),
+    TempArena scratch = GetScratch(0, 0);
+    HANDLE file = CreateFileW(cstr16_from_str8(scratch.arena, path),
                               GENERIC_READ | GENERIC_WRITE,
                               0,
                               0,
@@ -242,10 +242,10 @@ os_file_copy(String8 old_path, String8 new_path)
   B32 result = false;
   if(old_path.size <= OS_WIN32_MAX_PATH && new_path.size < OS_WIN32_MAX_PATH)
   {
-    TempArena scratch = get_scratch(0, 0);
-    U16 *old_path16 = cstr16_from_str8(scratch.arena, old_path);
-    U16 *new_path16 = cstr16_from_str8(scratch.arena, new_path);
-    result = (B32)CopyFileW((LPCWSTR)old_path16, (LPCWSTR)new_path16, TRUE);
+    TempArena scratch = GetScratch(0, 0);
+    wchar_t *old_path16 = cstr16_from_str8(scratch.arena, old_path);
+    wchar_t *new_path16 = cstr16_from_str8(scratch.arena, new_path);
+    result = (B32)CopyFileW(old_path16, new_path16, TRUE);
   }
   return result;
 }
@@ -256,10 +256,10 @@ os_file_rename(String8 old_path, String8 new_path)
   B32 result = false;
   if(old_path.size <= OS_WIN32_MAX_PATH && new_path.size < OS_WIN32_MAX_PATH)
   {
-    TempArena scratch = get_scratch(0, 0);
-    U16 *old_path16 = cstr16_from_str8(scratch.arena, old_path);
-    U16 *new_path16 = cstr16_from_str8(scratch.arena, new_path);
-    result = (B32)MoveFileW((LPCWSTR)old_path16, (LPCWSTR)new_path16);
+    TempArena scratch = GetScratch(0, 0);
+    wchar_t *old_path16 = cstr16_from_str8(scratch.arena, old_path);
+    wchar_t *new_path16 = cstr16_from_str8(scratch.arena, new_path);
+    result = (B32)MoveFileW(old_path16, new_path16);
   }
   return result;
 }
@@ -270,8 +270,8 @@ os_file_delete(String8 path)
   B32 result = false;
   if(path.size <= OS_WIN32_MAX_PATH)
   {
-    TempArena scratch = get_scratch(0, 0);
-    result = (B32)CreateDirectoryW((LPCWSTR)cstr16_from_str8(scratch.arena, path), 0);
+    TempArena scratch = GetScratch(0, 0);
+    result = (B32)CreateDirectoryW(cstr16_from_str8(scratch.arena, path), 0);
   }
   return result;
 }
@@ -285,14 +285,14 @@ os_file_stream_open(String8 path)
   OS_Handle result = os_handle_zero();
   if(path.size <= OS_WIN32_MAX_PATH)
   {
-    TempArena scratch = get_scratch(0, 0);
-    U16 *path16 = cstr16_from_str8(scratch.arena, path);
-    HANDLE file_handle = CreateFileW((LPCWSTR)path16,
+    TempArena scratch = GetScratch(0, 0);
+    wchar_t *path16 = cstr16_from_str8(scratch.arena, path);
+    HANDLE file_handle = CreateFileW(path16,
                                      GENERIC_WRITE | GENERIC_READ,
                                      0, 0, CREATE_ALWAYS, 0, 0);
     if(os_win32_handle_is_valid(file_handle))
     {
-      result.u64[0] = int_from_ptr(file_handle);
+      result.u64[0] = IntFromPtr(file_handle);
     }
   }
   return result;
@@ -302,7 +302,7 @@ static B32
 os_file_stream_close(OS_Handle file)
 {
   B32 success = false;
-  HANDLE file_handle = ptr_from_int(file.u64[0]);
+  HANDLE file_handle = PtrFromInt(file.u64[0]);
   if(os_win32_handle_is_valid(file_handle))
   {
     CloseHandle(file_handle);
@@ -315,11 +315,11 @@ static B32
 os_file_stream_write(OS_Handle file, String8 data)
 {
   B32 result = false;
-  HANDLE file_handle = ptr_from_int(file.u64[0]);
+  HANDLE file_handle = PtrFromInt(file.u64[0]);
   if(os_win32_handle_is_valid(file_handle))
   {
     DWORD bytes_written = 0;
-    ASSERT(data.size <= U32_MAX);
+    Assert(data.size <= U32_MAX);
     BOOL write_file_result = WriteFile(file_handle, data.data, (DWORD)safe_s32_from_u64(data.size), &bytes_written, 0);
     if(bytes_written == data.size && write_file_result)
     {
@@ -338,8 +338,8 @@ os_directory_create(String8 path)
   B32 result = false;
   if(path.size <= OS_WIN32_MAX_PATH)
   {
-    TempArena scratch = get_scratch(0, 0);
-    result = (B32)CreateDirectoryW((LPCWSTR)cstr16_from_str8(scratch.arena, path), 0);
+    TempArena scratch = GetScratch(0, 0);
+    result = (B32)CreateDirectoryW(cstr16_from_str8(scratch.arena, path), 0);
     if(!result)
     {
       DWORD error = GetLastError();
@@ -358,8 +358,8 @@ os_directory_delete(String8 path)
   B32 result = false;
   if(path.size <= OS_WIN32_MAX_PATH)
   {
-    TempArena scratch = get_scratch(0, 0);
-    result = (B32)RemoveDirectoryW((LPCWSTR)cstr16_from_str8(scratch.arena, path));
+    TempArena scratch = GetScratch(0, 0);
+    result = (B32)RemoveDirectoryW(cstr16_from_str8(scratch.arena, path));
   }
   return result;
 }
@@ -373,14 +373,14 @@ os_file_iterator_init(String8 path)
     String8Node nodes[2] = {};
     String8List list = {};
     str8_list_push(&list, path, nodes + 0);
-    str8_list_push(&list, str8_lit("\\*"), nodes + 1);
-    TempArena scratch = get_scratch(0, 0);
+    str8_list_push(&list, Str8Lit("\\*"), nodes + 1);
+    TempArena scratch = GetScratch(0, 0);
     String8 path_star = str8_join(scratch.arena, &list);
-    U16 *path16 = cstr16_from_str8(scratch.arena, path_star);
+    wchar_t *path16 = cstr16_from_str8(scratch.arena, path_star);
     OS_Win32_Entity *win32_iter = os_win32_entity_alloc();
-    win32_iter->handle = FindFirstFileW((LPCWSTR)path16, &win32_iter->find_data);
+    win32_iter->handle = FindFirstFileW(path16, &win32_iter->find_data);
 
-    result.u64[0] = int_from_ptr(win32_iter);
+    result.u64[0] = IntFromPtr(win32_iter);
   }
   return result;
 }
@@ -388,7 +388,7 @@ os_file_iterator_init(String8 path)
 static void
 os_file_iterator_end(OS_Handle iterator)
 {
-  OS_Win32_Entity *win32_iter = (OS_Win32_Entity *)ptr_from_int(iterator.u64[0]);
+  OS_Win32_Entity *win32_iter = (OS_Win32_Entity *)PtrFromInt(iterator.u64[0]);
   if(os_win32_handle_is_valid(win32_iter->handle))
   {
     FindClose(win32_iter->handle);
@@ -399,7 +399,7 @@ static B32
 os_file_iterator_next(Arena *arena, OS_Handle iterator, String8 *result_name)
 {
   B32 result = false;
-  OS_Win32_Entity *win32_iter = (OS_Win32_Entity *)ptr_from_int(iterator.u64[0]);
+  OS_Win32_Entity *win32_iter = (OS_Win32_Entity *)PtrFromInt(iterator.u64[0]);
   if(os_win32_handle_is_valid(win32_iter->handle))
   {
     for(; !win32_iter->done;)
@@ -411,7 +411,7 @@ os_file_iterator_next(Arena *arena, OS_Handle iterator, String8 *result_name)
       WIN32_FIND_DATAW data = {};
       if(emit)
       {
-        memory_copy_struct(&data, &win32_iter->find_data);
+        MemoryCopyStruct(&data, &win32_iter->find_data);
       }
       if(!FindNextFileW(win32_iter->handle, &win32_iter->find_data))
       {
@@ -535,16 +535,16 @@ static OS_Handle
 os_library_open(String8 path)
 {
   OS_Handle result = {};
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   String8List part_list = {};
   String8Node parts[2];
   str8_list_push(&part_list, path, &parts[0]);
-  str8_list_push(&part_list, str8_lit(".dll"), &parts[1]);
+  str8_list_push(&part_list, Str8Lit(".dll"), &parts[1]);
   String8 full_path = str8_join(scratch.arena, &part_list);
-  HMODULE lib = LoadLibraryW((LPCWSTR)cstr16_from_str8(scratch.arena, full_path));
+  HMODULE lib = LoadLibraryW(cstr16_from_str8(scratch.arena, full_path));
   if(lib)
   {
-    result.u64[0] = int_from_ptr(lib);
+    result.u64[0] = IntFromPtr(lib);
   }
 
   return result;
@@ -555,7 +555,7 @@ os_library_close(OS_Handle library)
 {
   if(library.u64[0])
   {
-    HMODULE hmodule = (HMODULE)ptr_from_int(library.u64[0]);
+    HMODULE hmodule = (HMODULE)PtrFromInt(library.u64[0]);
     FreeLibrary(hmodule);
   }
 }
@@ -566,8 +566,8 @@ os_libary_load_static(OS_Handle library, String8 name)
   void *result = 0;
   if(library.u64[0])
   {
-    HMODULE lib = (HMODULE)ptr_from_int(library.u64[0]);
-    TempArena scratch = get_scratch(0, 0);
+    HMODULE lib = (HMODULE)PtrFromInt(library.u64[0]);
+    TempArena scratch = GetScratch(0, 0);
     result = (void *)GetProcAddress(lib, cstr_from_str8(scratch.arena, name));
   }
   return result;
@@ -583,7 +583,7 @@ os_semaphore_alloc(U32 initial_value)
   HANDLE win32_handle = CreateSemaphore(0, safe_s32_from_u32(initial_value), S32_MAX, 0);
   if(os_win32_handle_is_valid(win32_handle))
   {
-    result.u64[0] = int_from_ptr(win32_handle);
+    result.u64[0] = IntFromPtr(win32_handle);
   }
   return result;
 }
@@ -591,7 +591,7 @@ os_semaphore_alloc(U32 initial_value)
 static void
 os_semaphore_free(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+  HANDLE win32_handle = (HMODULE)PtrFromInt(handle.u64[0]);
   if(os_win32_handle_is_valid(win32_handle))
   {
     CloseHandle(win32_handle);
@@ -601,7 +601,7 @@ os_semaphore_free(OS_Handle handle)
 static void
 os_semaphore_signal(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+  HANDLE win32_handle = (HMODULE)PtrFromInt(handle.u64[0]);
   if(os_win32_handle_is_valid(win32_handle))
   {
     ReleaseSemaphore(win32_handle, 1, 0);
@@ -611,7 +611,7 @@ os_semaphore_signal(OS_Handle handle)
 static void
 os_semaphore_wait(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+  HANDLE win32_handle = (HMODULE)PtrFromInt(handle.u64[0]);
   if(os_win32_handle_is_valid(win32_handle))
   {
     WaitForSingleObject(win32_handle, INFINITE);
@@ -625,7 +625,7 @@ os_mutex_alloc()
   HANDLE win32_handle = CreateMutex(0, FALSE, 0);
   if(os_win32_handle_is_valid(win32_handle))
   {
-    result.u64[0] = int_from_ptr(win32_handle);
+    result.u64[0] = IntFromPtr(win32_handle);
   }
   return result;
 }
@@ -633,7 +633,7 @@ os_mutex_alloc()
 static void
 os_mutex_free(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+  HANDLE win32_handle = (HMODULE)PtrFromInt(handle.u64[0]);
   if(os_win32_handle_is_valid(win32_handle))
   {
     CloseHandle(win32_handle);
@@ -643,7 +643,7 @@ os_mutex_free(OS_Handle handle)
 static void
 os_mutex_take(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+  HANDLE win32_handle = (HMODULE)PtrFromInt(handle.u64[0]);
   if(os_win32_handle_is_valid(win32_handle))
   {
     WaitForSingleObject(win32_handle, INFINITE);
@@ -653,7 +653,7 @@ os_mutex_take(OS_Handle handle)
 static void
 os_mutex_release(OS_Handle handle)
 {
-  HANDLE win32_handle = (HMODULE)ptr_from_int(handle.u64[0]);
+  HANDLE win32_handle = (HMODULE)PtrFromInt(handle.u64[0]);
   if(os_win32_handle_is_valid(win32_handle))
   {
     ReleaseMutex(win32_handle);
@@ -668,14 +668,14 @@ os_thread_create(ThreadProc *proc, void *data)
   args->proc = proc;
   args->data = data;
   HANDLE handle = CreateThread(0, 0, os_win32_thread_proc, args, 0, 0);
-  result.u64[0] = int_from_ptr(handle);
+  result.u64[0] = IntFromPtr(handle);
   return result;
 }
 
 static void
 os_thread_join(OS_Handle handle)
 {
-  HANDLE win32_handle = ptr_from_int(handle.u64[0]);
+  HANDLE win32_handle = PtrFromInt(handle.u64[0]);
   if(os_win32_handle_is_valid(win32_handle))
   {
     WaitForSingleObject(win32_handle, INFINITE);
@@ -686,7 +686,7 @@ static void
 os_thread_set_name(String8 string)
 {
   HANDLE handle = GetCurrentThread();
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   SetThreadDescription(handle, (PCWSTR)cstr16_from_str8(scratch.arena, string));
 }
 
@@ -703,15 +703,15 @@ os_get_current_thread_id()
 static void
 os_print_debug_string(String8 string)
 {
-  TempArena scratch = get_scratch(0, 0);
-  U16 *cstr16 = cstr16_from_str8(scratch.arena, string);
-  OutputDebugStringW((LPCWSTR)cstr16);
+  TempArena scratch = GetScratch(0, 0);
+  wchar_t *cstr16 = cstr16_from_str8(scratch.arena, string);
+  OutputDebugStringW(cstr16);
 }
 
 static void
 os_print_debug_string(const char *fmt, ...)
 {
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   va_list args;
   va_start(args, fmt);
   String8 result = str8_push(scratch.arena, (char *)fmt, args);
@@ -738,10 +738,10 @@ main(S32 argc, char **argv)
   os_win32_state->tls_idx = TlsAlloc();
   os_win32_state->perm_arena = win32_perm_arena;
   QueryPerformanceFrequency(&os_win32_state->frequency);
-  ThreadCtx *tctx = thread_ctx_init(str8_lit("Main"));
+  ThreadCtx *tctx = thread_ctx_init(Str8Lit("Main"));
   // NOTE(hampus): 'command_line' handed to WinMain doesn't include the program name
   LPSTR command_line_with_exe_path = GetCommandLineA();
-  String8List argument_list = str8_split_by_codepoints(os_win32_state->perm_arena, str8_cstr(command_line_with_exe_path), str8_lit(" "));
+  String8List argument_list = str8_split_by_codepoints(os_win32_state->perm_arena, str8_cstr(command_line_with_exe_path), Str8Lit(" "));
   S32 exit_code = os_entry_point(argument_list);
   ExitProcess(safe_u32_from_s32(exit_code));
 }

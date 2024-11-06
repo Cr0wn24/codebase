@@ -75,7 +75,7 @@ struct ProfileBlock
   }
 };
 
-#define profile_scope(name) ProfileBlock glue(profile_block, __LINE__)(name, sizeof(name) - 1);
-#define profile_function() profile_scope(__func__)
+#define ProfileScope(name) ProfileBlock Glue(profile_block, __LINE__)(name, sizeof(name) - 1)
+#define ProfileFunction() ProfileScope(__func__)
 
 #endif // BASE_MARKUP_H

@@ -17,12 +17,12 @@ ui_renderer_init()
   String8 hlsl = hlsl_shader_source;
   shader_desc.vs_source = hlsl;
   shader_desc.ps_source = hlsl;
-  shader_desc.vs_entry_point_name = str8_lit("vs");
-  shader_desc.ps_entry_point_name = str8_lit("ps");
+  shader_desc.vs_entry_point_name = Str8Lit("vs");
+  shader_desc.ps_entry_point_name = Str8Lit("ps");
 #endif
   R_InputLayoutDesc input_layout_desc = {};
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
-                                                     .semantic_name = str8_lit("MIN"),
+                                                     .semantic_name = Str8Lit("MIN"),
                                                      .kind = R_AttributeKind_Float2,
                                                      .offset = member_offset(UI_RectInstance, dst_min),
                                                      .slot_class = R_InputSlotClass_PerInstance,
@@ -30,35 +30,35 @@ ui_renderer_init()
                                                    });
 
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
-                                                     .semantic_name = str8_lit("MAX"),
+                                                     .semantic_name = Str8Lit("MAX"),
                                                      .kind = R_AttributeKind_Float2,
                                                      .offset = member_offset(UI_RectInstance, dst_max),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
-                                                     .semantic_name = str8_lit("MIN_UV"),
+                                                     .semantic_name = Str8Lit("MIN_UV"),
                                                      .kind = R_AttributeKind_Float2,
                                                      .offset = member_offset(UI_RectInstance, src_min),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
-                                                     .semantic_name = str8_lit("MAX_UV"),
+                                                     .semantic_name = Str8Lit("MAX_UV"),
                                                      .kind = R_AttributeKind_Float2,
                                                      .offset = member_offset(UI_RectInstance, src_max),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
-                                                     .semantic_name = str8_lit("COLORS"),
+                                                     .semantic_name = Str8Lit("COLORS"),
                                                      .kind = R_AttributeKind_Float4,
                                                      .offset = member_offset(UI_RectInstance, colors[0]),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
-                                                     .semantic_name = str8_lit("COLORS"),
+                                                     .semantic_name = Str8Lit("COLORS"),
                                                      .kind = R_AttributeKind_Float4,
                                                      .offset = member_offset(UI_RectInstance, colors[1]),
                                                      .slot_class = R_InputSlotClass_PerInstance,
@@ -66,7 +66,7 @@ ui_renderer_init()
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
-                                                     .semantic_name = str8_lit("COLORS"),
+                                                     .semantic_name = Str8Lit("COLORS"),
                                                      .kind = R_AttributeKind_Float4,
                                                      .offset = member_offset(UI_RectInstance, colors[2]),
                                                      .slot_class = R_InputSlotClass_PerInstance,
@@ -74,7 +74,7 @@ ui_renderer_init()
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
-                                                     .semantic_name = str8_lit("COLORS"),
+                                                     .semantic_name = Str8Lit("COLORS"),
                                                      .kind = R_AttributeKind_Float4,
                                                      .offset = member_offset(UI_RectInstance, colors[3]),
                                                      .slot_class = R_InputSlotClass_PerInstance,
@@ -82,14 +82,14 @@ ui_renderer_init()
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
-                                                     .semantic_name = str8_lit("CORNER_RADIUS"),
+                                                     .semantic_name = Str8Lit("CORNER_RADIUS"),
                                                      .kind = R_AttributeKind_Float4,
                                                      .offset = member_offset(UI_RectInstance, corner_radius),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
-                                                     .semantic_name = str8_lit("EXTRA"),
+                                                     .semantic_name = Str8Lit("EXTRA"),
                                                      .kind = R_AttributeKind_Float4,
                                                      .offset = member_offset(UI_RectInstance, extra),
                                                      .slot_class = R_InputSlotClass_PerInstance,
@@ -208,8 +208,8 @@ ui_renderer_destroy()
 static F32
 ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
 {
-  profile_function();
-  TempArena scratch = get_scratch(0, 0);
+  ProfileFunction();
+  TempArena scratch = GetScratch(0, 0);
   F_GlyphRun glyph_run = f_make_complex_glyph_run(scratch.arena, tag, size, string);
   F32 result = ui_draw_glyph_run(pos, color, glyph_run);
   return result;
@@ -218,7 +218,7 @@ ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
 static F32
 ui_draw_glyph_run(Vec2F32 pos, Vec4F32 color, F_GlyphRun glyph_run)
 {
-  profile_function();
+  ProfileFunction();
   F32 advance = pos.x;
   F_Atlas *atlas = f_atlas();
 
@@ -241,6 +241,16 @@ ui_draw_glyph_run(Vec2F32 pos, Vec4F32 color, F_GlyphRun glyph_run)
   }
 
   return advance - pos.x;
+}
+
+static F32
+ui_draw_simple_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color)
+{
+  ProfileFunction();
+  TempArena scratch = GetScratch(0, 0);
+  F_GlyphRun glyph_run = f_make_simple_glyph_run(scratch.arena, tag, size, string);
+  F32 result = ui_draw_glyph_run(pos, color, glyph_run);
+  return result;
 }
 
 static RectF32
@@ -350,7 +360,7 @@ ui_draw_box_hierarchy(UI_Box *root)
       params.softness = 10 * pixel_density;
       params.color = v4f32(0, 0, 0, 1);
       UI_RectInstance *instance = ui_draw_rect(min, max, params);
-      memory_copy_array(instance->corner_radius.v, (root->corner_radius * scale * 0.7f).v);
+      MemoryCopyArray(instance->corner_radius.v, (root->corner_radius * scale * 0.7f).v);
     }
 
     B32 should_draw_background = false;
@@ -395,8 +405,8 @@ ui_draw_box_hierarchy(UI_Box *root)
       params.softness = root->softness;
       params.slice = root->slice;
       UI_RectInstance *instance = ui_draw_rect(root->fixed_rect.min, root->fixed_rect.max, params);
-      memory_copy(instance->colors, color, sizeof(Vec4F32) * 4);
-      memory_copy_array(instance->corner_radius.v, root->corner_radius.v);
+      MemoryCopy(instance->colors, color, sizeof(Vec4F32) * 4);
+      MemoryCopyArray(instance->corner_radius.v, root->corner_radius.v);
     }
 
     if(root->flags & UI_BoxFlag_DrawBorder)
@@ -426,7 +436,7 @@ ui_draw_box_hierarchy(UI_Box *root)
       params.softness = root->softness;
       UI_RectInstance *instance = ui_draw_rect(root->fixed_rect.min, root->fixed_rect.max, params);
 
-      memory_copy_array(instance->corner_radius.v, root->corner_radius.v);
+      MemoryCopyArray(instance->corner_radius.v, root->corner_radius.v);
     }
 
     if(root->flags & UI_BoxFlag_DrawText)
@@ -473,7 +483,14 @@ ui_draw_box_hierarchy(UI_Box *root)
       text_color.rgb *= text_color.a;
       if(root->glyph_run == 0)
       {
-        ui_draw_text(text_pos, root->font_tag, root->font_size, root->string, text_color);
+        if(root->flags & UI_BoxFlag_SimpleText)
+        {
+          ui_draw_simple_text(text_pos, root->font_tag, root->font_size, root->string, text_color);
+        }
+        else
+        {
+          ui_draw_text(text_pos, root->font_tag, root->font_size, root->string, text_color);
+        }
       }
       else
       {
@@ -511,7 +528,7 @@ ui_draw_box_hierarchy(UI_Box *root)
 static void
 ui_draw()
 {
-  profile_function();
+  ProfileFunction();
   UI_RendererState *renderer = ui_state->renderer;
   renderer->first_batch_node = 0;
   renderer->last_batch_node = 0;
@@ -532,8 +549,8 @@ ui_draw()
   r_apply_vertex_buffer(renderer->vertex_buffer, sizeof(UI_RectInstance));
 
 #if R_BACKEND_GLES
-  r_gles_set_uniform_4x4f32(str8_lit("projection"), (U8 *)mats[0].m);
-  r_gles_set_uniform_4x4f32(str8_lit("transform"), (U8 *)mats[1].m);
+  r_gles_set_uniform_4x4f32(Str8Lit("projection"), (U8 *)mats[0].m);
+  r_gles_set_uniform_4x4f32(Str8Lit("transform"), (U8 *)mats[1].m);
 #elif R_BACKEND_D3D11
   r_fill_buffer(renderer->uniform_buffer, (R_FillBufferDesc){
                                             .data = str8_struct(&mats),

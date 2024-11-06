@@ -11,7 +11,7 @@
 #pragma comment(lib, "d3d11")
 #pragma comment(lib, "d3dcompiler")
 
-#define assert_hr(hr) ASSERT(SUCCEEDED(hr))
+#define assert_hr(hr) Assert(SUCCEEDED(hr))
 
 static void
 r_init()
@@ -66,7 +66,7 @@ r_make_render_window_context(OS_Handle window)
 {
   R_Handle result = {};
 
-  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(window.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)PtrFromInt(window.u64[0]);
   R_D3D11_Window *d3d11_window = push_array<R_D3D11_Window>(r_d3d11_state->arena, 1);
   d3d11_window->window = window;
 
@@ -91,7 +91,7 @@ r_make_render_window_context(OS_Handle window)
     r_d3d11_state->factory->MakeWindowAssociation(win32_window->hwnd, DXGI_MWA_NO_ALT_ENTER);
   }
 
-  result.u64[0] = int_from_ptr(d3d11_window);
+  result.u64[0] = IntFromPtr(d3d11_window);
   return result;
 }
 
@@ -99,7 +99,7 @@ static R_Handle
 r_make_pipeline(R_PipelineDesc desc)
 {
   R_Handle result = {};
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
 
   R_D3D11_Pipeline *pipeline = r_d3d11_state->first_free_pipeline;
   if(pipeline == 0)
@@ -138,7 +138,7 @@ r_make_pipeline(R_PipelineDesc desc)
 
   R_ShaderDesc *shader_desc = &desc.shader;
 
-  ASSERT(shader_desc->vs_entry_point_name.size < 256);
+  Assert(shader_desc->vs_entry_point_name.size < 256);
   StaticArray<U8, 256> vs_target_buffer_cstr = {};
   cstr_format(vs_target_buffer_cstr.val, array_count(vs_target_buffer_cstr), (char *)"%S_5_0", shader_desc->vs_entry_point_name);
 
@@ -150,10 +150,10 @@ r_make_pipeline(R_PipelineDesc desc)
   {
     const char *message = (const char *)error->GetBufferPointer();
     OutputDebugStringA(message);
-    ASSERT(!"Failed to compile vertex shader!");
+    Assert(!"Failed to compile vertex shader!");
   }
 
-  ASSERT(shader_desc->ps_entry_point_name.size < 256);
+  Assert(shader_desc->ps_entry_point_name.size < 256);
   StaticArray<U8, 256> ps_target_buffer_cstr = {};
   cstr_format(ps_target_buffer_cstr.val, array_count(ps_target_buffer_cstr), (char *)"%S_5_0", shader_desc->ps_entry_point_name);
 
@@ -166,7 +166,7 @@ r_make_pipeline(R_PipelineDesc desc)
   {
     const char *message = (const char *)error->GetBufferPointer();
     OutputDebugStringA(message);
-    ASSERT(!"Failed to compile pixel shader!");
+    Assert(!"Failed to compile pixel shader!");
   }
 
   r_d3d11_state->device->CreateVertexShader(vblob->GetBufferPointer(), vblob->GetBufferSize(), 0, &pipeline->vshader);
@@ -298,14 +298,14 @@ r_make_pipeline(R_PipelineDesc desc)
     r_d3d11_state->device->CreateDepthStencilState(&depth_stencil_desc, &pipeline->depth_stencil_state);
   }
 
-  result.u64[0] = int_from_ptr(pipeline);
+  result.u64[0] = IntFromPtr(pipeline);
   return result;
 }
 
 static void
 r_destroy_pipeline(R_Handle handle)
 {
-  R_D3D11_Pipeline *d3d11_pipeline = (R_D3D11_Pipeline *)ptr_from_int(handle.u64[0]);
+  R_D3D11_Pipeline *d3d11_pipeline = (R_D3D11_Pipeline *)PtrFromInt(handle.u64[0]);
   d3d11_pipeline->blend_state->Release();
   d3d11_pipeline->depth_stencil_state->Release();
   d3d11_pipeline->rasterizer_state->Release();
@@ -352,7 +352,7 @@ r_make_buffer(R_BufferDesc desc)
   }
   r_d3d11_state->device->CreateBuffer(&d3d11_desc, 0, &buffer->buffer);
   buffer->size = desc.size;
-  result.u64[0] = int_from_ptr(buffer);
+  result.u64[0] = IntFromPtr(buffer);
   return result;
 }
 
@@ -368,7 +368,7 @@ static R_Handle
 r_make_tex2d_from_bitmap(void *data, U32 width, U32 height, R_PixelFormat pixel_format, R_TextureBindFlags texture_bind_flags)
 {
   R_Handle result = {};
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)r_d3d11_state->first_free_texture;
   if(d3d11_texture != 0)
   {
@@ -394,7 +394,7 @@ r_make_tex2d_from_bitmap(void *data, U32 width, U32 height, R_PixelFormat pixel_
     break;
     default:
     {
-      invalid_code_path;
+      InvalidCodePath;
     }
     break;
   }
@@ -436,7 +436,7 @@ r_make_tex2d_from_bitmap(void *data, U32 width, U32 height, R_PixelFormat pixel_
   d3d11_texture->width = width;
   d3d11_texture->height = height;
 
-  result.u64[0] = int_from_ptr(d3d11_texture);
+  result.u64[0] = IntFromPtr(d3d11_texture);
   return result;
 }
 
@@ -456,7 +456,7 @@ r_make_tex2d_from_memory(String8 data)
 static void
 r_destroy_tex2d(R_Handle texture)
 {
-  R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)ptr_from_int(texture.u64[0]);
+  R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)PtrFromInt(texture.u64[0]);
   d3d11_texture->view->Release();
   sll_stack_push(r_d3d11_state->first_free_texture, d3d11_texture);
 }
@@ -464,7 +464,7 @@ r_destroy_tex2d(R_Handle texture)
 static void
 r_fill_tex2d_region(R_Handle texture, RectU64 region, void *memory)
 {
-  R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)ptr_from_int(texture.u64[0]);
+  R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)PtrFromInt(texture.u64[0]);
   U32 bytes_per_pixel = 4;
   Vec2S32 dim = v2s32((S32)(region.x1 - region.x0), (S32)(region.y1 - region.y0));
   D3D11_BOX dst_box =
@@ -503,7 +503,7 @@ r_begin_pass(Vec4F32 clear_color)
       hr = d3d11_window->swap_chain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
       if(FAILED(hr))
       {
-        ASSERT(!"Failed to resize swap chain!");
+        Assert(!"Failed to resize swap chain!");
       }
 
       // NOTE(hampus): Create RenderTarget view for new backbuffer texture
@@ -595,7 +595,7 @@ r_commit()
     }
     else if(FAILED(hr))
     {
-      ASSERT(!"Failed to present swap chain! Device lost?");
+      Assert(!"Failed to present swap chain! Device lost?");
     }
   }
 }
@@ -603,7 +603,7 @@ r_commit()
 static void
 r_apply_pipeline(R_Handle pipeline)
 {
-  R_D3D11_Pipeline *d3d11_pipeline = (R_D3D11_Pipeline *)ptr_from_int(pipeline.u64[0]);
+  R_D3D11_Pipeline *d3d11_pipeline = (R_D3D11_Pipeline *)PtrFromInt(pipeline.u64[0]);
   R_D3D11_Window *d3d11_window = r_d3d11_state->current_window_context;
 
   r_d3d11_state->context->VSSetShader(d3d11_pipeline->vshader, 0, 0);
@@ -624,7 +624,7 @@ r_apply_pipeline(R_Handle pipeline)
 static void
 r_apply_vertex_buffer(R_Handle buffer, U64 stride)
 {
-  R_D3D11_Buffer *d3d11_buffer = (R_D3D11_Buffer *)ptr_from_int(buffer.u64[0]);
+  R_D3D11_Buffer *d3d11_buffer = (R_D3D11_Buffer *)PtrFromInt(buffer.u64[0]);
   ID3D11Buffer *vertex_buffer = d3d11_buffer->buffer;
   UINT offset = 0;
   UINT stride_u32 = safe_u32_from_u64(stride);
@@ -634,21 +634,21 @@ r_apply_vertex_buffer(R_Handle buffer, U64 stride)
 static void
 r_apply_uniform_buffer(R_Handle buffer)
 {
-  R_D3D11_Buffer *d3d11_buffer = (R_D3D11_Buffer *)ptr_from_int(buffer.u64[0]);
+  R_D3D11_Buffer *d3d11_buffer = (R_D3D11_Buffer *)PtrFromInt(buffer.u64[0]);
   r_d3d11_state->context->VSSetConstantBuffers(0, 1, &d3d11_buffer->buffer);
 }
 
 static void
 r_apply_tex2d(R_Handle tex2d)
 {
-  R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)ptr_from_int(tex2d.u64[0]);
+  R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)PtrFromInt(tex2d.u64[0]);
   r_d3d11_state->context->PSSetShaderResources(0, 1, &d3d11_texture->view);
 }
 
 static void
 r_apply_window_context(R_Handle window_context)
 {
-  R_D3D11_Window *d3d11_window = (R_D3D11_Window *)ptr_from_int(window_context.u64[0]);
+  R_D3D11_Window *d3d11_window = (R_D3D11_Window *)PtrFromInt(window_context.u64[0]);
   r_d3d11_state->current_window_context = d3d11_window;
 }
 
@@ -666,11 +666,11 @@ r_apply_scissor_rect(RectF32 rect)
 static void
 r_fill_buffer(R_Handle buffer, R_FillBufferDesc desc)
 {
-  R_D3D11_Buffer *d3d11_buffer = (R_D3D11_Buffer *)ptr_from_int(buffer.u64[0]);
+  R_D3D11_Buffer *d3d11_buffer = (R_D3D11_Buffer *)PtrFromInt(buffer.u64[0]);
   U64 clamped_size = min(d3d11_buffer->size, desc.data.size);
   ID3D11Buffer *vertex_buffer = d3d11_buffer->buffer;
   D3D11_MAPPED_SUBRESOURCE mapped = {};
   r_d3d11_state->context->Map((ID3D11Resource *)vertex_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-  memory_copy((U8 *)mapped.pData, (U8 *)desc.data.data, clamped_size);
+  MemoryCopy((U8 *)mapped.pData, (U8 *)desc.data.data, clamped_size);
   r_d3d11_state->context->Unmap((ID3D11Resource *)vertex_buffer, 0);
 }

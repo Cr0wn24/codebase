@@ -277,7 +277,7 @@ token_is_kind(Token token, TokenKind kind)
 static void
 display_error(String8 error, String8 file_path, U64 line_number)
 {
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   String8 string = str8_push(scratch.arena, "%S(%llu): error: %S", file_path, line_number, error);
   fprintf(stderr, "%.*s\n", str8_expand(string));
   os_exit(1);
@@ -286,14 +286,14 @@ display_error(String8 error, String8 file_path, U64 line_number)
 static void
 get_all_source_files_from_directory_recursively(Arena *arena, String8 directory, SourceFileList *list)
 {
-  TempArena scratch = get_scratch(&arena, 1);
+  TempArena scratch = GetScratch(&arena, 1);
   OS_Handle file_iterator = os_file_iterator_init(directory);
   for(String8 string = {}; os_file_iterator_next(scratch.arena, file_iterator, &string);)
   {
-    string = str8_append(arena, str8_lit("\\"), string);
+    string = str8_append(arena, Str8Lit("\\"), string);
     string = str8_append(arena, directory, string);
 
-    if(!str8_match(str8_lit("generated"), str8_skip_last_slash(directory)))
+    if(!str8_match(Str8Lit("generated"), str8_skip_last_slash(directory)))
     {
       OS_FileAttributes file_attribs = os_get_file_attributes(string);
       if(file_attribs.directory)
@@ -302,7 +302,7 @@ get_all_source_files_from_directory_recursively(Arena *arena, String8 directory,
       }
       else
       {
-        if(str8_match(str8_postfix(string, 4), str8_lit(".cpp")))
+        if(str8_match(str8_postfix(string, 4), Str8Lit(".cpp")))
         {
           SourceFileNode *n = push_array<SourceFileNode>(arena, 1);
           n->path = string;
@@ -324,27 +324,27 @@ os_entry_point(String8List args)
   String8 exe_path = os_get_executable_path(arena);
   String8 exe_directory_path = str8_chop_last_slash(exe_path);
   String8 project_directory_path = str8_chop_last_slash(exe_directory_path);
-  String8 code_path = str8_append(arena, project_directory_path, str8_lit("\\src"));
+  String8 code_path = str8_append(arena, project_directory_path, Str8Lit("\\src"));
 
   {
-    TempArena scratch = get_scratch(0, 0);
-    String8 base_meta_file_data = str8_lit("#ifndef BASE_META_H\n"
-                                           "#define BASE_META_H\n\n"
-                                           "#define META_EMBED_FILE(path, name) extern String8 name;\n\n"
-                                           "#endif // BASE_META_H");
-    String8 base_meta_file_path = str8_append(scratch.arena, code_path, str8_lit("\\codebase\\base\\base_meta.h"));
-    ASSERT_ALWAYS(os_file_write(base_meta_file_path, base_meta_file_data));
+    TempArena scratch = GetScratch(0, 0);
+    String8 base_meta_file_data = Str8Lit("#ifndef BASE_META_H\n"
+                                          "#define BASE_META_H\n\n"
+                                          "#define META_EMBED_FILE(path, name) extern String8 name;\n\n"
+                                          "#endif // BASE_META_H");
+    String8 base_meta_file_path = str8_append(scratch.arena, code_path, Str8Lit("\\codebase\\base\\base_meta.h"));
+    AssertAlways(os_file_write(base_meta_file_path, base_meta_file_data));
   }
 
   String8List layer_paths = {};
   {
-    TempArena scratch = get_scratch(0, 0);
+    TempArena scratch = GetScratch(0, 0);
     OS_Handle layers_folder_iterator = os_file_iterator_init(code_path);
     for(String8 string = {}; os_file_iterator_next(scratch.arena, layers_folder_iterator, &string);)
     {
-      if(!str8_match(string, str8_lit("third_party")))
+      if(!str8_match(string, Str8Lit("third_party")))
       {
-        string = str8_append(arena, str8_lit("\\"), string);
+        string = str8_append(arena, Str8Lit("\\"), string);
         string = str8_append(arena, code_path, string);
         str8_list_push(arena, &layer_paths, string);
       }
@@ -390,7 +390,7 @@ os_entry_point(String8List args)
         case TokenKind_Identifier:
         {
           profile_scope_begin("parse identifier");
-          if(str8_match(token.string, str8_lit("META_EMBED_FILE")))
+          if(str8_match(token.string, Str8Lit("META_EMBED_FILE")))
           {
             if(require_token(&tokenizer, TokenKind_OpenParanthesis))
             {
@@ -403,25 +403,25 @@ os_entry_point(String8List args)
                   Token variable_name_token = get_token(&tokenizer);
                   if(token_is_kind(variable_name_token, TokenKind_Identifier))
                   {
-                    TempArena scratch = get_scratch(0, 0);
+                    TempArena scratch = GetScratch(0, 0);
                     String8 generated_variable_name = variable_name_token.string;
                     String8 full_file_path = {};
                     {
                       String8List path_list = {};
                       str8_list_push(scratch.arena, &path_list, str8_chop_last_slash(n->path));
-                      str8_list_push(scratch.arena, &path_list, str8_lit("\\"));
+                      str8_list_push(scratch.arena, &path_list, Str8Lit("\\"));
                       str8_list_push(scratch.arena, &path_list, file_path);
                       full_file_path = str8_join(scratch.arena, &path_list);
                     }
                     String8 file_data = os_file_read(scratch.arena, full_file_path);
                     if(file_data.size != 0)
                     {
-                      String8 generated_directory_path = str8_append(scratch.arena, directory, str8_lit("\\generated"));
+                      String8 generated_directory_path = str8_append(scratch.arena, directory, Str8Lit("\\generated"));
                       String8 editor_main_generated_file_path = str8_push(scratch.arena, "%S\\%S_meta.cpp", generated_directory_path, str8_chop(file_name, 4));
-                      ASSERT_ALWAYS(os_directory_create(generated_directory_path));
+                      AssertAlways(os_directory_create(generated_directory_path));
                       if((n->flags & SourceFileFlag_Open) == 0)
                       {
-                        ASSERT_ALWAYS(os_file_write(editor_main_generated_file_path, str8_lit("")));
+                        AssertAlways(os_file_write(editor_main_generated_file_path, Str8Lit("")));
                         n->flags |= SourceFileFlag_Open;
                         n->file_stream_handle = os_file_stream_open(editor_main_generated_file_path);
                       }
@@ -431,7 +431,7 @@ os_entry_point(String8List args)
 
                       {
                         String8 string = str8_push(scratch.arena, "\nStaticArray<U8, %" PRIU64 "> %S_data =\n{\n", file_data.size, generated_variable_name);
-                        ASSERT_ALWAYS(os_file_stream_write(n->file_stream_handle, string));
+                        AssertAlways(os_file_stream_write(n->file_stream_handle, string));
                       }
 
                       for(U64 idx = 0; idx < file_data.size; idx += 1)
@@ -449,41 +449,41 @@ os_entry_point(String8List args)
                         buffer_used_size += string.size;
                         if((buffer_used_size + 6) > array_count(buffer))
                         {
-                          ASSERT_ALWAYS(os_file_stream_write(n->file_stream_handle, str8(buffer.val, buffer_used_size)));
+                          AssertAlways(os_file_stream_write(n->file_stream_handle, str8(buffer.val, buffer_used_size)));
                           buffer_used_size = 0;
                         }
                       }
 
-                      ASSERT_ALWAYS(os_file_stream_write(n->file_stream_handle, str8(buffer.val, buffer_used_size)));
+                      AssertAlways(os_file_stream_write(n->file_stream_handle, str8(buffer.val, buffer_used_size)));
 
                       {
                         String8 string = str8_push(scratch.arena, "\n};\nString8 %S = {.data = (U8 *)%S_data.val, .size = array_count(%S_data)};", generated_variable_name, generated_variable_name, generated_variable_name);
-                        ASSERT_ALWAYS(os_file_stream_write(n->file_stream_handle, string));
+                        AssertAlways(os_file_stream_write(n->file_stream_handle, string));
                       }
                     }
                     else
                     {
-                      display_error(str8_lit("failed to read file"), n->path, line_number);
+                      display_error(Str8Lit("failed to read file"), n->path, line_number);
                     }
                   }
                   else
                   {
-                    display_error(str8_lit("missing second argument"), n->path, line_number);
+                    display_error(Str8Lit("missing second argument"), n->path, line_number);
                   }
                 }
                 else
                 {
-                  display_error(str8_lit("missing comma for second argument"), n->path, line_number);
+                  display_error(Str8Lit("missing comma for second argument"), n->path, line_number);
                 }
               }
               else
               {
-                display_error(str8_lit("expected string for path to file"), n->path, line_number);
+                display_error(Str8Lit("expected string for path to file"), n->path, line_number);
               }
             }
             else
             {
-              display_error(str8_lit("expected open paranthesis"), n->path, line_number);
+              display_error(Str8Lit("expected open paranthesis"), n->path, line_number);
             }
           }
           profile_scope_end();
@@ -493,7 +493,7 @@ os_entry_point(String8List args)
         {
           if((n->flags & SourceFileFlag_Open) != 0)
           {
-            ASSERT_ALWAYS(os_file_stream_close(n->file_stream_handle));
+            AssertAlways(os_file_stream_close(n->file_stream_handle));
           }
           parsing = false;
         }

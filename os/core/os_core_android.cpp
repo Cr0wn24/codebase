@@ -86,7 +86,7 @@ os_get_memory_stats()
     {
       String8 line = str8_cstr(buffer);
       {
-        String8 label = str8_lit("Size:");
+        String8 label = Str8Lit("Size:");
         if(str8_match(str8_prefix(line, label.size), label))
         {
           U64 size_kb = 0;
@@ -95,7 +95,7 @@ os_get_memory_stats()
         }
       }
       {
-        String8 label = str8_lit("Private_Dirty:");
+        String8 label = Str8Lit("Private_Dirty:");
         if(str8_match(str8_prefix(line, label.size), label))
         {
           U64 size_kb = 0;
@@ -116,8 +116,8 @@ static void *
 os_memory_reserve(U64 size)
 {
   void *result = mmap(0, size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-  ASSERT(result != MAP_FAILED);
-  ASSERT(result != MAP_FAILED);
+  Assert(result != MAP_FAILED);
+  Assert(result != MAP_FAILED);
   return result;
 }
 
@@ -138,13 +138,13 @@ static void
 os_memory_release(void *ptr, U64 size)
 {
   S32 munmap_result = munmap(ptr, size);
-  ASSERT(munmap_result == 0);
+  Assert(munmap_result == 0);
 }
 
 static void *
 os_memory_alloc(U64 size)
 {
-  not_implemented;
+  NotImplemented;
   void *result = 0;
   return result;
 }
@@ -155,7 +155,7 @@ os_memory_alloc(U64 size)
 static OS_FileAttributes
 os_get_file_attributes(String8 path)
 {
-  not_implemented;
+  NotImplemented;
   OS_FileAttributes result = {};
   return result;
 }
@@ -169,7 +169,7 @@ os_file_read(Arena *arena, String8 path)
   String8 result = {};
   B32 success = true;
 
-  TempArena scratch = get_scratch(&arena, 1);
+  TempArena scratch = GetScratch(&arena, 1);
   U64 restore_pos = arena->pos;
 
   char *cstr_path = cstr_from_str8(scratch.arena, path);
@@ -225,7 +225,7 @@ static B32
 os_file_write(String8 path, String8 data)
 {
   B32 result = false;
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   char *cstr_path = cstr_from_str8(scratch.arena, path);
   S32 mode_flags = O_TRUNC;
   S32 file_descriptor = open(cstr_path, O_WRONLY | mode_flags | O_CREAT, S_IRUSR | S_IWUSR);
@@ -261,7 +261,7 @@ os_file_write(String8 path, String8 data)
 static B32
 os_file_copy(String8 old_path, String8 new_path)
 {
-  not_implemented;
+  NotImplemented;
   B32 result = false;
   return result;
 }
@@ -269,7 +269,7 @@ os_file_copy(String8 old_path, String8 new_path)
 static B32
 os_file_rename(String8 old_path, String8 new_path)
 {
-  not_implemented;
+  NotImplemented;
   B32 result = false;
   return result;
 }
@@ -277,7 +277,7 @@ os_file_rename(String8 old_path, String8 new_path)
 static B32
 os_file_delete(String8 path)
 {
-  not_implemented;
+  NotImplemented;
   B32 result = false;
   return result;
 }
@@ -288,7 +288,7 @@ os_file_delete(String8 path)
 static OS_Handle
 os_file_stream_open(String8 path)
 {
-  not_implemented;
+  NotImplemented;
   OS_Handle result = os_handle_zero();
   return result;
 }
@@ -296,7 +296,7 @@ os_file_stream_open(String8 path)
 static B32
 os_file_stream_close(OS_Handle file)
 {
-  not_implemented;
+  NotImplemented;
   B32 result = false;
   return result;
 }
@@ -304,7 +304,7 @@ os_file_stream_close(OS_Handle file)
 static B32
 os_file_stream_write(OS_Handle file, String8 data)
 {
-  not_implemented;
+  NotImplemented;
   B32 result = false;
   return result;
 }
@@ -315,7 +315,7 @@ os_file_stream_write(OS_Handle file, String8 data)
 static B32
 os_directory_create(String8 path)
 {
-  not_implemented;
+  NotImplemented;
   B32 result = false;
   return result;
 }
@@ -323,7 +323,7 @@ os_directory_create(String8 path)
 static B32
 os_directory_delete(String8 path)
 {
-  not_implemented;
+  NotImplemented;
   B32 result = false;
   return result;
 }
@@ -331,7 +331,7 @@ os_directory_delete(String8 path)
 static OS_Handle
 os_file_iterator_init(String8 path)
 {
-  not_implemented;
+  NotImplemented;
   OS_Handle result = os_handle_zero();
   return result;
 }
@@ -339,13 +339,13 @@ os_file_iterator_init(String8 path)
 static void
 os_file_iterator_end(OS_Handle iterator)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 static B32
 os_file_iterator_next(Arena *arena, OS_Handle iterator, String8 *result_name)
 {
-  not_implemented;
+  NotImplemented;
   B32 result = false;
   return result;
 }
@@ -353,7 +353,7 @@ os_file_iterator_next(Arena *arena, OS_Handle iterator, String8 *result_name)
 static String8
 os_get_executable_path(Arena *arena)
 {
-  not_implemented;
+  NotImplemented;
   String8 result = {};
   return result;
 }
@@ -364,7 +364,7 @@ os_get_executable_path(Arena *arena)
 static DateTime
 os_get_universal_time()
 {
-  not_implemented;
+  NotImplemented;
   DateTime result = {};
   return result;
 }
@@ -372,7 +372,7 @@ os_get_universal_time()
 static DateTime
 os_get_local_time()
 {
-  not_implemented;
+  NotImplemented;
   DateTime result = {};
   return result;
 }
@@ -384,7 +384,7 @@ os_get_local_date()
 
   struct timeval time = {};
   S32 return_code = gettimeofday(&time, 0);
-  ASSERT(return_code == 0);
+  Assert(return_code == 0);
 
   struct tm deconstructed_time = {};
   if(localtime_r(&time.tv_sec, &deconstructed_time) == &deconstructed_time)
@@ -401,7 +401,7 @@ os_get_local_date()
 static DateTime
 os_local_time_from_universal(DateTime *date_time)
 {
-  not_implemented;
+  NotImplemented;
   DateTime result = {};
   return result;
 }
@@ -409,7 +409,7 @@ os_local_time_from_universal(DateTime *date_time)
 static DateTime
 os_universal_time_from_local(DateTime *date_time)
 {
-  not_implemented;
+  NotImplemented;
   DateTime result = {};
   return result;
 }
@@ -438,7 +438,7 @@ os_get_microseconds()
 {
   struct timespec time = {};
   S32 return_code = clock_gettime(CLOCK_MONOTONIC_RAW, &time);
-  ASSERT(return_code == 0);
+  Assert(return_code == 0);
   U64 result = (U64)time.tv_sec * million(1) + (U64)time.tv_nsec / 1000;
   return result;
 }
@@ -446,13 +446,13 @@ os_get_microseconds()
 static void
 os_sleep(U64 time)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 static void
 os_wait_microseconds(U64 end_time_us)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 //////////////////////////////
@@ -461,7 +461,7 @@ os_wait_microseconds(U64 end_time_us)
 static OS_Handle
 os_library_open(String8 path)
 {
-  not_implemented;
+  NotImplemented;
   OS_Handle result = os_handle_zero();
   return result;
 }
@@ -469,13 +469,13 @@ os_library_open(String8 path)
 static void
 os_library_close(OS_Handle library)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 static void *
 os_libary_load_static(OS_Handle library, String8 name)
 {
-  not_implemented;
+  NotImplemented;
   void *result = 0;
   return result;
 }
@@ -486,35 +486,35 @@ os_libary_load_static(OS_Handle library, String8 name)
 static OS_Handle
 os_semaphore_alloc(U32 initial_value)
 {
-  ASSERT(initial_value < SEM_VALUE_MAX);
+  Assert(initial_value < SEM_VALUE_MAX);
   OS_Handle result = os_handle_zero();
   OS_Android_Semaphore *semaphore = push_array<OS_Android_Semaphore>(os_android_state->arena, 1);
   sem_init(&semaphore->semaphore, 0, initial_value);
-  result.u64[0] = int_from_ptr(semaphore);
+  result.u64[0] = IntFromPtr(semaphore);
   return result;
 }
 
 static void
 os_semaphore_free(OS_Handle handle)
 {
-  OS_Android_Semaphore *semaphore = (OS_Android_Semaphore *)ptr_from_int(handle.u64[0]);
-  ASSERT(semaphore != 0);
+  OS_Android_Semaphore *semaphore = (OS_Android_Semaphore *)PtrFromInt(handle.u64[0]);
+  Assert(semaphore != 0);
   sem_destroy(&semaphore->semaphore);
 }
 
 static void
 os_semaphore_signal(OS_Handle handle)
 {
-  OS_Android_Semaphore *semaphore = (OS_Android_Semaphore *)ptr_from_int(handle.u64[0]);
-  ASSERT(semaphore != 0);
+  OS_Android_Semaphore *semaphore = (OS_Android_Semaphore *)PtrFromInt(handle.u64[0]);
+  Assert(semaphore != 0);
   sem_post(&semaphore->semaphore);
 }
 
 static void
 os_semaphore_wait(volatile OS_Handle handle)
 {
-  OS_Android_Semaphore *semaphore = (OS_Android_Semaphore *)ptr_from_int(handle.u64[0]);
-  ASSERT(semaphore != 0);
+  OS_Android_Semaphore *semaphore = (OS_Android_Semaphore *)PtrFromInt(handle.u64[0]);
+  Assert(semaphore != 0);
   int success = 0;
   do
   {
@@ -537,29 +537,29 @@ os_mutex_alloc()
   pthread_mutex_init(&mutex->mutex, 0);
   pthread_mutexattr_destroy(&attributes);
 
-  result.u64[0] = int_from_ptr(mutex);
+  result.u64[0] = IntFromPtr(mutex);
   return result;
 }
 
 static void
 os_mutex_free(OS_Handle handle)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 static void
 os_mutex_take(OS_Handle handle)
 {
-  OS_Android_Mutex *mutex = (OS_Android_Mutex *)ptr_from_int(handle.u64[0]);
-  ASSERT(mutex != 0);
+  OS_Android_Mutex *mutex = (OS_Android_Mutex *)PtrFromInt(handle.u64[0]);
+  Assert(mutex != 0);
   pthread_mutex_lock(&mutex->mutex);
 }
 
 static void
 os_mutex_release(OS_Handle handle)
 {
-  OS_Android_Mutex *mutex = (OS_Android_Mutex *)ptr_from_int(handle.u64[0]);
-  ASSERT(mutex != 0);
+  OS_Android_Mutex *mutex = (OS_Android_Mutex *)PtrFromInt(handle.u64[0]);
+  Assert(mutex != 0);
   pthread_mutex_unlock(&mutex->mutex);
 }
 
@@ -580,13 +580,13 @@ os_thread_create(ThreadProc *proc, void *data)
 static void
 os_thread_join(OS_Handle handle)
 {
-  not_implemented;
+  NotImplemented;
 }
 
 static void
 os_thread_set_name(String8 string)
 {
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   char *cstr_name = cstr_from_str8(scratch.arena, string);
   pthread_t thread = pthread_self();
   pthread_setname_np(thread, cstr_name);
@@ -611,7 +611,7 @@ os_print_debug_string(String8 string)
 static void
 os_print_debug_string(char *fmt, ...)
 {
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   va_list args;
   va_start(args, fmt);
   String8 string = str8_push(scratch.arena, fmt, args);
@@ -638,7 +638,7 @@ static void
 os_android_capture_backtrace__libunwind_register_method(OS_Android_BacktraceState *state)
 {
   OS_Backtrace backtrace = {};
-  ASSERT(state);
+  Assert(state);
   // Initialize unw_context and unw_cursor.
   unw_context_t unw_context = {};
   unw_getcontext(&unw_context);
@@ -647,9 +647,9 @@ os_android_capture_backtrace__libunwind_register_method(OS_Android_BacktraceStat
 
   // Get more contexts.
   const ucontext_t *signal_ucontext = state->signal_ucontext;
-  ASSERT(signal_ucontext);
+  Assert(signal_ucontext);
   const struct sigcontext *signal_mcontext = (struct sigcontext *)&signal_ucontext->uc_mcontext;
-  ASSERT(signal_mcontext);
+  Assert(signal_mcontext);
 
 #if ARCH_ARM64
   unw_set_reg(&unw_cursor, UNW_REG_IP, signal_mcontext->pc);
@@ -680,8 +680,8 @@ os_android_capture_backtrace__libunwind_register_method(OS_Android_BacktraceStat
     }
 
     Dl_info dl_info = {};
-    int dladdr_result = dladdr(ptr_from_int(ip), &dl_info);
-    U64 shared_object_base_address = int_from_ptr(dl_info.dli_fbase);
+    int dladdr_result = dladdr(PtrFromInt(ip), &dl_info);
+    U64 shared_object_base_address = IntFromPtr(dl_info.dli_fbase);
     U64 address_offset = ip - shared_object_base_address;
 
     backtrace.entries[backtrace.entries_count].address = address_offset;
@@ -699,7 +699,7 @@ void
 os_android_sig_action_handler(int sig, siginfo_t *info, void *ucontext)
 {
   const ucontext_t *signal_ucontext = (const ucontext_t *)ucontext;
-  ASSERT(signal_ucontext);
+  Assert(signal_ucontext);
   OS_Android_BacktraceState backtrace_state = {};
   backtrace_state.signal_ucontext = signal_ucontext;
 
@@ -713,7 +713,7 @@ android_main(struct android_app *_android_app)
   os_android_state = push_array<OS_Android_State>(android_perm_arena, 1);
   os_android_state->arena = android_perm_arena;
   android_app = _android_app;
-  ThreadCtx *tctx = thread_ctx_init(str8_lit("Main"));
+  ThreadCtx *tctx = thread_ctx_init(Str8Lit("Main"));
   // Set up signal handler.
   struct sigaction action = {};
   memset(&action, 0, sizeof(action));

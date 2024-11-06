@@ -75,7 +75,7 @@ Vec2F32::operator/=(F32 t)
 F32 &
 Vec2F32::operator[](U64 idx)
 {
-  ASSERT(idx < 2);
+  Assert(idx < 2);
   F32 &result = v[idx];
   return result;
 }
@@ -126,7 +126,7 @@ Vec3F32::operator*=(F32 t)
 F32 &
 Vec3F32::operator[](U64 idx)
 {
-  ASSERT(idx < 3);
+  Assert(idx < 3);
   F32 &result = v[idx];
   return result;
 }

@@ -82,7 +82,8 @@ static void *
 arena_push(Arena *arena, U64 size)
 {
   void *result = arena_push_no_zero(arena, size);
-  memory_zero(result, size);
+
+  MemoryZero(result, size);
   return result;
 }
 
@@ -119,11 +120,12 @@ ring_write(U8 *base, U64 size, U64 offset, String8 string)
   U64 size1 = string.size - size0;
   if(size0 != 0)
   {
-    memory_copy(base + offset, string.data, size0);
+    MemoryCopy(base + offset, string.data, size0);
   }
+
   if(size1 != 0)
   {
-    memory_copy(base, string.data + size0, size1);
+    MemoryCopy(base, string.data + size0, size1);
   }
   return (size0 + size1);
 }
@@ -136,11 +138,11 @@ ring_read(U8 *base, U64 size, U64 offset, String8 string)
   U64 size1 = string.size - size0;
   if(size0 != 0)
   {
-    memory_copy(string.data, base + offset, size0);
+    MemoryCopy(string.data, base + offset, size0);
   }
   if(size1 != 0)
   {
-    memory_copy(string.data + size0, base, size1);
+    MemoryCopy(string.data + size0, base, size1);
   }
   return (size0 + size1);
 }

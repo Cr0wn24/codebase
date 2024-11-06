@@ -33,7 +33,7 @@ static void set_thread_ctx_name(String8 string);
 //////////////////////////////
 // NOTE(hampus): Scratch functions
 
-#define get_scratch(conflicts, count) TempArena(get_scratch_arena(conflicts, count))
+#define GetScratch(conflicts, count) TempArena(get_scratch_arena(conflicts, count))
 #define release_scratch(scratch) end_temp_arena(scratch)
 [[nodiscard]] static Arena *get_scratch_arena(Arena **conflicts, U32 count);
 

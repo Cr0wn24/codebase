@@ -11,7 +11,7 @@ static OS_EventList *os_win32_event_list;
 static OS_Win32_Window *
 os_win32_window_from_handle(OS_Handle handle)
 {
-  OS_Win32_Window *result = (OS_Win32_Window *)ptr_from_int(handle.u64[0]);
+  OS_Win32_Window *result = (OS_Win32_Window *)PtrFromInt(handle.u64[0]);
   return result;
 }
 
@@ -19,7 +19,7 @@ static LRESULT CALLBACK
 os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
   LRESULT result = 0;
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   OS_Win32_Window *win32_window = (OS_Win32_Window *)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
   Arena *event_arena = os_win32_event_arena;
   OS_EventList fallback_list = {};
@@ -32,8 +32,8 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
     event_list = &fallback_list;
   }
 
-  ASSERT(event_list);
-  ASSERT(event_arena);
+  Assert(event_list);
+  Assert(event_arena);
 
   OS_EventNode *event_node = 0;
   switch(message)
@@ -54,7 +54,7 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
       if(win32_window->repaint)
       {
         OS_Handle handle = {};
-        handle.u64[0] = int_from_ptr(win32_window);
+        handle.u64[0] = IntFromPtr(win32_window);
         win32_window->repaint(handle, win32_window->repaint_user_data);
       }
       EndPaint(hwnd, &ps);
@@ -277,7 +277,7 @@ static OS_Handle
 os_window_open(String8 title, U32 width, U32 height)
 {
   OS_Handle result = {};
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
 
   OS_Win32_Window *win32_window = push_array<OS_Win32_Window>(os_win32_gfx_state->arena, 1);
 
@@ -291,16 +291,16 @@ os_window_open(String8 title, U32 width, U32 height)
 
   RegisterClassW(&window_class);
 
-  U16 *title_u16 = cstr16_from_str8(scratch.arena, title);
+  wchar_t *title_u16 = cstr16_from_str8(scratch.arena, title);
   HWND hwnd = CreateWindowExW(0,
-                              window_class.lpszClassName, (LPCWSTR)title_u16,
+                              window_class.lpszClassName, title_u16,
                               WS_OVERLAPPEDWINDOW,
                               CW_USEDEFAULT, CW_USEDEFAULT,
                               (S32)width, (S32)height,
                               0, 0, instance, 0);
 
   win32_window->hwnd = hwnd;
-  result.u64[0] = int_from_ptr(win32_window);
+  result.u64[0] = IntFromPtr(win32_window);
   SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR)win32_window);
   os_set_cursor(OS_Cursor_Arrow);
 
@@ -310,7 +310,7 @@ os_window_open(String8 title, U32 width, U32 height)
 static void
 os_window_show(OS_Handle handle)
 {
-  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(handle.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)PtrFromInt(handle.u64[0]);
   ShowWindow(win32_window->hwnd, SW_SHOW);
 }
 
@@ -318,7 +318,7 @@ static Vec2U64
 os_client_area_from_window(OS_Handle handle)
 {
   Vec2U64 result = {};
-  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(handle.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)PtrFromInt(handle.u64[0]);
   RECT rect = {};
   GetClientRect(win32_window->hwnd, &rect);
   result.x = (U64)(rect.right - rect.left);
@@ -357,7 +357,7 @@ os_window_rect_from_window(OS_Handle handle)
 static void
 os_window_equip_repaint(OS_Handle window, OS_WindowRepaintProc *proc, void *user_data)
 {
-  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(window.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)PtrFromInt(window.u64[0]);
   win32_window->repaint = proc;
   win32_window->repaint_user_data = user_data;
 }
@@ -365,14 +365,14 @@ os_window_equip_repaint(OS_Handle window, OS_WindowRepaintProc *proc, void *user
 static void
 os_window_maximize(OS_Handle window)
 {
-  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(window.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)PtrFromInt(window.u64[0]);
   ShowWindow(win32_window->hwnd, SW_MAXIMIZE);
 }
 
 static void
 os_window_toggle_fullscreen(OS_Handle window)
 {
-  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(window.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)PtrFromInt(window.u64[0]);
   static WINDOWPLACEMENT prev_placement = {sizeof(prev_placement)};
   LONG window_style = GetWindowLong(win32_window->hwnd, GWL_STYLE);
   if(window_style & WS_OVERLAPPEDWINDOW)
@@ -419,7 +419,7 @@ os_events_from_window(Arena *arena, OS_Handle window)
 static Vec2F32
 os_window_dpi(OS_Handle handle)
 {
-  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(handle.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)PtrFromInt(handle.u64[0]);
   UINT dpi = GetDpiForWindow(win32_window->hwnd);
   Vec2F32 result = {};
   result.x = (F32)dpi;
@@ -430,7 +430,7 @@ os_window_dpi(OS_Handle handle)
 static Vec2F32
 os_mouse_pos(OS_Handle window)
 {
-  OS_Win32_Window *win32_window = (OS_Win32_Window *)ptr_from_int(window.u64[0]);
+  OS_Win32_Window *win32_window = (OS_Win32_Window *)PtrFromInt(window.u64[0]);
   Vec2F32 result = {};
   POINT point = {};
   GetCursorPos(&point);
@@ -499,7 +499,7 @@ os_set_clipboard(String8 string)
 {
   // TODO(hampus): Memory leak?
   HGLOBAL memory = GlobalAlloc(GMEM_MOVEABLE, string.size + 1);
-  memory_copy(GlobalLock(memory), string.data, string.size);
+  MemoryCopy(GlobalLock(memory), string.data, string.size);
   GlobalUnlock(memory);
   OpenClipboard(0);
   EmptyClipboard();

@@ -32,7 +32,7 @@ static DateTime
 build_date_from_context()
 {
   DateTime result = {};
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
 
   // NOTE(hampus): Date is in the format "M D Y"
   // Example: "Dec 15 2023"
@@ -43,12 +43,12 @@ build_date_from_context()
   String8 time = str8_cstr((char *)__TIME__);
 
   {
-    String8List date_list = str8_split_by_codepoints(scratch.arena, date, str8_lit(' '));
+    String8List date_list = str8_split_by_codepoints(scratch.arena, date, Str8Lit(' '));
 
     String8Node *node = date_list.first;
     String8 month = node->v;
 
-    for_each_enum_val(Month, m)
+    ForEachEnumVal(Month, m)
     {
       if(str8_match(month, string_from_month(m)))
       {
@@ -76,27 +76,27 @@ build_date_from_context()
 static String8
 string_from_os(OperatingSystem os)
 {
-  String8 result = str8_lit("");
+  String8 result = Str8Lit("");
   switch(os)
   {
     case OperatingSystem_Null:
     {
-      result = str8_lit("Null");
+      result = Str8Lit("Null");
     }
     break;
     case OperatingSystem_Windows:
     {
-      result = str8_lit("Windows");
+      result = Str8Lit("Windows");
     }
     break;
     case OperatingSystem_Linux:
     {
-      result = str8_lit("Linux");
+      result = Str8Lit("Linux");
     }
     break;
     case OperatingSystem_Mac:
     {
-      result = str8_lit("Mac");
+      result = Str8Lit("Mac");
     }
     break;
       invalid_case;
@@ -107,32 +107,32 @@ string_from_os(OperatingSystem os)
 static String8
 string_from_arch(Architecture arc)
 {
-  String8 result = str8_lit("");
+  String8 result = Str8Lit("");
   switch(arc)
   {
     case Architecture_Null:
     {
-      result = str8_lit("Null");
+      result = Str8Lit("Null");
     }
     break;
     case Architecture_X64:
     {
-      result = str8_lit("x64");
+      result = Str8Lit("x64");
     }
     break;
     case Architecture_X86:
     {
-      result = str8_lit("x86");
+      result = Str8Lit("x86");
     }
     break;
     case Architecture_ARM:
     {
-      result = str8_lit("ARM");
+      result = Str8Lit("ARM");
     }
     break;
     case Architecture_ARM64:
     {
-      result = str8_lit("ARM64");
+      result = Str8Lit("ARM64");
     }
     break;
       invalid_case;
@@ -144,42 +144,42 @@ string_from_arch(Architecture arc)
 static String8
 string_from_day_of_week(DayOfWeek day)
 {
-  String8 result = str8_lit("");
+  String8 result = Str8Lit("");
   switch(day)
   {
     case DayOfWeek_Monday:
     {
-      result = str8_lit("Monday");
+      result = Str8Lit("Monday");
     }
     break;
     case DayOfWeek_Tuesday:
     {
-      result = str8_lit("Tuesday");
+      result = Str8Lit("Tuesday");
     }
     break;
     case DayOfWeek_Wednesday:
     {
-      result = str8_lit("Wednesday");
+      result = Str8Lit("Wednesday");
     }
     break;
     case DayOfWeek_Thursday:
     {
-      result = str8_lit("Thursday");
+      result = Str8Lit("Thursday");
     }
     break;
     case DayOfWeek_Friday:
     {
-      result = str8_lit("Friday");
+      result = Str8Lit("Friday");
     }
     break;
     case DayOfWeek_Saturday:
     {
-      result = str8_lit("Saturday");
+      result = Str8Lit("Saturday");
     }
     break;
     case DayOfWeek_Sunday:
     {
-      result = str8_lit("Sunday");
+      result = Str8Lit("Sunday");
     }
     break;
       invalid_case;
@@ -190,67 +190,67 @@ string_from_day_of_week(DayOfWeek day)
 static String8
 string_from_month(Month month)
 {
-  String8 result = str8_lit("");
+  String8 result = Str8Lit("");
   switch(month)
   {
     case Month_Jan:
     {
-      result = str8_lit("Jan");
+      result = Str8Lit("Jan");
     }
     break;
     case Month_Feb:
     {
-      result = str8_lit("Feb");
+      result = Str8Lit("Feb");
     }
     break;
     case Month_Mar:
     {
-      result = str8_lit("Mar");
+      result = Str8Lit("Mar");
     }
     break;
     case Month_Apr:
     {
-      result = str8_lit("Apr");
+      result = Str8Lit("Apr");
     }
     break;
     case Month_May:
     {
-      result = str8_lit("May");
+      result = Str8Lit("May");
     }
     break;
     case Month_Jun:
     {
-      result = str8_lit("Jun");
+      result = Str8Lit("Jun");
     }
     break;
     case Month_Jul:
     {
-      result = str8_lit("Jul");
+      result = Str8Lit("Jul");
     }
     break;
     case Month_Aug:
     {
-      result = str8_lit("Aug");
+      result = Str8Lit("Aug");
     }
     break;
     case Month_Sep:
     {
-      result = str8_lit("Sep");
+      result = Str8Lit("Sep");
     }
     break;
     case Month_Oct:
     {
-      result = str8_lit("Oct");
+      result = Str8Lit("Oct");
     }
     break;
     case Month_Nov:
     {
-      result = str8_lit("Nov");
+      result = Str8Lit("Nov");
     }
     break;
     case Month_Dec:
     {
-      result = str8_lit("Dec");
+      result = Str8Lit("Dec");
     }
     break;
       invalid_case;
@@ -310,10 +310,10 @@ memory_size_from_bytes(U64 bytes)
 {
   StaticArray<String8, 4> units =
   {
-    str8_lit("KB"),
-    str8_lit("MB"),
-    str8_lit("GB"),
-    str8_lit("TB"),
+    Str8Lit("KB"),
+    Str8Lit("MB"),
+    Str8Lit("GB"),
+    Str8Lit("TB"),
   };
 
   MemorySize result;

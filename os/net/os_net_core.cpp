@@ -2,11 +2,11 @@ static OS_NetAddress
 os_net_address_from_str8(String8 string)
 {
   OS_NetAddress address = os_net_address_zero();
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   U64 colon_idx = 0;
   str8_first_index_of(string, ':', &colon_idx);
   String8 ip_string = str8_prefix(string, colon_idx);
-  String8List ip_segments = str8_split_by_codepoints(scratch.arena, ip_string, str8_lit(" "));
+  String8List ip_segments = str8_split_by_codepoints(scratch.arena, ip_string, Str8Lit(" "));
   U8 *dst = address.ip.u8;
   for(String8Node *n = ip_segments.first; n != 0; n = n->next)
   {

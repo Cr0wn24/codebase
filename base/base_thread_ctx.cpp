@@ -54,8 +54,8 @@ static void
 set_thread_ctx_name(String8 string)
 {
   ThreadCtx *ctx = get_thread_ctx();
-  ASSERT(string.size + 1 <= array_count(ctx->name));
-  memory_copy(ctx->name.val, string.data, string.size);
+  Assert(string.size + 1 <= array_count(ctx->name));
+  MemoryCopy(ctx->name.val, string.data, string.size);
   ctx->name[string.size] = 0;
   if(string.size != 0)
   {

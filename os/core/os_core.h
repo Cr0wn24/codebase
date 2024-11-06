@@ -158,6 +158,6 @@ static S32 os_entry_point(String8List args);
 //////////////////////////////
 // NOTE(hampus): Macro helpers
 
-#define os_mutex(mutex) defer_loop(os_mutex_take(mutex), os_mutex_release(mutex))
+#define os_mutex(mutex) DeferLoop(os_mutex_take(mutex), os_mutex_release(mutex))
 
 #endif // OS_CORE_H

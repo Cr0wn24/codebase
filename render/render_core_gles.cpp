@@ -31,8 +31,8 @@ r_gles_debug_callback(GLenum error, char *file, U64 line)
 #define X(enum)                                                                      \
   case enum:                                                                         \
   {                                                                                  \
-    os_print_debug_string("OpenGL error: %s in %s:%d", stringify(enum), file, line); \
-    ASSERT(false);                                                                   \
+    os_print_debug_string("OpenGL error: %s in %s:%d", Stringify(enum), file, line); \
+    Assert(false);                                                                   \
   }                                                                                  \
   break;
 
@@ -62,10 +62,10 @@ r_make_render_window_context(OS_Handle window_os)
   else
   {
     sll_stack_pop(r_gles_state->first_free_window);
-    memory_zero_struct(window);
+    MemoryZeroStruct(window);
   }
   window->window_os = window_os;
-  result.u64[0] = int_from_ptr(window);
+  result.u64[0] = IntFromPtr(window);
   return result;
 }
 
@@ -74,12 +74,12 @@ r_destroy_render_window_context(R_Handle handle)
 {
   if(!r_handle_match(handle, r_handle_zero()))
   {
-    R_GLES_Window *window = (R_GLES_Window *)ptr_from_int(handle.u64[0]);
+    R_GLES_Window *window = (R_GLES_Window *)PtrFromInt(handle.u64[0]);
     sll_stack_push(r_gles_state->first_free_window, window);
   }
   else
   {
-    os_print_debug_string(str8_lit("Tried to destroy a null render window context"));
+    os_print_debug_string(Str8Lit("Tried to destroy a null render window context"));
   }
 }
 
@@ -97,7 +97,7 @@ r_make_pipeline(R_PipelineDesc desc)
   else
   {
     sll_stack_pop(r_gles_state->first_free_pipeline);
-    memory_zero_struct(pipeline);
+    MemoryZeroStruct(pipeline);
   }
 
   GL_CALL(GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER));
@@ -112,7 +112,7 @@ r_make_pipeline(R_PipelineDesc desc)
     S32 info_log_length = 0;
     GL_CALL(glGetShaderInfoLog(vertex_shader, array_count(info_log), &info_log_length, (GLchar *)info_log.val));
     os_print_debug_string("Vertex shader failed to compile: %S", str8((U8 *)info_log.val, (U64)info_log_length));
-    ASSERT(false);
+    Assert(false);
   }
 
   GL_CALL(GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER));
@@ -126,7 +126,7 @@ r_make_pipeline(R_PipelineDesc desc)
     S32 info_log_length = 0;
     GL_CALL(glGetShaderInfoLog(fragment_shader, array_count(info_log), &info_log_length, (GLchar *)info_log.val));
     os_print_debug_string("Fragment shader failed to compile: %S", str8(info_log.val, (U64)info_log_length));
-    ASSERT(false);
+    Assert(false);
   }
 
   GL_CALL(pipeline->shader = glCreateProgram());
@@ -141,7 +141,7 @@ r_make_pipeline(R_PipelineDesc desc)
     S32 info_log_length = 0;
     GL_CALL(glGetProgramInfoLog(pipeline->shader, array_count(info_log), &info_log_length, (GLchar *)info_log.val));
     GL_CALL(os_print_debug_string("Shader program failed to link: %S", str8(info_log.val, (U64)info_log_length)));
-    ASSERT(false);
+    Assert(false);
   }
 
   GL_CALL(glDeleteShader(vertex_shader));
@@ -184,7 +184,7 @@ r_make_pipeline(R_PipelineDesc desc)
     break;
       invalid_case;
   }
-  result.u64[0] = int_from_ptr(pipeline);
+  result.u64[0] = IntFromPtr(pipeline);
   return result;
 }
 
@@ -193,7 +193,7 @@ r_destroy_pipeline(R_Handle handle)
 {
   if(!r_handle_match(handle, r_handle_zero()))
   {
-    R_GLES_Pipeline *pipeline = (R_GLES_Pipeline *)ptr_from_int(handle.u64[0]);
+    R_GLES_Pipeline *pipeline = (R_GLES_Pipeline *)PtrFromInt(handle.u64[0]);
     GL_CALL(glDeleteProgram(pipeline->shader));
     sll_stack_push(r_gles_state->first_free_pipeline, pipeline);
   }
@@ -215,13 +215,13 @@ r_make_buffer(R_BufferDesc desc)
   else
   {
     sll_stack_pop(r_gles_state->first_free_buffer);
-    memory_zero_struct(buffer);
+    MemoryZeroStruct(buffer);
   }
   GL_CALL(glGenBuffers(1, &buffer->vbo));
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo));
   GL_CALL(glBufferData(GL_ARRAY_BUFFER, desc.size, 0, GL_DYNAMIC_DRAW));
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-  result.u64[0] = int_from_ptr(buffer);
+  result.u64[0] = IntFromPtr(buffer);
   return result;
 }
 
@@ -230,7 +230,7 @@ r_destroy_buffer(R_Handle handle)
 {
   if(!r_handle_match(handle, r_handle_zero()))
   {
-    R_GLES_Buffer *buffer = (R_GLES_Buffer *)ptr_from_int(handle.u64[0]);
+    R_GLES_Buffer *buffer = (R_GLES_Buffer *)PtrFromInt(handle.u64[0]);
     GL_CALL(glDeleteBuffers(1, &buffer->vbo));
     sll_stack_push(r_gles_state->first_free_buffer, buffer);
   }
@@ -248,7 +248,7 @@ r_make_tex2d_from_bitmap(void *data, U32 width, U32 height)
   else
   {
     sll_stack_pop(r_gles_state->first_free_tex2d);
-    memory_zero_struct(tex2d);
+    MemoryZeroStruct(tex2d);
   }
 
   GL_CALL(glGenTextures(1, &tex2d->texture));
@@ -264,7 +264,7 @@ r_make_tex2d_from_bitmap(void *data, U32 width, U32 height)
   tex2d->width = width;
   tex2d->height = height;
 
-  result.u64[0] = int_from_ptr(tex2d);
+  result.u64[0] = IntFromPtr(tex2d);
 
   return result;
 }
@@ -278,7 +278,7 @@ r_make_tex2d_from_memory(String8 data)
   S32 channels = 0;
   U8 *bitmap_data = stbi_load_from_memory(data.data, data.size, &width, &height, &channels, 0);
   result = r_make_tex2d_from_bitmap(bitmap_data, safe_u32_from_s32(width), safe_u32_from_s32(height));
-  ASSERT(channels == 4);
+  Assert(channels == 4);
   return result;
 }
 
@@ -287,7 +287,7 @@ r_destroy_tex2d(R_Handle handle)
 {
   if(!r_handle_match(handle, r_handle_zero()))
   {
-    R_GLES_Tex2D *texture = (R_GLES_Tex2D *)ptr_from_int(handle.u64[0]);
+    R_GLES_Tex2D *texture = (R_GLES_Tex2D *)PtrFromInt(handle.u64[0]);
     GL_CALL(glDeleteTextures(1, &texture->texture));
     sll_stack_push(r_gles_state->first_free_tex2d, texture);
   }
@@ -302,7 +302,7 @@ r_update_tex2d_contents(R_Handle handle, void *memory)
 {
   if(!r_handle_match(handle, r_handle_zero()))
   {
-    R_GLES_Tex2D *texture = (R_GLES_Tex2D *)ptr_from_int(handle.u64[0]);
+    R_GLES_Tex2D *texture = (R_GLES_Tex2D *)PtrFromInt(handle.u64[0]);
     GL_CALL(glBindTexture(GL_TEXTURE_2D, texture->texture));
     GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, memory));
     GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
@@ -316,7 +316,7 @@ r_update_tex2d_contents(R_Handle handle, void *memory)
 static void
 r_begin_pass(Vec4F32 clear_color)
 {
-  arena_clear(r_gles_state->frame_arena);
+  ArenaClear(r_gles_state->frame_arena);
   GL_CALL(glDisable(GL_SCISSOR_TEST));
   GL_CALL(glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a));
   GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -358,7 +358,7 @@ r_commit()
 {
   if(r_gles_state->active_window_context == 0)
   {
-    os_print_debug_string(str8_lit("Tried to commit the renderer without an active window context"));
+    os_print_debug_string(Str8Lit("Tried to commit the renderer without an active window context"));
   }
   else
   {
@@ -373,7 +373,7 @@ r_apply_pipeline(R_Handle pipeline)
 {
   if(!r_handle_match(pipeline, r_handle_zero()))
   {
-    r_gles_state->active_pipeline = (R_GLES_Pipeline *)ptr_from_int(pipeline.u64[0]);
+    r_gles_state->active_pipeline = (R_GLES_Pipeline *)PtrFromInt(pipeline.u64[0]);
     GL_CALL(glEnable(GL_BLEND));
     GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GL_CALL(glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO));
@@ -382,7 +382,7 @@ r_apply_pipeline(R_Handle pipeline)
   }
   else
   {
-    os_print_debug_string(str8_lit("Tried to apply a null pipeline"));
+    os_print_debug_string(Str8Lit("Tried to apply a null pipeline"));
     // TODO(hampus): logging
   }
 }
@@ -423,7 +423,7 @@ r_apply_vertex_buffer(R_Handle buffer, U64 stride)
 {
   if(!r_handle_match(buffer, r_handle_zero()))
   {
-    r_gles_state->active_buffer = (R_GLES_Buffer *)ptr_from_int(buffer.u64[0]);
+    r_gles_state->active_buffer = (R_GLES_Buffer *)PtrFromInt(buffer.u64[0]);
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, r_gles_state->active_buffer->vbo));
     if(r_gles_state->active_pipeline != 0)
     {
@@ -440,12 +440,12 @@ r_apply_vertex_buffer(R_Handle buffer, U64 stride)
     }
     else
     {
-      os_print_debug_string(str8_lit("Need an active pipeline to apply a buffer!"));
+      os_print_debug_string(Str8Lit("Need an active pipeline to apply a buffer!"));
     }
   }
   else
   {
-    os_print_debug_string(str8_lit("Tried to apply a null vertex buffer"));
+    os_print_debug_string(Str8Lit("Tried to apply a null vertex buffer"));
   }
 }
 
@@ -459,12 +459,12 @@ r_apply_tex2d(R_Handle tex2d)
 {
   if(!r_handle_match(tex2d, r_handle_zero()))
   {
-    r_gles_state->active_tex2d = (R_GLES_Tex2D *)ptr_from_int(tex2d.u64[0]);
+    r_gles_state->active_tex2d = (R_GLES_Tex2D *)PtrFromInt(tex2d.u64[0]);
     GL_CALL(glBindTexture(GL_TEXTURE_2D, r_gles_state->active_tex2d->texture));
   }
   else
   {
-    os_print_debug_string(str8_lit("Tried to apply a null tex2d"));
+    os_print_debug_string(Str8Lit("Tried to apply a null tex2d"));
   }
 }
 
@@ -473,11 +473,11 @@ r_apply_window_context(R_Handle window_context)
 {
   if(!r_handle_match(window_context, r_handle_zero()))
   {
-    r_gles_state->active_window_context = (R_GLES_Window *)ptr_from_int(window_context.u64[0]);
+    r_gles_state->active_window_context = (R_GLES_Window *)PtrFromInt(window_context.u64[0]);
   }
   else
   {
-    os_print_debug_string(str8_lit("Tried to apply a null window context"));
+    os_print_debug_string(Str8Lit("Tried to apply a null window context"));
   }
 }
 
@@ -498,21 +498,21 @@ r_fill_buffer(R_Handle handle, R_FillBufferDesc desc)
 {
   if(!r_handle_match(handle, r_handle_zero()))
   {
-    R_GLES_Buffer *buffer = (R_GLES_Buffer *)ptr_from_int(handle.u64[0]);
+    R_GLES_Buffer *buffer = (R_GLES_Buffer *)PtrFromInt(handle.u64[0]);
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo));
     GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, desc.data.size, desc.data.data));
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
   }
   else
   {
-    os_print_debug_string(str8_lit("Tried to fill a null buffer"));
+    os_print_debug_string(Str8Lit("Tried to fill a null buffer"));
   }
 }
 
 static void
 r_gles_set_uniform_4x4f32(String8 name, U8 *data)
 {
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   GL_CALL(GLint loc = glGetUniformLocation(r_gles_state->active_pipeline->shader, cstr_from_str8(scratch.arena, name)));
   GL_CALL(glUniformMatrix4fv(loc, 1, GL_FALSE, (F32 *)data));
 }

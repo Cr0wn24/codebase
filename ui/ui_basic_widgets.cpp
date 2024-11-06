@@ -90,7 +90,6 @@ ui_check(B32 b32, String8 string)
   UI_Comm comm = ui_comm_from_box(box);
   ui_parent(box)
   {
-    ui_next_font_tag(ui_state->default_icon_font_tag);
     ui_next_pref_width(ui_pct(1, 1));
     ui_next_pref_height(ui_pct(1, 1));
     UI_Box *check_box = ui_box_make(0);
@@ -98,7 +97,7 @@ ui_check(B32 b32, String8 string)
     {
       check_box->flags |= UI_BoxFlag_DrawText;
     }
-    ui_box_equip_display_string(check_box, ui_str8_from_icon(UI_Icon_Ok));
+    ui_box_equip_display_string(check_box, ui_str8_from_icon(UI_Icon_Check));
   }
   return (comm);
 }
@@ -136,15 +135,15 @@ ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, Array<U8> 
   String8 after_range = str8_skip(edit_str, max_range);
   if(before_range.size != 0)
   {
-    memory_copy(new_buffer.data, before_range.data, before_range.size);
+    MemoryCopy(new_buffer.data, before_range.data, before_range.size);
   }
   if(replace_str.size != 0)
   {
-    memory_copy(new_buffer.data + min_range, replace_str.data, replace_str.size);
+    MemoryCopy(new_buffer.data + min_range, replace_str.data, replace_str.size);
   }
   if(after_range.size != 0)
   {
-    memory_copy(new_buffer.data + min_range + replace_str.size, after_range.data, after_range.size);
+    MemoryCopy(new_buffer.data + min_range + replace_str.size, after_range.data, after_range.size);
   }
   new_buffer.size = min(new_buffer.size, array_count(buffer));
   return (new_buffer);
@@ -153,7 +152,7 @@ ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, Array<U8> 
 static S64
 ui_codepoint_index_from_mouse_pos(UI_Box *box, String8 edit_str)
 {
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   S64 result = S64_MAX;
   Vec2F32 mouse_pos = ui_state->mouse_pos;
   if(mouse_pos.x < box->fixed_rect.x0)
@@ -188,7 +187,7 @@ static UI_Comm
 ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length, String8 string)
 {
   UI_Comm comm = {};
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   ui_seed(ui_hash_from_seed_string(ui_top_seed(), string))
   {
     String8 buffer_str8 = str8(buffer.val, array_count(buffer));
@@ -233,7 +232,7 @@ ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length,
         }
 
         String8 new_str = ui_push_replace_string(scratch.arena, edit_str, op.range, buffer, op.replace_string);
-        memory_copy(buffer.val, new_str.data, new_str.size);
+        MemoryCopy(buffer.val, new_str.data, new_str.size);
         *string_length = new_str.size;
         edit_str.size = new_str.size;
 
@@ -252,7 +251,7 @@ ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length,
         UI_Box *cursor_box = ui_box_make(UI_BoxFlag_DrawBackground |
                                          UI_BoxFlag_FixedPos |
                                          UI_BoxFlag_AnimatePos,
-                                         str8_lit("CursorBox"));
+                                         Str8Lit("CursorBox"));
 
         {
           F32 advance_to_mark = f_get_advance(ui_top_font_tag(), ui_top_font_size(), str8_prefix(buffer_str8, (U64)edit_state->mark));
@@ -270,7 +269,7 @@ ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length,
           ui_next_pref_height(ui_pct(1, 1));
           UI_Box *mark_box = ui_box_make(UI_BoxFlag_DrawBackground |
                                          UI_BoxFlag_FixedPos,
-                                         str8_lit("MarkBox"));
+                                         Str8Lit("MarkBox"));
         }
         // NOTE(hampus): Make sure the cursor is in view
         F32 edit_str_advance = f_get_advance(ui_top_font_tag(), ui_top_font_size(), edit_str);
@@ -352,7 +351,7 @@ ui_begin_named_row(char *fmt, ...)
 static UI_Box *
 ui_begin_row()
 {
-  UI_Box *box = ui_begin_named_row(str8_lit(""));
+  UI_Box *box = ui_begin_named_row(Str8Lit(""));
   return box;
 }
 
@@ -391,7 +390,7 @@ ui_begin_named_column(char *fmt, ...)
 static UI_Box *
 ui_begin_column()
 {
-  UI_Box *box = ui_begin_named_column(str8_lit(""));
+  UI_Box *box = ui_begin_named_column(Str8Lit(""));
   return box;
 }
 
@@ -405,12 +404,12 @@ static UI_Box *
 ui_push_scrollable_container(String8 string, Axis2 axis)
 {
   ui_push_seed(ui_hash_from_seed_string(ui_top_seed(), string));
-  UI_Box *view_box = ui_box_make(UI_BoxFlag_ViewScroll | UI_BoxFlag_Clip, str8_lit("ViewBox"));
+  UI_Box *view_box = ui_box_make(UI_BoxFlag_ViewScroll | UI_BoxFlag_Clip, Str8Lit("ViewBox"));
   ui_push_parent(view_box);
   ui_next_pref_size(axis_flip(axis), ui_fill());
   ui_next_pref_size(axis, ui_children_sum(1));
   ui_next_child_layout_axis(axis);
-  UI_Box *content_box = ui_box_make((UI_BoxFlags)(UI_BoxFlag_AllowOverflowX << axis), str8_lit("ContentBox"));
+  UI_Box *content_box = ui_box_make((UI_BoxFlags)(UI_BoxFlag_AllowOverflowX << axis), Str8Lit("ContentBox"));
   ui_push_parent(content_box);
   return view_box;
 }

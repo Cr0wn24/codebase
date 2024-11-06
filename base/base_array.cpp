@@ -53,7 +53,7 @@ template <typename T>
 static DynamicArray<T>
 dynamic_array_alloc()
 {
-  profile_function();
+  ProfileFunction();
   DynamicArray<T> result = {};
   result.cap = DYNAMIC_ARRAY_DEFAULT_RESERVE_SIZE;
   result.base = (T *)os_memory_reserve(result.cap);
@@ -64,7 +64,7 @@ template <typename T>
 static DynamicArray<T>
 dynamic_array_alloc(U64 size)
 {
-  profile_function();
+  ProfileFunction();
   DynamicArray<T> result = {};
   result.cap = DYNAMIC_ARRAY_DEFAULT_RESERVE_SIZE;
   result.base = (T *)os_memory_reserve(result.cap);
@@ -76,7 +76,7 @@ template <typename T>
 static void
 dynamic_array_free(DynamicArray<T> &array)
 {
-  profile_function();
+  ProfileFunction();
   os_memory_release(array.base, 0);
   array.cap = 0;
   array.commit_size = 0;
@@ -103,22 +103,22 @@ template <typename T>
 static void
 dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count)
 {
-  profile_function();
+  ProfileFunction();
   U64 clamped_dst_idx = min(array_count(array), idx);
   U64 clamped_count = min(array_count(array) - clamped_dst_idx, count);
   U64 clamped_size = clamped_count * sizeof(T);
   T *dst = &array.base[clamped_dst_idx];
-  memory_copy(dst, val, clamped_size);
+  MemoryCopy(dst, val, clamped_size);
 }
 
 template <typename T>
 static void
 dynamic_array_resize(DynamicArray<T> &array, U64 new_count)
 {
-  profile_function();
+  ProfileFunction();
 
   U64 new_size_in_bytes = new_count * sizeof(T);
-  ASSERT(new_size_in_bytes <= array.cap);
+  Assert(new_size_in_bytes <= array.cap);
   U64 size_aligned = round_up_to_power_2_u64(new_size_in_bytes, ARENA_COMMIT_BLOCK_SIZE);
   if(new_size_in_bytes > array.pos)
   {
@@ -151,10 +151,10 @@ template <typename T>
 static void
 dynamic_array_move_memory(DynamicArray<T> &array, U64 dst_idx, U64 src_idx, U64 count)
 {
-  profile_function();
+  ProfileFunction();
   U64 clamped_dst_idx = min(array_count(array), dst_idx);
   U64 clamped_src_idx = min(array_count(array), src_idx);
   T *dst = &array.base[clamped_dst_idx];
   T *src = &array.base[clamped_src_idx];
-  memory_move(dst, src, count * sizeof(T));
+  MemoryMove(dst, src, count * sizeof(T));
 }

@@ -27,161 +27,7 @@ struct UI_Key
 
 enum UI_Icon
 {
-  UI_Icon_Search,
-  UI_Icon_Mail,
-  UI_Icon_MailAlt,
-  UI_Icon_Heart,
-  UI_Icon_HeartEmpty,
-  UI_Icon_Star,
-  UI_Icon_StarEmpty,
-  UI_Icon_User,
-  UI_Icon_Videocam,
-  UI_Icon_Picture,
-  UI_Icon_Camera,
-  UI_Icon_ThLarge,
-  UI_Icon_Th,
-  UI_Icon_ThList,
-  UI_Icon_Ok,
-  UI_Icon_OkCircled,
-  UI_Icon_OkCircled2,
-  UI_Icon_OkSquared,
-  UI_Icon_Cancel,
-  UI_Icon_CancelCircled,
-  UI_Icon_CancelCircled2,
-  UI_Icon_Plus,
-  UI_Icon_PlusSquared,
-  UI_Icon_PlusSquaredAlt,
-  UI_Icon_Minus,
-  UI_Icon_MinusCircled,
-  UI_Icon_MinusSquared,
-  UI_Icon_MinusSquaredAlt,
-  UI_Icon_PlusCircled,
-  UI_Icon_Help,
-  UI_Icon_InfoCircled,
-  UI_Icon_Info,
-  UI_Icon_Home,
-  UI_Icon_Link,
-  UI_Icon_Unlink,
-  UI_Icon_LinkExt,
-  UI_Icon_LinkExtAlt,
-  UI_Icon_Attach,
-  UI_Icon_Lock,
-  UI_Icon_LockOpenAlt,
-  UI_Icon_LockOpen,
-  UI_Icon_Pin,
-  UI_Icon_Eye,
-  UI_Icon_EyeOff,
-  UI_Icon_Bookmark,
-  UI_Icon_BookmarkEmpty,
-  UI_Icon_ThumbsUpAlt,
-  UI_Icon_ThumbsDownAlt,
-  UI_Icon_Download,
-  UI_Icon_Upload,
-  UI_Icon_Reply,
-  UI_Icon_ReplyAll,
-  UI_Icon_Forward,
-  UI_Icon_Export,
-  UI_Icon_ExportAlt,
-  UI_Icon_Pencil,
-  UI_Icon_PencilSquared,
-  UI_Icon_Edit,
-  UI_Icon_AttentionAlt,
-  UI_Icon_Attention,
-  UI_Icon_AttentionCircled,
-  UI_Icon_Trash,
-  UI_Icon_TrashEmpty,
-  UI_Icon_Doc,
-  UI_Icon_Docs,
-  UI_Icon_DocText,
-  UI_Icon_DocInv,
-  UI_Icon_DocTextInv,
-  UI_Icon_FileImage,
-  UI_Icon_Folder,
-  UI_Icon_FolderOpen,
-  UI_Icon_FolderOpenEmpty,
-  UI_Icon_FolderEmpty,
-  UI_Icon_Box,
-  UI_Icon_Menu,
-  UI_Icon_Cog,
-  UI_Icon_Sliders,
-  UI_Icon_Calendar,
-  UI_Icon_CalendarEmpty,
-  UI_Icon_Login,
-  UI_Icon_Logout,
-  UI_Icon_Block,
-  UI_Icon_ResizeFull,
-  UI_Icon_ResizeFullAlt,
-  UI_Icon_ResizeSmall,
-  UI_Icon_ResizeVertical,
-  UI_Icon_ResizeHorizontal,
-  UI_Icon_Move,
-  UI_Icon_DownOpen,
-  UI_Icon_LeftOpen,
-  UI_Icon_RightOpen,
-  UI_Icon_UpOpen,
-  UI_Icon_AngleLeft,
-  UI_Icon_AngleRight,
-  UI_Icon_AngleUp,
-  UI_Icon_AngleDown,
-  UI_Icon_AngleCircledLeft,
-  UI_Icon_AngleCircledRight,
-  UI_Icon_AngleCircledUp,
-  UI_Icon_AngleCircledDown,
-  UI_Icon_Down,
-  UI_Icon_Left,
-  UI_Icon_Right,
-  UI_Icon_Up,
-  UI_Icon_DownBig,
-  UI_Icon_LeftBig,
-  UI_Icon_RightBig,
-  UI_Icon_UpBig,
-  UI_Icon_Cw,
-  UI_Icon_Ccw,
-  UI_Icon_Desktop,
-  UI_Icon_Laptop,
-  UI_Icon_Tablet,
-  UI_Icon_Mobile,
-  UI_Icon_Inbox,
-  UI_Icon_AlignLeft,
-  UI_Icon_AlignCenter,
-  UI_Icon_AlignRight,
-  UI_Icon_AlignJustify,
-  UI_Icon_List,
-  UI_Icon_ListBullet,
-  UI_Icon_ListNumbered,
-  UI_Icon_Columns,
-  UI_Icon_Table,
-  UI_Icon_Ellipsis,
-  UI_Icon_EllipsisVert,
-  UI_Icon_Filter,
-  UI_Icon_ChartBar,
-  UI_Icon_ChartArea,
-  UI_Icon_ChartPie,
-  UI_Icon_ChartLine,
-  UI_Icon_Circle,
-  UI_Icon_CircleEmpty,
-  UI_Icon_CircleThin,
-  UI_Icon_CheckEmpty,
   UI_Icon_Check,
-  UI_Icon_ToggleOn,
-  UI_Icon_ToggleOff,
-  UI_Icon_Adjust,
-  UI_Icon_SortAltUp,
-  UI_Icon_SortAltDown,
-  UI_Icon_SortNameUp,
-  UI_Icon_SortNameDown,
-  UI_Icon_SortNumberUp,
-  UI_Icon_SortNumberDown,
-  UI_Icon_GithubCircled,
-  UI_Icon_FacebookOfficial,
-  UI_Icon_FacebookSquared,
-  UI_Icon_Facebook,
-  UI_Icon_LinkedinSquared,
-  UI_Icon_Linkedin,
-  UI_Icon_Youtube,
-  UI_Icon_TwitterSquared,
-  UI_Icon_Twitter,
-
   UI_Icon_COUNT,
 };
 
@@ -477,7 +323,6 @@ struct UI_State
   UI_Key next_ctx_menu_anchor_key;
   Vec2F32 next_anchor_offset;
 
-  F_Tag default_icon_font_tag;
   F_Tag default_font_tag;
 
   U64 build_idx;
@@ -486,12 +331,12 @@ struct UI_State
   OS_EventList *os_events;
   OS_Handle os_window;
 
+  StaticArray<String8, UI_Icon_COUNT> icon_to_string_table;
+
   Vec2F32 mouse_pos;
   Vec2F32 prev_mouse_pos;
 
   B32 draw_debug_lines;
-
-  StaticArray<String8, UI_Icon_COUNT> ui_icon_to_string_table;
 
 #define X(name_upper, name_lower, type) ui_##name_upper##Node *name_lower##_stack;
   stack_values
@@ -521,7 +366,7 @@ struct UI_State
 //////////////////////////////
 // NOTE(hampus): Init
 
-static void ui_init(String8 default_font_path, String8 default_icon_path);
+static void ui_init();
 
 //////////////////////////////
 // NOTE(hampus): Begin/End
@@ -603,32 +448,32 @@ static void ui_pop_fixed_rect();
 #  define ui_comm_from_box(box) ui_comm_from_box__mouse(box)
 #endif
 
-#define ui_ctx_menu(key) defer_loop_checked(ui_ctx_menu_begin(key), ui_ctx_menu_end())
+#define ui_ctx_menu(key) DeferLoopChecked(ui_ctx_menu_begin(key), ui_ctx_menu_end())
 
-#define ui_seed(seed) defer_loop(ui_push_seed(seed), ui_pop_seed())
-#define ui_parent(box) defer_loop(ui_push_parent(box), ui_pop_parent())
+#define ui_seed(seed) DeferLoop(ui_push_seed(seed), ui_pop_seed())
+#define ui_parent(box) DeferLoop(ui_push_parent(box), ui_pop_parent())
 
 #define ui_size_from_axis(root, axis) ((UI_Size[]){root->pref_width, root->pref_height})[axis]
 
-#define ui_rect_color(new_val) defer_loop(ui_push_rect_color(new_val), ui_pop_rect_color())
-#define ui_border_color(new_val) defer_loop(ui_push_border_color(new_val), ui_pop_border_color())
-#define ui_border_thickness(new_val) defer_loop(ui_push_border_thickness(new_val), ui_pop_border_thickness())
-#define ui_corner_radius(new_val) defer_loop(ui_push_corner_radius(new_val), ui_pop_corner_radius())
-#define ui_softness(new_val) defer_loop(ui_push_softness(new_val), ui_pop_softness())
-#define ui_hover_cursor(new_val) defer_loop(ui_push_hover_cursor(new_val), ui_pop_hover_cursor())
-#define ui_slice(new_val) defer_loop(ui_push_slice(new_val), ui_pop_slice())
-#define ui_text_color(new_val) defer_loop(ui_push_text_color(new_val), ui_pop_text_color())
-#define ui_rel_pos(new_val) defer_loop(ui_push_fixed_pos(new_val), ui_pop_rel_pos())
-#define ui_child_layout_axis(new_val) defer_loop(ui_push_child_layout_axis(new_val), ui_pop_child_layout_axis())
-#define ui_box_flags(new_val) defer_loop(ui_push_box_flags(new_val), ui_pop_box_flags())
-#define ui_font_tag(new_val) defer_loop(ui_push_font_tag(new_val), ui_pop_font_tag())
-#define ui_font_size(new_val) defer_loop(ui_push_font_size(new_val), ui_pop_font_size())
-#define ui_text_padding(new_val) defer_loop(ui_push_text_padding(new_val), ui_pop_text_padding())
-#define ui_text_align(new_val) defer_loop(ui_push_text_align(new_val), ui_pop_text_align())
-#define ui_pref_width(new_val) defer_loop(ui_push_pref_width(new_val), ui_pop_pref_width())
-#define ui_pref_height(new_val) defer_loop(ui_push_pref_height(new_val), ui_pop_pref_height())
-#define ui_alpha(new_val) defer_loop(ui_push_alpha(new_val), ui_pop_alpha())
-#define ui_pref_size(axis, new_val) defer_loop(ui_push_pref_size(axis, new_val), ui_pop_pref_size(axis))
+#define ui_rect_color(new_val) DeferLoop(ui_push_rect_color(new_val), ui_pop_rect_color())
+#define ui_border_color(new_val) DeferLoop(ui_push_border_color(new_val), ui_pop_border_color())
+#define ui_border_thickness(new_val) DeferLoop(ui_push_border_thickness(new_val), ui_pop_border_thickness())
+#define ui_corner_radius(new_val) DeferLoop(ui_push_corner_radius(new_val), ui_pop_corner_radius())
+#define ui_softness(new_val) DeferLoop(ui_push_softness(new_val), ui_pop_softness())
+#define ui_hover_cursor(new_val) DeferLoop(ui_push_hover_cursor(new_val), ui_pop_hover_cursor())
+#define ui_slice(new_val) DeferLoop(ui_push_slice(new_val), ui_pop_slice())
+#define ui_text_color(new_val) DeferLoop(ui_push_text_color(new_val), ui_pop_text_color())
+#define ui_rel_pos(new_val) DeferLoop(ui_push_fixed_pos(new_val), ui_pop_rel_pos())
+#define ui_child_layout_axis(new_val) DeferLoop(ui_push_child_layout_axis(new_val), ui_pop_child_layout_axis())
+#define ui_box_flags(new_val) DeferLoop(ui_push_box_flags(new_val), ui_pop_box_flags())
+#define ui_font_tag(new_val) DeferLoop(ui_push_font_tag(new_val), ui_pop_font_tag())
+#define ui_font_size(new_val) DeferLoop(ui_push_font_size(new_val), ui_pop_font_size())
+#define ui_text_padding(new_val) DeferLoop(ui_push_text_padding(new_val), ui_pop_text_padding())
+#define ui_text_align(new_val) DeferLoop(ui_push_text_align(new_val), ui_pop_text_align())
+#define ui_pref_width(new_val) DeferLoop(ui_push_pref_width(new_val), ui_pop_pref_width())
+#define ui_pref_height(new_val) DeferLoop(ui_push_pref_height(new_val), ui_pop_pref_height())
+#define ui_alpha(new_val) DeferLoop(ui_push_alpha(new_val), ui_pop_alpha())
+#define ui_pref_size(axis, new_val) DeferLoop(ui_push_pref_size(axis, new_val), ui_pop_pref_size(axis))
 
 // hampus: Extra macro wrappers
 

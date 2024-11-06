@@ -75,8 +75,8 @@ atlas_region_alloc(Arena *arena, Atlas *atlas, Vec2U64 dim)
     }
   }
 
-  ASSERT(!(node->flags & AtlasRegionFlag_DescendantTaken));
-  ASSERT(!(node->flags & AtlasRegionFlag_Taken));
+  Assert(!(node->flags & AtlasRegionFlag_DescendantTaken));
+  Assert(!(node->flags & AtlasRegionFlag_Taken));
 
   node->flags |= AtlasRegionFlag_Taken;
 
@@ -97,7 +97,7 @@ atlas_region_alloc(Arena *arena, Atlas *atlas, Vec2U64 dim)
     parent->max_region_size = max;
   }
 
-  ASSERT(node);
+  Assert(node);
 
   result.min = node->region.min;
   result.max = node->region.min + dim;
@@ -118,7 +118,7 @@ atlas_region_free(Atlas *atlas, RectU64 region)
        node->region.max.x == region.max.x &&
        node->region.max.y == region.max.y)
     {
-      ASSERT(node->flags &= AtlasRegionFlag_Taken);
+      Assert(node->flags &= AtlasRegionFlag_Taken);
       node->flags ^= AtlasRegionFlag_Taken;
       break;
     }

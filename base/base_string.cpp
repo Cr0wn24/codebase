@@ -27,7 +27,7 @@ str8(Arena *arena, String8 string)
   String8 result = {};
   result.size = string.size;
   result.data = push_array_no_zero<U8>(arena, result.size);
-  memory_copy(result.data, string.data, result.size);
+  MemoryCopy(result.data, string.data, result.size);
   return result;
 }
 
@@ -147,7 +147,7 @@ str8_push(Arena *arena, String8 string)
 {
   String8 result = {};
   U8 *data = push_array_no_zero<U8>(arena, string.size);
-  memory_copy(data, string.data, string.size);
+  MemoryCopy(data, string.data, string.size);
   result.data = data;
   result.size = string.size;
   return result;
@@ -383,7 +383,7 @@ str8_join(Arena *arena, String8List *list)
   U8 *ptr = data;
   for(String8Node *node = list->first; node; node = node->next)
   {
-    memory_copy(ptr, node->v.data, node->v.size);
+    MemoryCopy(ptr, node->v.data, node->v.size);
     ptr += node->v.size;
   }
 
@@ -396,8 +396,8 @@ str8_append(Arena *arena, String8 first, String8 last)
   String8 result = {};
   result.size = first.size + last.size;
   result.data = push_array_no_zero<U8>(arena, result.size);
-  memory_copy(result.data, first.data, first.size);
-  memory_copy(result.data + first.size, last.data, last.size);
+  MemoryCopy(result.data, first.data, first.size);
+  MemoryCopy(result.data + first.size, last.data, last.size);
   return result;
 }
 
@@ -548,7 +548,7 @@ str32_copy(Arena *arena, String32 string)
 {
   String32 result = {};
   U32 *data = push_array_no_zero<U32>(arena, string.size);
-  memory_copy(data, string.data, string.size * sizeof(U32));
+  MemoryCopy(data, string.data, string.size * sizeof(U32));
   result.data = data;
   result.size = string.size;
   return result;
@@ -560,8 +560,8 @@ str32_append(Arena *arena, String32 first, String32 last)
   String32 result = {};
   result.size = first.size + last.size;
   result.data = push_array_no_zero<U32>(arena, result.size);
-  memory_copy(result.data, first.data, first.size * sizeof(U32));
-  memory_copy(result.data + first.size, last.data, last.size * sizeof(U32));
+  MemoryCopy(result.data, first.data, first.size * sizeof(U32));
+  MemoryCopy(result.data + first.size, last.data, last.size * sizeof(U32));
   return result;
 }
 
@@ -571,7 +571,7 @@ str32_push(Arena *arena, U32 *data, U64 size)
   String32 result = {};
   result.size = size;
   result.data = push_array_no_zero<U32>(arena, size);
-  memory_copy(result.data, data, size * sizeof(U32));
+  MemoryCopy(result.data, data, size * sizeof(U32));
   return result;
 }
 
@@ -807,7 +807,7 @@ string_decode_utf16(U16 *string, U64 size)
 }
 
 static U64
-string_encode_utf16(U16 *dst, U32 codepoint)
+string_encode_utf16(wchar_t *dst, U32 codepoint)
 {
   U64 size = 0;
   if(codepoint < 0x10000)
@@ -884,9 +884,9 @@ static String16
 str16_from_str8(Arena *arena, String8 string)
 {
   U64 allocated_size = string.size;
-  U16 *memory = push_array_no_zero<U16>(arena, allocated_size);
+  wchar_t *memory = push_array_no_zero<wchar_t>(arena, allocated_size);
 
-  U16 *dst_ptr = memory;
+  wchar_t *dst_ptr = memory;
   U8 *ptr = string.data;
   U8 *opl = string.data + string.size;
 
@@ -902,7 +902,7 @@ str16_from_str8(Arena *arena, String8 string)
   U64 unused_size = allocated_size - string_size;
   arena_pop_amount(arena, unused_size * sizeof(*memory));
 
-  String16 result = str16(memory, string_size);
+  String16 result = str16((U16 *)memory, string_size);
   return result;
 }
 
@@ -952,17 +952,17 @@ cstr_from_str8(Arena *arena, String8 string)
 {
   U64 allocated_size = string.size + 1;
   U8 *memory = push_array_no_zero<U8>(arena, allocated_size);
-  memory_copy(memory, string.data, string.size);
+  MemoryCopy(memory, string.data, string.size);
   memory[string.size] = 0;
   return ((char *)memory);
 }
 
-static U16 *
+static wchar_t *
 cstr16_from_str8(Arena *arena, String8 string)
 {
   U64 allocated_size = string.size + 1;
-  U16 *memory = push_array_no_zero<U16>(arena, allocated_size);
-  U16 *dst_ptr = memory;
+  wchar_t *memory = push_array_no_zero<wchar_t>(arena, allocated_size);
+  wchar_t *dst_ptr = memory;
   U8 *ptr = string.data;
   U8 *opl = string.data + string.size;
   while(ptr < opl)
@@ -976,16 +976,16 @@ cstr16_from_str8(Arena *arena, String8 string)
   U64 string_size = (U64)(dst_ptr - memory);
   U64 unused_size = allocated_size - string_size - 1;
   arena_pop_amount(arena, unused_size * sizeof(*memory));
-  return (memory);
+  return memory;
 }
 
 static String16
 cstr16_from_str32(Arena *arena, String32 string)
 {
   U64 allocated_size = string.size * 2 + 1;
-  U16 *memory = push_array_no_zero<U16>(arena, allocated_size);
+  wchar_t *memory = push_array_no_zero<wchar_t>(arena, allocated_size);
 
-  U16 *dst_ptr = memory;
+  wchar_t *dst_ptr = memory;
   U32 *ptr = string.data;
   U32 *opl = string.data + string.size;
 
@@ -1001,7 +1001,7 @@ cstr16_from_str32(Arena *arena, String32 string)
   arena_pop_amount(arena, unused_size * sizeof(*memory));
 
   String16 result = {};
-  result.data = memory;
+  result.data = (U16 *)memory;
   result.size = string_size;
   return result;
 }
@@ -1186,7 +1186,7 @@ f64_from_str8(String8 string, F64 *dst)
     }
   }
 
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   char *cstr = cstr_from_str8(scratch.arena, str8_prefix(string, bytes_read));
 
   *dst = atof(cstr);
@@ -1209,10 +1209,10 @@ is_num(U8 ch)
 static String8
 cstr_format(U8 *buffer, U64 buffer_size, char *cstr, va_list args)
 {
-  TempArena scratch = get_scratch(0, 0);
+  TempArena scratch = GetScratch(0, 0);
   String8 string = str8_push(scratch.arena, cstr, args);
   U64 clamped_size = min(string.size, buffer_size);
-  memory_copy(buffer, string.data, clamped_size);
+  MemoryCopy(buffer, string.data, clamped_size);
   return (str8(buffer, clamped_size));
 }
 

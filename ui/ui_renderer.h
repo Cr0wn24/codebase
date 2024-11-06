@@ -66,6 +66,7 @@ static void ui_renderer_destroy();
 static UI_RectInstance *ui_draw_rect(Vec2F32 min, Vec2F32 max, UI_DrawRectParams params);
 static F32 ui_draw_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color);
 static F32 ui_draw_glyph_run(Vec2F32 pos, Vec4F32 color, F_GlyphRun glyph_run);
+static F32 ui_draw_simple_text(Vec2F32 pos, F_Tag tag, U32 size, String8 string, Vec4F32 color);
 
 static void ui_draw();
 

@@ -762,14 +762,14 @@ read_only static U32 F64_BIAS = 1023;
 
 #if COMPILER_CLANG || COMPILER_GCC
 
-#  define safe_u32_from_s64(x) ({ ASSERT((x) >= 0 && x <= U32_MAX); u32_from_s64(x); })
-#  define safe_u64_from_s64(x) ({ ASSERT((x) >= 0); u64_from_s64(x); })
-#  define safe_u32_from_u64(x) ({ ASSERT((x) <= U32_MAX); u32_from_u64(x); })
-#  define safe_s64_from_u64(x) ({ ASSERT((x) <= S64_MAX); s64_from_u64(x); })
-#  define safe_u32_from_s32(x) ({ ASSERT((x) >= 0); u32_from_s32(x); })
-#  define safe_s32_from_u64(x) ({ ASSERT((x) <= S32_MAX); s32_from_u64(x); })
-#  define safe_s32_from_u32(x) ({ ASSERT((x) <= S32_MAX); s32_from_u32(x); })
-#  define safe_u64_from_s32(x) ({ ASSERT((x) >= 0); u64_from_s32(x); })
+#  define safe_u32_from_s64(x) ({ Assert((x) >= 0 && x <= U32_MAX); u32_from_s64(x); })
+#  define safe_u64_from_s64(x) ({ Assert((x) >= 0); u64_from_s64(x); })
+#  define safe_u32_from_u64(x) ({ Assert((x) <= U32_MAX); u32_from_u64(x); })
+#  define safe_s64_from_u64(x) ({ Assert((x) <= S64_MAX); s64_from_u64(x); })
+#  define safe_u32_from_s32(x) ({ Assert((x) >= 0); u32_from_s32(x); })
+#  define safe_s32_from_u64(x) ({ Assert((x) <= S32_MAX); s32_from_u64(x); })
+#  define safe_s32_from_u32(x) ({ Assert((x) <= S32_MAX); s32_from_u32(x); })
+#  define safe_u64_from_s32(x) ({ Assert((x) >= 0); u64_from_s32(x); })
 
 #else
 

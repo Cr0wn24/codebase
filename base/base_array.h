@@ -13,7 +13,7 @@ struct Array
   [[nodiscard]] T &
   operator[](U64 idx)
   {
-    ASSERT(idx < count);
+    Assert(idx < count);
     return val[idx];
   }
 };
@@ -35,14 +35,14 @@ struct StaticArray
   [[nodiscard]] T &
   operator[](U64 idx)
   {
-    ASSERT_ALWAYS(idx < N);
+    AssertAlways(idx < N);
     return val[idx];
   }
 
   [[nodiscard]] volatile T &
   operator[](U64 idx) volatile
   {
-    ASSERT_ALWAYS(idx < N);
+    AssertAlways(idx < N);
     return val[idx];
   }
 
@@ -70,14 +70,14 @@ struct DynamicArray
   [[nodiscard]] T &
   operator[](U64 idx)
   {
-    ASSERT(idx < (pos / sizeof(T)));
+    Assert(idx < (pos / sizeof(T)));
     return base[idx];
   }
 
   [[nodiscard]] const T &
   operator[](U64 idx) const
   {
-    ASSERT(idx < (pos / sizeof(T)));
+    Assert(idx < (pos / sizeof(T)));
     return base[idx];
   }
 

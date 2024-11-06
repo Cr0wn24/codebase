@@ -12,7 +12,7 @@ struct F_Handle
 
 struct F_Tag
 {
-  String8 path;
+  String8 string;
 };
 
 struct F_FontMetrics
@@ -35,7 +35,7 @@ struct F_Glyph
   // hampus: rasterization parameters
   U16 idx;
   U32 size;
-  IDWriteFontFace5 *font_face;
+  IDWriteFontFace *font_face;
 
   // hampus: layouting
   RectF32 region_uv;
@@ -67,8 +67,9 @@ struct F_Atlas
 
 struct F_DWrite_Font
 {
-  IDWriteFontFile *font_file;
+  IDWriteFont *font;
   IDWriteFontFace *font_face;
+  IDWriteFontFile *font_file;
 };
 
 struct F_D2D_State
@@ -85,7 +86,7 @@ struct F_D2D_State
 
   IDWriteRenderingParams *rendering_params;
 
-  IDWriteFactory4 *dwrite_factory;
+  IDWriteFactory7 *dwrite_factory;
   IDWriteFontFallback *font_fallback;
   IDWriteFontFallback1 *font_fallback1;
   IDWriteFontCollection *font_collection;
@@ -103,8 +104,12 @@ struct F_D2D_State
 [[nodiscard]] static B32 f_handle_match(F_Handle a, F_Handle b);
 
 [[nodiscard]] static B32 f_tag_match(F_Tag a, F_Tag b);
+[[nodiscard]] static F_Tag f_make_tag(String8 string);
 
-static F_Handle f_handle_from_tag(F_Tag tag);
+[[nodiscard]] static F_Handle f_handle_from_tag(F_Tag tag);
+
+[[nodiscard]] static F_Handle f_open_font(Arena *arena, String8 name);
+[[nodiscard]] static F_Handle f_open_font_file(Arena *arena, String8 path);
 
 [[nodiscard]] static F_GlyphRun f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
 [[nodiscard]] static F_GlyphRun f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
@@ -120,6 +125,6 @@ static void f_destroy();
 
 [[nodiscard]] static F_Atlas *f_atlas();
 
-static F_FontMetrics f_get_font_metrics(F_Tag tag, U32 size);
+[[nodiscard]] static F_FontMetrics f_get_font_metrics(F_Tag tag, U32 size);
 
 #endif // FONT_D2D_H

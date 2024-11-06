@@ -14,7 +14,7 @@ struct String8
   [[nodiscard]] U8 &
   operator[](U64 idx)
   {
-    ASSERT(idx < size);
+    Assert(idx < size);
     U8 &result = data[idx];
     return result;
   }
@@ -28,7 +28,7 @@ struct String16
   [[nodiscard]] U16 &
   operator[](U64 idx)
   {
-    ASSERT(idx < size);
+    Assert(idx < size);
     U16 &result = data[idx];
     return result;
   }
@@ -41,7 +41,7 @@ struct String32
   [[nodiscard]] U32 &
   operator[](U64 idx)
   {
-    ASSERT(idx < size);
+    Assert(idx < size);
     U32 &result = data[idx];
     return result;
   }
@@ -92,7 +92,7 @@ struct StringDecode
 //////////////////////////////
 // NOTE(hampus): String8
 
-#define str8_lit(literal) str8((U8 *)(literal), sizeof(literal) - 1)
+#define Str8Lit(literal) str8((U8 *)(literal), sizeof(literal) - 1)
 #define str8_comp(literal)                             \
   {                                                    \
     .data = (U8 *)literal, .size = sizeof(literal) - 1 \
@@ -156,7 +156,7 @@ static String16 str16(U16 *data, U64 size);
 [[nodiscard]] static StringDecode string_decode_utf8(U8 *string, U64 size);
 static U64 string_encode_utf8(U8 *dst, U32 codepoint);
 [[nodiscard]] static StringDecode string_decode_utf16(U16 *string, U64 size);
-static U64 string_encode_utf16(U16 *dst, U32 codepoint);
+static U64 string_encode_utf16(wchar_t *dst, U32 codepoint);
 
 //////////////////////////////
 // NOTE(hampus): Conversion between UTF
@@ -168,7 +168,7 @@ static U64 string_encode_utf16(U16 *dst, U32 codepoint);
 [[nodiscard]] static String8 str8_from_cstr16(Arena *arena, U16 *string);
 
 [[nodiscard]] static char *cstr_from_str8(Arena *arena, String8 string);
-[[nodiscard]] static U16 *cstr16_from_str8(Arena *arena, String8 string);
+[[nodiscard]] static wchar_t *cstr16_from_str8(Arena *arena, String8 string);
 [[nodiscard]] static String16 cstr16_from_str32(Arena *arena, String32 string);
 
 //////////////////////////////

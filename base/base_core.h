@@ -164,20 +164,20 @@ static_assert(ARCH_ARM64 || ARCH_X64, "This architecture is not supported");
 //////////////////////////////
 // NOTE(hampus): Linked lists macros
 
-#define check_nil(nil, p) ((p) == 0 || (p) == nil)
-#define set_nil(nil, p) ((p) = nil)
+#define CheckNil(nil, p) ((p) == 0 || (p) == nil)
+#define SetNil(nil, p) ((p) = nil)
 
-#define dll_insert_npz(nil, f, l, p, n, next, prev)                      \
-  (check_nil(nil, f)                                                     \
-   ? ((f) = (l) = (n), set_nil(nil, (n)->next), set_nil(nil, (n)->prev)) \
-   : check_nil(nil, p) ? ((n)->next = (f), (f)->prev = (n), (f) = (n),   \
-                          set_nil(nil, (n)->prev))                       \
-     : ((p) == (l))                                                      \
-       ? ((l)->next = (n), (n)->prev = (l), (l) = (n),                   \
-          set_nil(nil, (n)->next))                                       \
-       : (((!check_nil(nil, p) && check_nil(nil, (p)->next))             \
-           ? (0)                                                         \
-           : ((p)->next->prev = (n))),                                   \
+#define dll_insert_npz(nil, f, l, p, n, next, prev)                    \
+  (CheckNil(nil, f)                                                    \
+   ? ((f) = (l) = (n), SetNil(nil, (n)->next), SetNil(nil, (n)->prev)) \
+   : CheckNil(nil, p) ? ((n)->next = (f), (f)->prev = (n), (f) = (n),  \
+                         SetNil(nil, (n)->prev))                       \
+     : ((p) == (l))                                                    \
+       ? ((l)->next = (n), (n)->prev = (l), (l) = (n),                 \
+          SetNil(nil, (n)->next))                                      \
+       : (((!CheckNil(nil, p) && CheckNil(nil, (p)->next))             \
+           ? (0)                                                       \
+           : ((p)->next->prev = (n))),                                 \
           ((n)->next = (p)->next), ((p)->next = (n)), ((n)->prev = (p))))
 #define dll_push_back_npz(nil, f, l, n, next, prev) \
   dll_insert_npz(nil, f, l, l, n, next, prev)
@@ -185,17 +185,17 @@ static_assert(ARCH_ARM64 || ARCH_X64, "This architecture is not supported");
   dll_insert_npz(nil, l, f, f, n, prev, next)
 #define dll_remove_npz(nil, f, l, n, next, prev)                               \
   (((n) == (f) ? (f) = (n)->next : (0)), ((n) == (l) ? (l) = (l)->prev : (0)), \
-   (check_nil(nil, (n)->prev) ? (0) : ((n)->prev->next = (n)->next)),          \
-   (check_nil(nil, (n)->next) ? (0) : ((n)->next->prev = (n)->prev)))
+   (CheckNil(nil, (n)->prev) ? (0) : ((n)->prev->next = (n)->next)),           \
+   (CheckNil(nil, (n)->next) ? (0) : ((n)->next->prev = (n)->prev)))
 
-#define sll_queue_push_nz(nil, f, l, n, next)                     \
-  (check_nil(nil, f) ? ((f) = (l) = (n), set_nil(nil, (n)->next)) \
-                     : ((l)->next = (n), (l) = (n), set_nil(nil, (n)->next)))
-#define sll_queue_push_front_nz(nil, f, l, n, next)               \
-  (check_nil(nil, f) ? ((f) = (l) = (n), set_nil(nil, (n)->next)) \
-                     : ((n)->next = (f), (f) = (n)))
+#define sll_queue_push_nz(nil, f, l, n, next)                   \
+  (CheckNil(nil, f) ? ((f) = (l) = (n), SetNil(nil, (n)->next)) \
+                    : ((l)->next = (n), (l) = (n), SetNil(nil, (n)->next)))
+#define sll_queue_push_front_nz(nil, f, l, n, next)             \
+  (CheckNil(nil, f) ? ((f) = (l) = (n), SetNil(nil, (n)->next)) \
+                    : ((n)->next = (f), (f) = (n)))
 #define sll_queue_pop_nz(nil, f, l, next) \
-  ((f) == (l) ? (set_nil(nil, f), set_nil(nil, l)) : ((f) = (f)->next))
+  ((f) == (l) ? (SetNil(nil, f), SetNil(nil, l)) : ((f) = (f)->next))
 
 #define sll_stack_push_n(f, n, next) ((n)->next = (f), (f) = (n))
 #define sll_stack_pop_n(f, next) ((f) = (f)->next)
@@ -268,43 +268,41 @@ typedef double F64;
 #  error no per_thread exists for this compiler
 #endif
 
-#define ASSERT_ALWAYS(expr) \
-  if(!(expr)) [[unlikely]]  \
+#define AssertAlways(expr) \
+  if(!(expr)) [[unlikely]] \
     (*(volatile int *)0 = 0);
 
-#define ASSERT(expr)       \
+#define Assert(expr)       \
   if(!(expr)) [[unlikely]] \
     (*(volatile int *)0 = 0);
 
 #define invalid_case         \
   default:                   \
   {                          \
-    ASSERT(!"Invalid case"); \
+    Assert(!"Invalid case"); \
   }                          \
   break;
-#define invalid_code_path ASSERT(!"Invalid code path")
-#define not_implemented ASSERT(!"Not implemented")
+#define InvalidCodePath Assert(!"Invalid code path")
+#define NotImplemented Assert(!"Not implemented")
 
-#define stringify_(s) #s
-#define stringify(s) stringify_(s)
+#define Stringify_(s) #s
+#define Stringify(s) Stringify_(s)
 
-#define raw_string(...) stringify(__VA_ARGS__)
+#define Glue_(a, b) a##b
+#define Glue(a, b) Glue_(a, b)
 
-#define glue_(a, b) a##b
-#define glue(a, b) glue_(a, b)
+#define IntFromPtr(p) (unsigned long long)((char *)(p) - (char *)0)
+#define PtrFromInt(n) (void *)((char *)0 + (n))
 
-#define int_from_ptr(p) (unsigned long long)((char *)(p) - (char *)0)
-#define ptr_from_int(n) (void *)((char *)0 + (n))
+#define DeferLoopChecked(begin, end)                                \
+  for(S32 Glue(_i_, __LINE__) = 2 * !(begin);                       \
+      Glue(_i_, __LINE__) == 2 ? ((end), 0) : !Glue(_i_, __LINE__); \
+      ++Glue(_i_, __LINE__), (end))
+#define DeferLoop(begin, end)                                       \
+  for(S32 Glue(_i_, __LINE__) = ((begin), 0); !Glue(_i_, __LINE__); \
+      ++Glue(_i_, __LINE__), (end))
 
-#define defer_loop_checked(begin, end)                              \
-  for(S32 glue(_i_, __LINE__) = 2 * !(begin);                       \
-      glue(_i_, __LINE__) == 2 ? ((end), 0) : !glue(_i_, __LINE__); \
-      ++glue(_i_, __LINE__), (end))
-#define defer_loop(begin, end)                                      \
-  for(S32 glue(_i_, __LINE__) = ((begin), 0); !glue(_i_, __LINE__); \
-      ++glue(_i_, __LINE__), (end))
-
-#define for_each_enum_val(e, var) for(e var = static_cast<e>(0); var < e##_COUNT; var = static_cast<e>(static_cast<int>(var) + 1))
+#define ForEachEnumVal(e, var) for(e var = static_cast<e>(0); var < e##_COUNT; var = static_cast<e>(static_cast<int>(var) + 1))
 
 #define member(t, m) (((t *)0)->m)
 #define member_offset(t, m) offsetof(t, m)
@@ -317,15 +315,6 @@ typedef double F64;
 #define thousand(n) ((n) * 1000)
 #define million(n) ((thousand(n)) * 1000)
 #define billion(n) ((million(n)) * 1000)
-
-#if 0
-#  define swap(a, b, type)     \
-    {                          \
-      type temp##__LINE__ = a; \
-      a = b;                   \
-      b = temp##__LINE__;      \
-    }
-#endif
 
 #define axis_flip(axis) ((axis) == Axis2_X ? Axis2_Y : Axis2_X)
 enum Axis2

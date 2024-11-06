@@ -11,7 +11,7 @@ ui_frame_arena()
 static String8
 ui_str8_from_icon(UI_Icon icon)
 {
-  String8 string = ui_state->ui_icon_to_string_table[icon];
+  String8 string = ui_state->icon_to_string_table[icon];
   return string;
 }
 
@@ -235,7 +235,7 @@ ui_text_action_list_from_events(Arena *arena, OS_EventList *event_list)
     UI_TextAction text_action = ui_text_action_from_event(event);
     UI_TextAction text_action_zero = {};
 
-    if(!memory_match(&text_action, &text_action_zero, sizeof(UI_TextAction)))
+    if(!MemoryMatch(&text_action, &text_action_zero, sizeof(UI_TextAction)))
     {
       dll_remove(event_list->first, event_list->last, n);
       UI_TextActionNode *node = push_array<UI_TextActionNode>(arena, 1);
@@ -428,7 +428,7 @@ ui_text_of_from_state_and_action(Arena *arena, String8 edit_str, UI_TextEditStat
 // NOTE(hampus): Init
 
 static void
-ui_init(String8 default_font_path, String8 default_icon_path)
+ui_init()
 {
   // hampus: Allocate state
 
@@ -448,14 +448,18 @@ ui_init(String8 default_font_path, String8 default_icon_path)
 
   // hampus: Init icon strings
 
-  ui_state->default_font_tag.path = default_font_path;
-  ui_state->default_icon_font_tag.path = default_icon_path;
+  ui_state->default_font_tag.string = Str8Lit("Segoe UI");
 
-  for(U64 i = 0; i < array_count(ui_state->ui_icon_to_string_table); ++i)
+  static U32 codepoints[UI_Icon_COUNT] =
   {
-    U32 cp = (U32)(0xE801 + i);
+    0x2713,
+  };
+
+  for(U64 i = 0; i < array_count(ui_state->icon_to_string_table); ++i)
+  {
+    U32 cp = codepoints[i];
     String32 string32 = {&cp, 1};
-    ui_state->ui_icon_to_string_table[i] = str8_from_str32(ui_state->arena, string32);
+    ui_state->icon_to_string_table[i] = str8_from_str32(ui_state->arena, string32);
   }
 }
 
@@ -506,7 +510,7 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
 #define X(name_upper, name_lower, type) ui_state->name_lower##_stack = 0;
   stack_values
 #undef X
-  arena_clear(ui_frame_arena());
+  ArenaClear(ui_frame_arena());
 
   ui_state->dt = dt;
   ui_state->os_window = window;
@@ -678,7 +682,7 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
 
   ui_next_pref_width(ui_px(clip_rect.x1, 1));
   ui_next_pref_height(ui_px(clip_rect.y1, 1));
-  ui_state->root = ui_box_make(UI_BoxFlag_AllowOverflowX | UI_BoxFlag_AllowOverflowY, str8_lit("Root"));
+  ui_state->root = ui_box_make(UI_BoxFlag_AllowOverflowX | UI_BoxFlag_AllowOverflowY, Str8Lit("Root"));
 
   ui_push_parent(ui_state->root);
 
@@ -689,11 +693,11 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
   ui_next_pref_width(ui_pct(1, 1));
   ui_next_pref_height(ui_pct(1, 1));
   ui_state->ctx_menu_root =
-  ui_box_make(UI_BoxFlag_FixedPos, str8_lit("CtxMenuRoot"));
+  ui_box_make(UI_BoxFlag_FixedPos, Str8Lit("CtxMenuRoot"));
 
   ui_next_pref_width(ui_pct(1, 1));
   ui_next_pref_height(ui_pct(1, 1));
-  ui_state->normal_root = ui_box_make(0, str8_lit("NormalRoot"));
+  ui_state->normal_root = ui_box_make(0, Str8Lit("NormalRoot"));
 
   ui_push_parent(ui_state->normal_root);
 }
@@ -751,7 +755,7 @@ ui_box_alloc()
   {
     ASAN_UNPOISON_MEMORY_REGION(box, sizeof(UI_Box));
     sll_stack_pop(ui_state->first_free_box);
-    memory_zero_struct(box);
+    MemoryZeroStruct(box);
   }
   else
   {
@@ -842,7 +846,7 @@ static UI_Box *
 ui_box_make_from_key(UI_BoxFlags flags, UI_Key key)
 {
   UI_Box *box = ui_box_from_key(key);
-  ASSERT(box->last_build_touched_idx != ui_state->build_idx);
+  Assert(box->last_build_touched_idx != ui_state->build_idx);
   box->last_build_touched_idx = ui_state->build_idx;
 
   // hampus: Insert into tree
@@ -880,7 +884,7 @@ ui_get_hash_part_from_string(String8 string)
 {
   String8 result = string;
   U64 idx = 0;
-  if(str8_find_substr8(string, str8_lit("###"), &idx))
+  if(str8_find_substr8(string, Str8Lit("###"), &idx))
   {
     result = str8_skip(string, idx + 3);
   }
@@ -892,7 +896,7 @@ ui_get_display_part_from_string(String8 string)
 {
   String8 result = string;
   U64 idx = 0;
-  if(str8_find_substr8(string, str8_lit("##"), &idx))
+  if(str8_find_substr8(string, Str8Lit("##"), &idx))
   {
     result = str8_chop(string, string.size - idx);
   }
@@ -934,7 +938,7 @@ ui_box_make(UI_BoxFlags flags, const char *fmt, ...)
 static UI_Box *
 ui_box_make(UI_BoxFlags flags)
 {
-  UI_Box *box = ui_box_make(flags, str8_lit(""));
+  UI_Box *box = ui_box_make(flags, Str8Lit(""));
   return box;
 }
 
@@ -1021,7 +1025,7 @@ ui_comm_from_box__touch(UI_Box *box)
   // should keep scrolling the box.
 
   UI_Comm result = {};
-  ASSERT(box->key != ui_key_zero() && "Tried to gather input from a keyless box!");
+  Assert(box->key != ui_key_zero() && "Tried to gather input from a keyless box!");
   result.box = box;
   if(box->flags & UI_BoxFlag_Disabled)
   {
@@ -1149,7 +1153,7 @@ ui_comm_from_box__mouse(UI_Box *box)
     return result;
   }
 
-  ASSERT(box->key != ui_key_zero() && "Tried to gather input from a keyless box!");
+  Assert(box->key != ui_key_zero() && "Tried to gather input from a keyless box!");
 
   Vec2F32 mouse_pos = ui_state->mouse_pos;
 
@@ -1302,7 +1306,7 @@ ui_size_make(UI_SizeKind kind, F32 val, F32 strictness)
 static void
 ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
 {
-  profile_function();
+  ProfileFunction();
   if(!(root->flags & (UI_BoxFlag_FixedWidth << axis)))
   {
     UI_Size size = ui_size_from_axis(root, axis);
@@ -1313,7 +1317,7 @@ ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
         if(axis == Axis2_X)
         {
           F32 advance = {};
-          TempArena scratch = get_scratch(0, 0);
+          TempArena scratch = GetScratch(0, 0);
           F_GlyphRun glyph_run = {};
           if(root->flags & UI_BoxFlag_SimpleText)
           {
@@ -1328,11 +1332,11 @@ ui_solve_independent_sizes(UI_Box *root, Axis2 axis)
           {
             advance += n->metrics.advance;
           }
-          profile_scope("UI_SizeKind_TextContent Axis X");
+          ProfileScope("UI_SizeKind_TextContent Axis X");
           root->fixed_size[Axis2_X] = floor_f32((F32)advance + root->text_padding[Axis2_X] * (F32)root->font_size);
 
           root->glyph_run = push_array_no_zero<F_GlyphRun>(ui_frame_arena(), 1);
-          memory_copy_struct(root->glyph_run, &glyph_run);
+          MemoryCopyStruct(root->glyph_run, &glyph_run);
         }
         else if(axis == Axis2_Y)
         {
@@ -1367,8 +1371,8 @@ ui_solve_upward_dependent_sizes(UI_Box *root, Axis2 axis)
     UI_Size size = ui_size_from_axis(root, axis);
     if(size.kind == UI_SizeKind_Pct)
     {
-      ASSERT(root->parent && "Percent of parent without a parent");
-      ASSERT(size.kind != UI_SizeKind_ChildrenSum && "Cyclic sizing behaviour");
+      Assert(root->parent && "Percent of parent without a parent");
+      Assert(size.kind != UI_SizeKind_ChildrenSum && "Cyclic sizing behaviour");
       F32 parent_size = root->parent->fixed_size[axis];
       root->fixed_size[axis] = floor_f32(parent_size * size.value);
     }
@@ -1610,19 +1614,19 @@ ui_calculate_final_rect(UI_Box *root, Axis2 axis)
 static void
 ui_calculate_sizes(UI_Box *root)
 {
-  for_each_enum_val(Axis2, axis)
+  ForEachEnumVal(Axis2, axis)
   {
     ui_solve_independent_sizes(root, axis);
   }
-  for_each_enum_val(Axis2, axis)
+  ForEachEnumVal(Axis2, axis)
   {
     ui_solve_upward_dependent_sizes(root, axis);
   }
-  for_each_enum_val(Axis2, axis)
+  ForEachEnumVal(Axis2, axis)
   {
     ui_solve_downward_dependent_sizes(root, axis);
   }
-  for_each_enum_val(Axis2, axis)
+  ForEachEnumVal(Axis2, axis)
   {
     ui_solve_other_axis_dependent_sizes(root, axis);
   }
@@ -1631,13 +1635,13 @@ ui_calculate_sizes(UI_Box *root)
 static void
 ui_layout(UI_Box *root)
 {
-  profile_function();
+  ProfileFunction();
   ui_calculate_sizes(root);
-  for_each_enum_val(Axis2, axis)
+  ForEachEnumVal(Axis2, axis)
   {
     ui_solve_size_violations(root, axis);
   }
-  for_each_enum_val(Axis2, axis)
+  ForEachEnumVal(Axis2, axis)
   {
     ui_calculate_final_rect(root, axis);
   }
