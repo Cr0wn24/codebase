@@ -85,10 +85,10 @@ os_win32_system_time_from_date_time(DateTime *date_time)
 DWORD
 os_win32_thread_proc(LPVOID data)
 {
-  profile_init_thread();
+  ProfileInitThread();
   OS_Win32_ThreadArgs *args = (OS_Win32_ThreadArgs *)data;
   args->proc(args->data);
-  profile_quit_thread();
+  ProfileQuitThread();
   return 0;
 }
 
@@ -502,7 +502,7 @@ os_get_microseconds()
   U64 result = 0;
   LARGE_INTEGER counter;
   QueryPerformanceCounter(&counter);
-  counter.QuadPart *= million(1);
+  counter.QuadPart *= Million(1);
   counter.QuadPart /= os_win32_state->frequency.QuadPart;
   result = safe_u64_from_s64(counter.QuadPart);
   return result;

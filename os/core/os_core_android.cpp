@@ -439,7 +439,7 @@ os_get_microseconds()
   struct timespec time = {};
   S32 return_code = clock_gettime(CLOCK_MONOTONIC_RAW, &time);
   Assert(return_code == 0);
-  U64 result = (U64)time.tv_sec * million(1) + (U64)time.tv_nsec / 1000;
+  U64 result = (U64)time.tv_sec * Million(1) + (U64)time.tv_nsec / 1000;
   return result;
 }
 

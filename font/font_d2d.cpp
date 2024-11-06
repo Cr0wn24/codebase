@@ -107,7 +107,9 @@ f_init()
   // hampus: create d2d factory
 
   D2D1_FACTORY_OPTIONS options = {};
+#ifndef NDEBUG
   options.debugLevel = D2D1_DEBUG_LEVEL_WARNING;
+#endif
   hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, options, &f_d2d_state->d2d_factory);
   Assert(SUCCEEDED(hr));
 
@@ -301,7 +303,7 @@ static F_Handle
 f_handle_from_tag(F_Tag tag)
 {
   ProfileFunction();
-  
+
   F_Handle result = f_handle_zero();
   U64 cold_idx = U64_MAX;
 

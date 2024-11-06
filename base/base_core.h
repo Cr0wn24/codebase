@@ -313,8 +313,8 @@ typedef double F64;
 #define terabytes(n) (1024LL * gigabytes(n))
 
 #define thousand(n) ((n) * 1000)
-#define million(n) ((thousand(n)) * 1000)
-#define billion(n) ((million(n)) * 1000)
+#define Million(n) ((thousand(n)) * 1000)
+#define billion(n) ((Million(n)) * 1000)
 
 #define axis_flip(axis) ((axis) == Axis2_X ? Axis2_Y : Axis2_X)
 enum Axis2

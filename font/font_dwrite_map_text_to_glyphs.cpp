@@ -268,7 +268,14 @@ f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, I
 
   for(U32 fallback_offset = 0; fallback_offset < text_length;)
   {
+
     TempArena scratch = GetScratch(&arena, 1);
+
+    U32 max_glyph_indices_count = text_length * 256;
+    U16 *glyph_indices = push_array_no_zero<U16>(scratch.arena, max_glyph_indices_count);
+    DWRITE_SHAPING_GLYPH_PROPERTIES *glyph_props = push_array_no_zero<DWRITE_SHAPING_GLYPH_PROPERTIES>(scratch.arena, max_glyph_indices_count);
+    U16 *cluster_map = push_array_no_zero<U16>(scratch.arena, max_glyph_indices_count);
+    DWRITE_SHAPING_TEXT_PROPERTIES *text_props = push_array_no_zero<DWRITE_SHAPING_TEXT_PROPERTIES>(scratch.arena, max_glyph_indices_count);
 
     //----------------------------------------------------------
     // hampus: get mapped font and length
@@ -336,8 +343,6 @@ f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, I
     {
       U32 fallback_remaining = (U32)(fallback_opl - fallback_ptr);
 
-      U32 max_glyph_indices_count = mapped_text_length * 128;
-      U16 *glyph_indices = push_array_no_zero<U16>(scratch.arena, max_glyph_indices_count);
       BOOL is_simple = FALSE;
       U32 complex_mapped_length = 0;
 
@@ -420,8 +425,6 @@ f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, I
         hr = text_analyzer->AnalyzeBidi(&analysis_source, 0, complex_mapped_length, &analysis_sink);
         Assert(SUCCEEDED(hr));
 
-        DWRITE_SHAPING_GLYPH_PROPERTIES *glyph_props = push_array_no_zero<DWRITE_SHAPING_GLYPH_PROPERTIES>(scratch.arena, max_glyph_indices_count);
-
         for(TextAnalysisSinkResultChunk *chunk = analysis_sink.first_result_chunk; chunk != 0; chunk = chunk->next)
         {
           for(U64 text_analysis_sink_result_idx = 0; text_analysis_sink_result_idx < chunk->count; ++text_analysis_sink_result_idx)
@@ -447,9 +450,6 @@ f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, I
               segment->font_size_em = font_size;
               segment->bidi_level = analysis_result.resolved_bidi_level;
             }
-
-            U16 *cluster_map = push_array_no_zero<U16>(scratch.arena, analysis_result.text_length);
-            DWRITE_SHAPING_TEXT_PROPERTIES *text_props = push_array_no_zero<DWRITE_SHAPING_TEXT_PROPERTIES>(scratch.arena, analysis_result.text_length);
 
             U32 actual_glyph_count = 0;
 
@@ -483,10 +483,6 @@ f_dwrite_map_text_to_glyphs(Arena *arena, IDWriteFontFallback1 *font_fallback, I
               {
                 // TODO(hampus): Test this codepath.
                 Assert(!"FALSE");
-#if 0
-                max_glyph_indices_count *= 2;
-                glyph_props = (DWRITE_SHAPING_GLYPH_PROPERTIES *)realloc(glyph_props, max_glyph_indices_count * sizeof(DWRITE_SHAPING_GLYPH_PROPERTIES));
-#endif
               }
 
               Assert(SUCCEEDED(hr));

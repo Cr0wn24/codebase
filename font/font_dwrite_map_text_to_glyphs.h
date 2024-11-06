@@ -21,7 +21,7 @@ struct F_DWrite_GlyphArrayChunk
   F_DWrite_GlyphArrayChunk *prev;
   U64 total_glyph_count;
   U64 count;
-  F_DWrite_GlyphArray v[512];
+  F_DWrite_GlyphArray v[256];
 };
 
 struct F_DWrite_TextToGlyphsSegment
@@ -69,7 +69,7 @@ struct TextAnalysisSinkResultChunk
   TextAnalysisSinkResultChunk *next;
   TextAnalysisSinkResultChunk *prev;
   U64 count;
-  TextAnalysisSinkResult v[512];
+  TextAnalysisSinkResult v[16];
 };
 
 struct F_DWrite_MapTextToGlyphsState

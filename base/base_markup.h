@@ -28,10 +28,10 @@ static SpallBuffer spall_buffer;
 #  define profile_static_begin() profile_scope_begin(__FUNCTION__)
 #  define profile_static_end() profile_scope_end()
 
-#  define profile_init(string) spall_ctx = spall_init_file(string, 1)
-#  define profile_quit() spall_quit(&spall_ctx)
+#  define ProfileInit(string) spall_ctx = spall_init_file(string, 1)
+#  define ProfileQuit() spall_quit(&spall_ctx)
 
-#  define profile_init_thread()                          \
+#  define ProfileInitThread()                            \
     {                                                    \
       size_t buffer_size = 4096;                         \
       spall_buffer.data = malloc(buffer_size);           \
@@ -39,7 +39,7 @@ static SpallBuffer spall_buffer;
       memset(spall_buffer.data, 1, spall_buffer.length); \
       spall_buffer_init(&spall_ctx, &spall_buffer);      \
     }
-#  define profile_quit_thread() spall_buffer_quit(&spall_ctx, &spall_buffer)
+#  define ProfileQuitThread() spall_buffer_quit(&spall_ctx, &spall_buffer)
 
 #else
 
@@ -54,12 +54,12 @@ static SpallBuffer spall_buffer;
 #  define profile_static_begin()
 #  define profile_static_end()
 
-#  define profile_init(string)
-#  define profile_quit()
+#  define ProfileInit(string)
+#  define ProfileQuit()
 
-#  define profile_init_thread()
+#  define ProfileInitThread()
 
-#  define profile_quit_thread()
+#  define ProfileQuitThread()
 
 #endif
 

@@ -361,7 +361,7 @@ os_android_input_callback(struct android_app *android_app, AInputEvent *event)
                 OS_Android_MoveAction *before_latest_move_action = &current_motion_state->move_actions[(idx - 1) % sample_size];
                 Vec2F32 delta = latest_move_action->pos - before_latest_move_action->pos;
                 S64 dt_us = latest_move_action->timestamp_us - before_latest_move_action->timestamp_us;
-                F32 dt_s = (dt_us / (F32)million(1));
+                F32 dt_s = (dt_us / (F32)Million(1));
                 Vec2F32 velocity = delta * dt_s;
                 Vec2F32 clamped_velocity = os_android_clamp_fling_velocity(velocity);
                 velocity_sum += clamped_velocity;
@@ -436,7 +436,7 @@ os_android_input_callback(struct android_app *android_app, AInputEvent *event)
             delta.x = latest_move_action->pos.x - before_latest_move_action->pos.x;
             delta.y = latest_move_action->pos.y - before_latest_move_action->pos.y;
             S64 dt_us = latest_move_action->timestamp_us - before_latest_move_action->timestamp_us;
-            Vec2F32 velocity = v2f32(-delta.x / (dt_us / (F32)million(1)), -delta.y / (dt_us / (F32)million(1)));
+            Vec2F32 velocity = v2f32(-delta.x / (dt_us / (F32)Million(1)), -delta.y / (dt_us / (F32)Million(1)));
             os_print_debug_string("vel: %.2f, %.2f", velocity.x, velocity.y);
           }
 #endif
@@ -976,7 +976,7 @@ os_events_from_window(Arena *arena, OS_Handle window)
 {
   static F32 dt = 0;
   static U64 start_counter_us = 0;
-  dt = (F32)(os_get_microseconds() - start_counter_us) / (F32)million(1);
+  dt = (F32)(os_get_microseconds() - start_counter_us) / (F32)Million(1);
   start_counter_us = os_get_microseconds();
 
   OS_EventList result = {};

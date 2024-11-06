@@ -316,8 +316,8 @@ get_all_source_files_from_directory_recursively(Arena *arena, String8 directory,
 static S32
 os_entry_point(String8List args)
 {
-  profile_init("meta");
-  profile_init_thread();
+  ProfileInit("meta");
+  ProfileInitThread();
 
   Arena *arena = arena_alloc();
 
@@ -504,8 +504,8 @@ os_entry_point(String8List args)
 
   profile_scope_end();
 
-  profile_quit_thread();
-  profile_quit();
+  ProfileQuitThread();
+  ProfileQuit();
 
   return 0;
 }
