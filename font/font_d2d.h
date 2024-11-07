@@ -28,9 +28,10 @@ struct F_GlyphMetrics
   F32 left_bearing;
 };
 
-struct F_Glyph
+struct F_GlyphNode
 {
-  F_Glyph *hash_next;
+  F_GlyphNode *next;
+  F_GlyphNode *prev;
 
   // hampus: rasterization parameters
   U16 idx;
@@ -72,6 +73,12 @@ struct F_DWrite_Font
   IDWriteFontFile *font_file;
 };
 
+struct F_GlyphSlot
+{
+  F_GlyphNode *first;
+  F_GlyphNode *last;
+};
+
 struct F_D2D_State
 {
   Arena *arena;
@@ -79,7 +86,7 @@ struct F_D2D_State
   StaticArray<F_Handle, 6> dwrite_font_table;
   StaticArray<F_Tag, 6> font_tag_table;
 
-  StaticArray<F_Glyph *, 256> glyph_from_idx_lookup_table;
+  StaticArray<F_GlyphSlot, 256> glyph_slots;
   F_Atlas atlas;
 
   wchar_t locale[LOCALE_NAME_MAX_LENGTH];

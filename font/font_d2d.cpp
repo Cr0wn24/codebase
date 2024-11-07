@@ -28,13 +28,6 @@ f_dwrite_get_font_metrics(IDWriteFontFace *font_face, U32 size)
   return result;
 }
 
-static F_Glyph *
-f_dwrite_get_glyph()
-{
-  F_Glyph *result = 0;
-  return result;
-}
-
 static F_Handle
 f_handle_zero()
 {
@@ -347,16 +340,17 @@ f_handle_from_tag(F_Tag tag)
   return result;
 }
 
-static F_Glyph *
+static F_GlyphNode *
 f_dwrite_lookup_glyph(U32 glyph_idx, IDWriteFontFace *font_face, U32 size)
 {
   ProfileFunction();
 
-  F_Glyph *result = 0;
-  U64 slot_idx = glyph_idx % array_count(f_d2d_state->glyph_from_idx_lookup_table);
-  for(result = f_d2d_state->glyph_from_idx_lookup_table[slot_idx];
+  F_GlyphNode *result = 0;
+  U64 slot_idx = glyph_idx % array_count(f_d2d_state->glyph_slots);
+  F_GlyphSlot *slot = &f_d2d_state->glyph_slots[slot_idx];
+  for(result = slot->first;
       result != 0;
-      result = result->hash_next)
+      result = result->next)
   {
     if(result->idx == glyph_idx && result->font_face == font_face && result->size == size)
     {
@@ -514,8 +508,8 @@ f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
   for(U32 idx = 0; idx < str32.size; ++idx)
   {
     U16 glyph_idx = glyph_indices[idx];
-    F_Glyph *glyph = f_dwrite_lookup_glyph(glyph_idx, dw_font->font_face, size);
-    if(glyph == 0)
+    F_GlyphNode *glyph_node = f_dwrite_lookup_glyph(glyph_idx, dw_font->font_face, size);
+    if(glyph_node == 0)
     {
       // hampus: create dwrite glyph run
 
@@ -532,26 +526,27 @@ f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
 
       // hampus: fill in glyph data
 
-      U64 slot_idx = glyph_idx % array_count(f_d2d_state->glyph_from_idx_lookup_table);
+      U64 slot_idx = glyph_idx % array_count(f_d2d_state->glyph_slots);
+      F_GlyphSlot *slot = &f_d2d_state->glyph_slots[slot_idx];
 
-      glyph = push_array<F_Glyph>(f_d2d_state->arena, 1);
-      glyph->idx = glyph_idx;
-      glyph->font_face = dw_font->font_face;
-      glyph->bitmap_size = raster_result.bitmap_dim;
-      glyph->metrics.advance = round_f32(glyph_advances[idx]);
-      glyph->metrics.left_bearing = raster_result.glyph_world_bounds.left;
-      glyph->size = size;
-      glyph->region_uv = r4f32((F32)raster_result.atlas_region.x0 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y0 / (F32)f_d2d_state->atlas.atlas.dim.y,
-                               (F32)raster_result.atlas_region.x1 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y1 / (F32)f_d2d_state->atlas.atlas.dim.y);
-      SLLStackPushN(f_d2d_state->glyph_from_idx_lookup_table[slot_idx], glyph, hash_next);
+      glyph_node = push_array<F_GlyphNode>(f_d2d_state->arena, 1);
+      glyph_node->idx = glyph_idx;
+      glyph_node->font_face = dw_font->font_face;
+      glyph_node->bitmap_size = raster_result.bitmap_dim;
+      glyph_node->metrics.advance = round_f32(glyph_advances[idx]);
+      glyph_node->metrics.left_bearing = raster_result.glyph_world_bounds.left;
+      glyph_node->size = size;
+      glyph_node->region_uv = r4f32((F32)raster_result.atlas_region.x0 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y0 / (F32)f_d2d_state->atlas.atlas.dim.y,
+                                    (F32)raster_result.atlas_region.x1 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y1 / (F32)f_d2d_state->atlas.atlas.dim.y);
+      DLLPushBack(slot->first, slot->last, glyph_node);
     }
 
     // hampus: fill in glyph run data
 
     F_GlyphRunNode *glyph_run_node = push_array<F_GlyphRunNode>(arena, 1);
-    glyph_run_node->bitmap_size = glyph->bitmap_size;
-    glyph_run_node->metrics = glyph->metrics;
-    glyph_run_node->region_uv = glyph->region_uv;
+    glyph_run_node->bitmap_size = glyph_node->bitmap_size;
+    glyph_run_node->metrics = glyph_node->metrics;
+    glyph_run_node->region_uv = glyph_node->region_uv;
 
     DLLPushBack(result.first, result.last, glyph_run_node);
   }
@@ -618,9 +613,9 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
       last_available_font_face = font_face;
       // hampus: lookup glyph in table
 
-      F_Glyph *glyph = f_dwrite_lookup_glyph(glyph_idx, font_face, size);
+      F_GlyphNode *glyph_node = f_dwrite_lookup_glyph(glyph_idx, font_face, size);
 
-      if(glyph == 0)
+      if(glyph_node == 0)
       {
         // hampus: create dwrite glyph run
 
@@ -638,26 +633,27 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
 
         // hampus: fill in glyph data
 
-        U64 slot_idx = glyph_idx % array_count(f_d2d_state->glyph_from_idx_lookup_table);
+        U64 slot_idx = glyph_idx % array_count(f_d2d_state->glyph_slots);
+        F_GlyphSlot *slot = &f_d2d_state->glyph_slots[slot_idx];
 
-        glyph = push_array<F_Glyph>(f_d2d_state->arena, 1);
-        glyph->idx = glyph_idx;
-        glyph->font_face = font_face;
-        glyph->bitmap_size = raster_result.bitmap_dim;
-        glyph->metrics.advance = round_f32(segment.glyph_advances[idx]);
-        glyph->metrics.left_bearing = raster_result.glyph_world_bounds.left;
-        glyph->size = size;
-        glyph->region_uv = r4f32((F32)raster_result.atlas_region.x0 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y0 / (F32)f_d2d_state->atlas.atlas.dim.y,
-                                 (F32)raster_result.atlas_region.x1 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y1 / (F32)f_d2d_state->atlas.atlas.dim.y);
-        SLLStackPushN(f_d2d_state->glyph_from_idx_lookup_table[slot_idx], glyph, hash_next);
+        glyph_node = push_array<F_GlyphNode>(f_d2d_state->arena, 1);
+        glyph_node->idx = glyph_idx;
+        glyph_node->font_face = font_face;
+        glyph_node->bitmap_size = raster_result.bitmap_dim;
+        glyph_node->metrics.advance = round_f32(segment.glyph_advances[idx]);
+        glyph_node->metrics.left_bearing = raster_result.glyph_world_bounds.left;
+        glyph_node->size = size;
+        glyph_node->region_uv = r4f32((F32)raster_result.atlas_region.x0 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y0 / (F32)f_d2d_state->atlas.atlas.dim.y,
+                                      (F32)raster_result.atlas_region.x1 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y1 / (F32)f_d2d_state->atlas.atlas.dim.y);
+        DLLPushBack(slot->first, slot->last, glyph_node);
       }
 
       // hampus: fill in glyph run data
 
       F_GlyphRunNode *glyph_run_node = push_array<F_GlyphRunNode>(arena, 1);
-      glyph_run_node->bitmap_size = glyph->bitmap_size;
-      glyph_run_node->metrics = glyph->metrics;
-      glyph_run_node->region_uv = glyph->region_uv;
+      glyph_run_node->bitmap_size = glyph_node->bitmap_size;
+      glyph_run_node->metrics = glyph_node->metrics;
+      glyph_run_node->region_uv = glyph_node->region_uv;
 
       DLLPushBack(result.first, result.last, glyph_run_node);
     }
