@@ -178,7 +178,7 @@ struct TextAnalysisSink final : IDWriteTextAnalysisSink
 };
 
 static F_DWrite_GlyphArray *
-allocate_and_push_back_glyph_array(Arena *arena, F_DWrite_GlyphArrayChunk **first_chunk, F_DWrite_GlyphArrayChunk **last_chunk)
+allocate_and_push_back_glyph_array(Arena *arena, F_DWrite_GlyphArrayChunk **first_chunk, F_DWrite_GlyphArrayChunk **last_chunk, U32 glyph_count)
 {
   ProfileFunction();
   F_DWrite_GlyphArray *glyph_array = 0;
@@ -201,6 +201,14 @@ allocate_and_push_back_glyph_array(Arena *arena, F_DWrite_GlyphArrayChunk **firs
     glyph_array = &glyph_array_chunk->v[glyph_array_chunk->count];
     glyph_array_chunk->count += 1;
   }
+
+  glyph_array->count = glyph_count;
+  glyph_array->advances = push_array_no_zero<F32>(arena, glyph_array->count);
+  glyph_array->offsets = push_array<DWRITE_GLYPH_OFFSET>(arena, glyph_array->count);
+  glyph_array->indices = push_array_no_zero<U16>(arena, glyph_array->count);
+
+  (*last_chunk)->total_glyph_count += glyph_array->count;
+
   return glyph_array;
 }
 
@@ -321,6 +329,18 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
         U16 *cluster_map = push_array_no_zero<U16>(scratch.arena, max_glyph_indices_count);
         DWRITE_SHAPING_TEXT_PROPERTIES *text_props = push_array_no_zero<DWRITE_SHAPING_TEXT_PROPERTIES>(scratch.arena, max_glyph_indices_count);
 
+        // NOTE(hampus): Each simple and complex text will get their own F_DWrite_GlyphArray.
+        // In the end a long contigous array will be allocated and the glyph runs
+        // will be memcpy'd into that. That is because DWRITE_GLYPH_RUN expcets
+        // one large array of glyph indices. So these chunks are only temporary.
+
+        // TODO(hampus): Is chunking really necessary? Since this memory is just temporary and
+        // if we know the upper limits, we could just preallocate F_DWrite_GlyphArray and not having to deal with
+        // chunks.
+        F_DWrite_TextToGlyphsSegment *segment = 0;
+        F_DWrite_GlyphArrayChunk *first_glyph_array_chunk = 0;
+        F_DWrite_GlyphArrayChunk *last_glyph_array_chunk = 0;
+
         //----------------------------------------------------------
         // hampus: get mapped font and length
 
@@ -349,8 +369,22 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
           if(mapped_font_face == 0)
           {
             // NOTE(hampus): This means that no font was available for this character.
-            // mapped_text_length is the number of characters to skip.
-            // TODO(hampus): Should be replaced by a missing glyph, typically glyph index 0 in fonts
+            // mapped_text_length is the number of characters to skip. We will
+            // replace these characters with a missing glyph.
+
+            F_DWrite_TextToGlyphsSegmentNode *segment_node = allocate_and_push_back_segment_node(f_dwrite_map_text_to_glyphs_state->arena, &result.first_segment, &result.last_segment);
+            segment = &segment_node->v;
+            segment->font_face = mapped_font_face;
+            segment->font_size_em = font_size;
+
+            F_DWrite_GlyphArray *glyph_array = allocate_and_push_back_glyph_array(scratch.arena, &first_glyph_array_chunk, &last_glyph_array_chunk, mapped_text_length);
+            MemoryZeroTyped(glyph_array->indices, glyph_array->count);
+
+            fill_segment_with_glyph_array_chunks(f_dwrite_map_text_to_glyphs_state->arena, segment, first_glyph_array_chunk, last_glyph_array_chunk);
+            first_glyph_array_chunk = 0;
+            last_glyph_array_chunk = 0;
+            segment = 0;
+
             fallback_offset += mapped_text_length;
             continue;
           }
@@ -368,18 +402,6 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
 
         //----------------------------------------------------------
         // hampus: get glyph array list with both simple and complex glyphs
-
-        // NOTE(hampus): Each simple and complex text will get their own F_DWrite_GlyphArray.
-        // In the end a long contigous array will be allocated and the glyph runs
-        // will be memcpy'd into that. That is because DWRITE_GLYPH_RUN expcets
-        // one large array of glyph indices. So these chunks are only temporary.
-
-        // TODO(hampus): Is chunking really necessary? Since this memory is just temporary and
-        // if we know the upper limits, we could just preallocate F_DWrite_GlyphArray and not having to deal with
-        // chunks.
-        F_DWrite_TextToGlyphsSegment *segment = 0;
-        F_DWrite_GlyphArrayChunk *first_glyph_array_chunk = 0;
-        F_DWrite_GlyphArrayChunk *last_glyph_array_chunk = 0;
 
         const wchar_t *fallback_ptr = cstr_text + fallback_offset;
         const wchar_t *fallback_opl = fallback_ptr + mapped_text_length;
@@ -424,16 +446,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
 
             // hampus: get a new glyph array
 
-            F_DWrite_GlyphArray *glyph_array = allocate_and_push_back_glyph_array(scratch.arena, &first_glyph_array_chunk, &last_glyph_array_chunk);
-
-            // hampus: allocate the arrays in the glyph array
-
-            DWRITE_FONT_METRICS1 font_metrics = {};
-            mapped_font_face->GetMetrics(&font_metrics);
-            glyph_array->count = complex_mapped_length;
-            glyph_array->advances = push_array_no_zero<F32>(scratch.arena, glyph_array->count);
-            glyph_array->offsets = push_array<DWRITE_GLYPH_OFFSET>(scratch.arena, glyph_array->count);
-            glyph_array->indices = push_array_no_zero<U16>(scratch.arena, glyph_array->count);
+            F_DWrite_GlyphArray *glyph_array = allocate_and_push_back_glyph_array(scratch.arena, &first_glyph_array_chunk, &last_glyph_array_chunk, complex_mapped_length);
 
             // hampus: fill in indices
 
@@ -442,6 +455,8 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
             // hampus: fill in advances
 
             {
+              DWRITE_FONT_METRICS1 font_metrics = {};
+              mapped_font_face->GetMetrics(&font_metrics);
               S32 *design_advances = push_array_no_zero<S32>(scratch.arena, glyph_array->count);
               hr = mapped_font_face->GetDesignGlyphAdvances((U32)glyph_array->count, glyph_array->indices, design_advances);
               F32 scale = (F32)font_size / (F32)font_metrics.designUnitsPerEm;
@@ -450,8 +465,6 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
                 glyph_array->advances[idx] = (F32)design_advances[idx] * scale;
               }
             }
-
-            last_glyph_array_chunk->total_glyph_count += glyph_array->count;
           }
           else
           {
@@ -495,8 +508,6 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
                   segment->bidi_level = analysis_result.resolved_bidi_level;
                 }
 
-                F_DWrite_GlyphArray *glyph_array = allocate_and_push_back_glyph_array(scratch.arena, &first_glyph_array_chunk, &last_glyph_array_chunk);
-
                 U32 actual_glyph_count = 0;
 
                 BOOL is_right_to_left = (BOOL)(analysis_result.resolved_bidi_level & 1);
@@ -533,10 +544,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
                   break;
                 }
 
-                glyph_array->count = actual_glyph_count;
-                glyph_array->indices = push_array_no_zero<U16>(scratch.arena, glyph_array->count);
-                glyph_array->advances = push_array_no_zero<F32>(scratch.arena, glyph_array->count);
-                glyph_array->offsets = push_array_no_zero<DWRITE_GLYPH_OFFSET>(scratch.arena, glyph_array->count);
+                F_DWrite_GlyphArray *glyph_array = allocate_and_push_back_glyph_array(scratch.arena, &first_glyph_array_chunk, &last_glyph_array_chunk, actual_glyph_count);
 
                 MemoryCopyTyped(glyph_array->indices, glyph_indices, actual_glyph_count);
                 {
@@ -561,8 +569,6 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
                                                          glyph_array->offsets);
                 }
                 Assert(SUCCEEDED(hr));
-
-                last_glyph_array_chunk->total_glyph_count += glyph_array->count;
               }
             }
           }

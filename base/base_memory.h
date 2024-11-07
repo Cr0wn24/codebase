@@ -82,7 +82,8 @@ push_array_no_zero(Arena *arena, U64 count)
 
 #define MemoryZero(dst, size) memset((dst), 0, (size))
 #define MemoryZeroStruct(dst) MemoryZero((dst), sizeof(*(dst)))
-#define MemoryZeroArray(dst, count) MemoryZero((dst), sizeof(*dst) * count)
+#define MemoryZeroArray(dst) MemoryZero((dst), sizeof(dst))
+#define MemoryZeroTyped(dst, count) MemoryZero((dst), sizeof(*dst) * count)
 
 #define MemoryMatch(a, b, size) (!memcmp((a), (b), size))
 

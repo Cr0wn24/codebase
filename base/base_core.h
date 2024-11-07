@@ -271,8 +271,8 @@ typedef double F64;
   if(!(expr)) [[unlikely]] \
     (*(volatile int *)0 = 0);
 
-#define Assert(expr)       \
-  if(!(expr)) [[unlikely]] \
+#define Assert(expr) \
+  if(!(expr))        \
     (*(volatile int *)0 = 0);
 
 #define invalid_case         \
