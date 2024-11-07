@@ -24,7 +24,7 @@ ui_renderer_init()
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
                                                      .semantic_name = Str8Lit("MIN"),
                                                      .kind = R_AttributeKind_Float2,
-                                                     .offset = member_offset(UI_RectInstance, dst_min),
+                                                     .offset = MemberOffset(UI_RectInstance, dst_min),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
@@ -32,35 +32,35 @@ ui_renderer_init()
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
                                                      .semantic_name = Str8Lit("MAX"),
                                                      .kind = R_AttributeKind_Float2,
-                                                     .offset = member_offset(UI_RectInstance, dst_max),
+                                                     .offset = MemberOffset(UI_RectInstance, dst_max),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
                                                      .semantic_name = Str8Lit("MIN_UV"),
                                                      .kind = R_AttributeKind_Float2,
-                                                     .offset = member_offset(UI_RectInstance, src_min),
+                                                     .offset = MemberOffset(UI_RectInstance, src_min),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
                                                      .semantic_name = Str8Lit("MAX_UV"),
                                                      .kind = R_AttributeKind_Float2,
-                                                     .offset = member_offset(UI_RectInstance, src_max),
+                                                     .offset = MemberOffset(UI_RectInstance, src_max),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
                                                      .semantic_name = Str8Lit("COLORS"),
                                                      .kind = R_AttributeKind_Float4,
-                                                     .offset = member_offset(UI_RectInstance, colors[0]),
+                                                     .offset = MemberOffset(UI_RectInstance, colors[0]),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
                                                      .semantic_name = Str8Lit("COLORS"),
                                                      .kind = R_AttributeKind_Float4,
-                                                     .offset = member_offset(UI_RectInstance, colors[1]),
+                                                     .offset = MemberOffset(UI_RectInstance, colors[1]),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .semantic_index = 1,
                                                      .step_rate = 1,
@@ -68,7 +68,7 @@ ui_renderer_init()
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
                                                      .semantic_name = Str8Lit("COLORS"),
                                                      .kind = R_AttributeKind_Float4,
-                                                     .offset = member_offset(UI_RectInstance, colors[2]),
+                                                     .offset = MemberOffset(UI_RectInstance, colors[2]),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .semantic_index = 2,
                                                      .step_rate = 1,
@@ -76,7 +76,7 @@ ui_renderer_init()
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
                                                      .semantic_name = Str8Lit("COLORS"),
                                                      .kind = R_AttributeKind_Float4,
-                                                     .offset = member_offset(UI_RectInstance, colors[3]),
+                                                     .offset = MemberOffset(UI_RectInstance, colors[3]),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .semantic_index = 3,
                                                      .step_rate = 1,
@@ -84,14 +84,14 @@ ui_renderer_init()
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
                                                      .semantic_name = Str8Lit("CORNER_RADIUS"),
                                                      .kind = R_AttributeKind_Float4,
-                                                     .offset = member_offset(UI_RectInstance, corner_radius),
+                                                     .offset = MemberOffset(UI_RectInstance, corner_radius),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
   r_add_input_layout_attribute(&input_layout_desc, (R_AttributeDesc){
                                                      .semantic_name = Str8Lit("EXTRA"),
                                                      .kind = R_AttributeKind_Float4,
-                                                     .offset = member_offset(UI_RectInstance, extra),
+                                                     .offset = MemberOffset(UI_RectInstance, extra),
                                                      .slot_class = R_InputSlotClass_PerInstance,
                                                      .step_rate = 1,
                                                    });
@@ -159,7 +159,7 @@ ui_draw_rect(Vec2F32 min, Vec2F32 max, UI_DrawRectParams params)
   if(node == 0)
   {
     node = push_array<UI_RectBatchNode>(ui_frame_arena(), 1);
-    dll_push_back(renderer->first_batch_node, renderer->last_batch_node, node);
+    DLLPushBack(renderer->first_batch_node, renderer->last_batch_node, node);
     node->v = push_array<UI_RectBatch>(ui_frame_arena(), 1);
     batch = node->v;
     batch->max_count = 4096;
@@ -267,14 +267,14 @@ ui_clip_rect_push(RectF32 rect)
   UI_RendererState *renderer = ui_state->renderer;
   UI_ClipRectNode *n = push_array<UI_ClipRectNode>(ui_frame_arena(), 1);
   n->v = rect;
-  sll_stack_push(renderer->clip_rect_stack, n);
+  SLLStackPush(renderer->clip_rect_stack, n);
 }
 
 static void
 ui_clip_rect_pop()
 {
   UI_RendererState *renderer = ui_state->renderer;
-  sll_stack_pop(renderer->clip_rect_stack);
+  SLLStackPop(renderer->clip_rect_stack);
 }
 
 static void

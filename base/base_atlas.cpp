@@ -54,7 +54,7 @@ atlas_region_alloc(Arena *arena, Atlas *atlas, Vec2U64 dim)
         child->region.min = node->region.min + corners[i][0];
         child->region.max = node->region.min + corners[i][1];
         child->max_region_size = dim_r4u64(child->region);
-        dll_push_back(node->first, node->last, child);
+        DLLPushBack(node->first, node->last, child);
       }
     }
 

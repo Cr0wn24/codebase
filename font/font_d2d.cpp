@@ -543,7 +543,7 @@ f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
       glyph->size = size;
       glyph->region_uv = r4f32((F32)raster_result.atlas_region.x0 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y0 / (F32)f_d2d_state->atlas.atlas.dim.y,
                                (F32)raster_result.atlas_region.x1 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y1 / (F32)f_d2d_state->atlas.atlas.dim.y);
-      sll_stack_push_n(f_d2d_state->glyph_from_idx_lookup_table[slot_idx], glyph, hash_next);
+      SLLStackPushN(f_d2d_state->glyph_from_idx_lookup_table[slot_idx], glyph, hash_next);
     }
 
     // hampus: fill in glyph run data
@@ -553,7 +553,7 @@ f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
     glyph_run_node->metrics = glyph->metrics;
     glyph_run_node->region_uv = glyph->region_uv;
 
-    dll_push_back(result.first, result.last, glyph_run_node);
+    DLLPushBack(result.first, result.last, glyph_run_node);
   }
   return result;
 }
@@ -575,7 +575,7 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
   F_GlyphRun result = {};
 
   TempArena scratch = GetScratch(&arena, 1);
-  String16 str16 = cstr16_from_str32(scratch.arena, str32);
+  String16 str16 = str16_from_str32(scratch.arena, str32);
   String16 tag_str16 = str16_from_str8(scratch.arena, tag.string);
 
   F_DWrite_MapTextToGlyphsResult map_text_to_glyphs_result = f_dwrite_map_text_to_glyphs(f_d2d_state->font_fallback1,
@@ -627,7 +627,7 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
           glyph->size = size;
           glyph->region_uv = r4f32((F32)raster_result.atlas_region.x0 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y0 / (F32)f_d2d_state->atlas.atlas.dim.y,
                                    (F32)raster_result.atlas_region.x1 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y1 / (F32)f_d2d_state->atlas.atlas.dim.y);
-          sll_stack_push_n(f_d2d_state->glyph_from_idx_lookup_table[slot_idx], glyph, hash_next);
+          SLLStackPushN(f_d2d_state->glyph_from_idx_lookup_table[slot_idx], glyph, hash_next);
         }
 
         // hampus: fill in glyph run data
@@ -637,7 +637,7 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
         glyph_run_node->metrics = glyph->metrics;
         glyph_run_node->region_uv = glyph->region_uv;
 
-        dll_push_back(result.first, result.last, glyph_run_node);
+        DLLPushBack(result.first, result.last, glyph_run_node);
       }
       else
       {

@@ -267,7 +267,7 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
     event_node->v.key_modifiers |= ((GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0) * OS_KeyModifier_Shift;
     event_node->v.key_modifiers |= ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0) * OS_KeyModifier_Ctrl;
     event_node->v.key_modifiers |= ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0) * OS_KeyModifier_Alt;
-    dll_push_back(event_list->first, event_list->last, event_node);
+    DLLPushBack(event_list->first, event_list->last, event_node);
     event_list->count += 1;
   }
 

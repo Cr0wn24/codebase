@@ -106,8 +106,8 @@ os_get_memory_stats()
     }
 
     fclose(file);
-    result.reserved = memory_size_from_bytes(kilobytes(total_reserve_size));
-    result.commited = memory_size_from_bytes(kilobytes(total_commit_size));
+    result.reserved = memory_size_from_bytes(Kilobytes(total_reserve_size));
+    result.commited = memory_size_from_bytes(Kilobytes(total_commit_size));
   }
   return result;
 }

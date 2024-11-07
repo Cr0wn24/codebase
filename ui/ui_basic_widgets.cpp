@@ -3,7 +3,7 @@ ui_spacer(UI_Size size)
 {
   Axis2 axis = ui_top_parent()->child_layout_axis;
   ui_next_pref_size(axis, size);
-  ui_next_pref_size(axis_flip(axis), ui_px(0, 0));
+  ui_next_pref_size(AxisFlip(axis), ui_px(0, 0));
   ui_box_make(0);
 }
 
@@ -406,7 +406,7 @@ ui_push_scrollable_container(String8 string, Axis2 axis)
   ui_push_seed(ui_hash_from_seed_string(ui_top_seed(), string));
   UI_Box *view_box = ui_box_make(UI_BoxFlag_ViewScroll | UI_BoxFlag_Clip, Str8Lit("ViewBox"));
   ui_push_parent(view_box);
-  ui_next_pref_size(axis_flip(axis), ui_fill());
+  ui_next_pref_size(AxisFlip(axis), ui_fill());
   ui_next_pref_size(axis, ui_children_sum(1));
   ui_next_child_layout_axis(axis);
   UI_Box *content_box = ui_box_make((UI_BoxFlags)(UI_BoxFlag_AllowOverflowX << axis), Str8Lit("ContentBox"));

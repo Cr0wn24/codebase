@@ -23,7 +23,7 @@ os_win32_entity_alloc()
   }
   else
   {
-    sll_stack_pop(os_win32_state->first_free_entity);
+    SLLStackPop(os_win32_state->first_free_entity);
   }
   MemoryZeroStruct(result);
   return result;
@@ -32,7 +32,7 @@ os_win32_entity_alloc()
 static void
 os_win32_entity_free(OS_Win32_Entity *e)
 {
-  sll_stack_push(os_win32_state->first_free_entity, e);
+  SLLStackPush(os_win32_state->first_free_entity, e);
 }
 
 static B32

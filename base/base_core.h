@@ -167,62 +167,61 @@ static_assert(ARCH_ARM64 || ARCH_X64, "This architecture is not supported");
 #define CheckNil(nil, p) ((p) == 0 || (p) == nil)
 #define SetNil(nil, p) ((p) = nil)
 
-#define dll_insert_npz(nil, f, l, p, n, next, prev)                    \
-  (CheckNil(nil, f)                                                    \
-   ? ((f) = (l) = (n), SetNil(nil, (n)->next), SetNil(nil, (n)->prev)) \
-   : CheckNil(nil, p) ? ((n)->next = (f), (f)->prev = (n), (f) = (n),  \
-                         SetNil(nil, (n)->prev))                       \
-     : ((p) == (l))                                                    \
-       ? ((l)->next = (n), (n)->prev = (l), (l) = (n),                 \
-          SetNil(nil, (n)->next))                                      \
-       : (((!CheckNil(nil, p) && CheckNil(nil, (p)->next))             \
-           ? (0)                                                       \
-           : ((p)->next->prev = (n))),                                 \
-          ((n)->next = (p)->next), ((p)->next = (n)), ((n)->prev = (p))))
-#define dll_push_back_npz(nil, f, l, n, next, prev) \
-  dll_insert_npz(nil, f, l, l, n, next, prev)
-#define dll_push_front_npz(nil, f, l, n, next, prev) \
-  dll_insert_npz(nil, l, f, f, n, prev, next)
-#define dll_remove_npz(nil, f, l, n, next, prev)                               \
+#define DLLInsertNPZ(nil, f, l, p, n, next, prev) (CheckNil(nil, f)                                                    \
+                                                   ? ((f) = (l) = (n), SetNil(nil, (n)->next), SetNil(nil, (n)->prev)) \
+                                                   : CheckNil(nil, p) ? ((n)->next = (f), (f)->prev = (n), (f) = (n),  \
+                                                                         SetNil(nil, (n)->prev))                       \
+                                                     : ((p) == (l))                                                    \
+                                                       ? ((l)->next = (n), (n)->prev = (l), (l) = (n),                 \
+                                                          SetNil(nil, (n)->next))                                      \
+                                                       : (((!CheckNil(nil, p) && CheckNil(nil, (p)->next))             \
+                                                           ? (0)                                                       \
+                                                           : ((p)->next->prev = (n))),                                 \
+                                                          ((n)->next = (p)->next), ((p)->next = (n)), ((n)->prev = (p))))
+#define DLLPushBackNPZ(nil, f, l, n, next, prev) \
+  DLLInsertNPZ(nil, f, l, l, n, next, prev)
+#define DLLPushFrontNPZ(nil, f, l, n, next, prev) \
+  DLLInsertNPZ(nil, l, f, f, n, prev, next)
+#define DLLRemoveNPZ(nil, f, l, n, next, prev)                                 \
   (((n) == (f) ? (f) = (n)->next : (0)), ((n) == (l) ? (l) = (l)->prev : (0)), \
    (CheckNil(nil, (n)->prev) ? (0) : ((n)->prev->next = (n)->next)),           \
    (CheckNil(nil, (n)->next) ? (0) : ((n)->next->prev = (n)->prev)))
 
-#define sll_queue_push_nz(nil, f, l, n, next)                   \
+#define SLLQueuePushNZ(nil, f, l, n, next)                      \
   (CheckNil(nil, f) ? ((f) = (l) = (n), SetNil(nil, (n)->next)) \
                     : ((l)->next = (n), (l) = (n), SetNil(nil, (n)->next)))
-#define sll_queue_push_front_nz(nil, f, l, n, next)             \
+#define SLLQueuePushFrontNZ(nil, f, l, n, next)                 \
   (CheckNil(nil, f) ? ((f) = (l) = (n), SetNil(nil, (n)->next)) \
                     : ((n)->next = (f), (f) = (n)))
-#define sll_queue_pop_nz(nil, f, l, next) \
+#define SLLQueuePopNZ(nil, f, l, next) \
   ((f) == (l) ? (SetNil(nil, f), SetNil(nil, l)) : ((f) = (f)->next))
 
-#define sll_stack_push_n(f, n, next) ((n)->next = (f), (f) = (n))
-#define sll_stack_pop_n(f, next) ((f) = (f)->next)
+#define SLLStackPushN(f, n, next) ((n)->next = (f), (f) = (n))
+#define SLLStackPopN(f, next) ((f) = (f)->next)
 
-#define dll_insert_np(f, l, p, n, next, prev) \
-  dll_insert_npz(0, f, l, p, n, next, prev)
-#define dll_push_back_np(f, l, n, next, prev) \
-  dll_push_back_npz(0, f, l, n, next, prev)
-#define dll_push_front_np(f, l, n, next, prev) \
-  dll_push_front_npz(0, f, l, n, next, prev)
-#define dll_remove_np(f, l, n, next, prev) \
-  dll_remove_npz(0, f, l, n, next, prev)
-#define dll_insert(f, l, p, n) dll_insert_npz(0, f, l, p, n, next, prev)
-#define dll_push_back(f, l, n) dll_push_back_npz(0, f, l, n, next, prev)
-#define dll_push_front(f, l, n) dll_push_front_npz(0, f, l, n, next, prev)
-#define dll_remove(f, l, n) dll_remove_npz(0, f, l, n, next, prev)
+#define DLLInsertNP(f, l, p, n, next, prev) \
+  DLLInsertNPZ(0, f, l, p, n, next, prev)
+#define DLLPushBackNP(f, l, n, next, prev) \
+  DLLPushBackNPZ(0, f, l, n, next, prev)
+#define DLLPushFrontNP(f, l, n, next, prev) \
+  DLLPushFrontNPZ(0, f, l, n, next, pre, v)
+#define DLLRemoveNP(f, l, n, next, prev) \
+  DLLRemoveNPZ(0, f, l, n, next, prev)
+#define DLLInsert(f, l, p, n) DLLInsertNPZ(0, f, l, p, n, next, prev)
+#define DLLPushBack(f, l, n) DLLPushBackNPZ(0, f, l, n, next, prev)
+#define DLLPushFront(f, l, n) DLLPushFrontNPZ(0, f, l, n, next, prev)
+#define DLLRemove(f, l, n) DLLRemoveNPZ(0, f, l, n, next, prev)
 
-#define sll_queue_push_n(f, l, n, next) sll_queue_push_nz(0, f, l, n, next)
-#define sll_queue_push_front_n(f, l, n, next) \
-  sll_queue_push_front_nz(0, f, l, n, next)
-#define sll_queue_pop_n(f, l, next) sll_queue_pop_nz(0, f, l, next)
-#define sll_queue_push(f, l, n) sll_queue_push_nz(0, f, l, n, next)
-#define sll_queue_push_front(f, l, n) sll_queue_push_front_nz(0, f, l, n, next)
-#define sll_queue_pop(f, l) sll_queue_pop_nz(0, f, l, next)
+#define SLLQueuePushN(f, l, n, next) SLLQueuePushNZ(0, f, l, n, next)
+#define SLLQueuePushFrontN(f, l, n, next) \
+  SLLQueuePushFrontNZ(0, f, l, n, next)
+#define SLLQueuePopN(f, l, next) SLLQueuePopNZ(0, f, l, next)
+#define SLLQueuePush(f, l, n) SLLQueuePushNZ(0, f, l, n, next)
+#define SLLQueuePushFront(f, l, n) SLLQueuePushFrontNZ(0, f, l, n, next)
+#define SLLQueuePop(f, l) SLLQueuePopNZ(0, f, l, next)
 
-#define sll_stack_push(f, n) sll_stack_push_n(f, n, next)
-#define sll_stack_pop(f) sll_stack_pop_n(f, next)
+#define SLLStackPush(f, n) SLLStackPushN(f, n, next)
+#define SLLStackPop(f) SLLStackPopN(f, next)
 
 //////////////////////////////
 // NOTE(hampus): Base types
@@ -304,19 +303,19 @@ typedef double F64;
 
 #define ForEachEnumVal(e, var) for(e var = static_cast<e>(0); var < e##_COUNT; var = static_cast<e>(static_cast<int>(var) + 1))
 
-#define member(t, m) (((t *)0)->m)
-#define member_offset(t, m) offsetof(t, m)
+#define Member(t, m) (((t *)0)->m)
+#define MemberOffset(t, m) offsetof(t, m)
 
-#define kilobytes(n) ((n) * 1024LL)
-#define megabytes(n) (1024LL * kilobytes(n))
-#define gigabytes(n) (1024LL * megabytes(n))
-#define terabytes(n) (1024LL * gigabytes(n))
+#define Kilobytes(n) ((n) * 1024LL)
+#define Megabytes(n) (1024LL * Kilobytes(n))
+#define Gigabytes(Sn) (1024LL * Megabytes(n))
+#define Terabytes(n) (1024LL * Gigabytes(Sn))
 
-#define thousand(n) ((n) * 1000)
-#define Million(n) ((thousand(n)) * 1000)
+#define Thousand(n) ((n) * 1000)
+#define Million(n) ((Thousand(n)) * 1000)
 #define billion(n) ((Million(n)) * 1000)
 
-#define axis_flip(axis) ((axis) == Axis2_X ? Axis2_Y : Axis2_X)
+#define AxisFlip(axis) ((axis) == Axis2_X ? Axis2_Y : Axis2_X)
 enum Axis2
 {
   Axis2_X,
@@ -344,7 +343,7 @@ enum Axis4
   Axis4_COUNT,
 };
 
-#define side_flip(side) (!(side))
+#define SideFlip(side) (!(side))
 enum Side
 {
   Side_Min,

@@ -61,7 +61,7 @@ r_make_render_window_context(OS_Handle window_os)
   }
   else
   {
-    sll_stack_pop(r_gles_state->first_free_window);
+    SLLStackPop(r_gles_state->first_free_window);
     MemoryZeroStruct(window);
   }
   window->window_os = window_os;
@@ -75,7 +75,7 @@ r_destroy_render_window_context(R_Handle handle)
   if(!r_handle_match(handle, r_handle_zero()))
   {
     R_GLES_Window *window = (R_GLES_Window *)PtrFromInt(handle.u64[0]);
-    sll_stack_push(r_gles_state->first_free_window, window);
+    SLLStackPush(r_gles_state->first_free_window, window);
   }
   else
   {
@@ -96,7 +96,7 @@ r_make_pipeline(R_PipelineDesc desc)
   }
   else
   {
-    sll_stack_pop(r_gles_state->first_free_pipeline);
+    SLLStackPop(r_gles_state->first_free_pipeline);
     MemoryZeroStruct(pipeline);
   }
 
@@ -195,7 +195,7 @@ r_destroy_pipeline(R_Handle handle)
   {
     R_GLES_Pipeline *pipeline = (R_GLES_Pipeline *)PtrFromInt(handle.u64[0]);
     GL_CALL(glDeleteProgram(pipeline->shader));
-    sll_stack_push(r_gles_state->first_free_pipeline, pipeline);
+    SLLStackPush(r_gles_state->first_free_pipeline, pipeline);
   }
   else
   {
@@ -214,7 +214,7 @@ r_make_buffer(R_BufferDesc desc)
   }
   else
   {
-    sll_stack_pop(r_gles_state->first_free_buffer);
+    SLLStackPop(r_gles_state->first_free_buffer);
     MemoryZeroStruct(buffer);
   }
   GL_CALL(glGenBuffers(1, &buffer->vbo));
@@ -232,7 +232,7 @@ r_destroy_buffer(R_Handle handle)
   {
     R_GLES_Buffer *buffer = (R_GLES_Buffer *)PtrFromInt(handle.u64[0]);
     GL_CALL(glDeleteBuffers(1, &buffer->vbo));
-    sll_stack_push(r_gles_state->first_free_buffer, buffer);
+    SLLStackPush(r_gles_state->first_free_buffer, buffer);
   }
 }
 
@@ -247,7 +247,7 @@ r_make_tex2d_from_bitmap(void *data, U32 width, U32 height)
   }
   else
   {
-    sll_stack_pop(r_gles_state->first_free_tex2d);
+    SLLStackPop(r_gles_state->first_free_tex2d);
     MemoryZeroStruct(tex2d);
   }
 
@@ -289,7 +289,7 @@ r_destroy_tex2d(R_Handle handle)
   {
     R_GLES_Tex2D *texture = (R_GLES_Tex2D *)PtrFromInt(handle.u64[0]);
     GL_CALL(glDeleteTextures(1, &texture->texture));
-    sll_stack_push(r_gles_state->first_free_tex2d, texture);
+    SLLStackPush(r_gles_state->first_free_tex2d, texture);
   }
   else
   {

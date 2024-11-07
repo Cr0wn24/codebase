@@ -197,7 +197,7 @@ os_android_post_event(OS_Event event)
 {
   OS_EventNode *event_node = push_array<OS_EventNode>(os_android_event_arena, 1);
   event_node->v = event;
-  dll_push_back(os_android_event_list->first, os_android_event_list->last, event_node);
+  DLLPushBack(os_android_event_list->first, os_android_event_list->last, event_node);
   os_android_event_list->count += 1;
 }
 
@@ -828,7 +828,7 @@ os_window_open(String8 title, U32 width, U32 height)
   }
   else
   {
-    sll_stack_pop(os_gfx_android_state->first_free_window);
+    SLLStackPop(os_gfx_android_state->first_free_window);
     MemoryZeroStruct(window);
   }
   EGLint attribs[] =
@@ -930,7 +930,7 @@ os_window_close(OS_Handle handle)
     }
     eglTerminate(window->display);
   }
-  sll_stack_push(os_gfx_android_state->first_free_window, window);
+  SLLStackPush(os_gfx_android_state->first_free_window, window);
 }
 
 static void

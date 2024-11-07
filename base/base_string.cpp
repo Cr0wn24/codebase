@@ -351,7 +351,7 @@ static void
 str8_list_push(String8List *list, String8 string, String8Node *node)
 {
   node->v = string;
-  dll_push_back(list->first, list->last, node);
+  DLLPushBack(list->first, list->last, node);
   ++list->count;
   list->total_size += string.size;
 }

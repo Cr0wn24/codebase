@@ -16,8 +16,8 @@
 //////////////////////////////
 // NOTE(hampus): Defines
 
-#define ARENA_DEFAULT_RESERVE_SIZE gigabytes(2)
-#define ARENA_COMMIT_BLOCK_SIZE kilobytes(64)
+#define ARENA_DEFAULT_RESERVE_SIZE Gigabytes(S2)
+#define ARENA_COMMIT_BLOCK_SIZE Kilobytes(64)
 
 //////////////////////////////
 // NOTE(hampus): Arena types

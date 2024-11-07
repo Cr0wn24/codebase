@@ -108,7 +108,7 @@ r_make_pipeline(R_PipelineDesc desc)
   }
   else
   {
-    sll_stack_pop(r_d3d11_state->first_free_pipeline);
+    SLLStackPop(r_d3d11_state->first_free_pipeline);
   }
 
   switch(desc.topology)
@@ -313,7 +313,7 @@ r_destroy_pipeline(R_Handle handle)
   d3d11_pipeline->layout->Release();
   d3d11_pipeline->pshader->Release();
   d3d11_pipeline->vshader->Release();
-  sll_stack_push(r_d3d11_state->first_free_pipeline, d3d11_pipeline);
+  SLLStackPush(r_d3d11_state->first_free_pipeline, d3d11_pipeline);
 }
 
 static R_Handle
@@ -327,7 +327,7 @@ r_make_buffer(R_BufferDesc desc)
   }
   else
   {
-    sll_stack_pop(r_d3d11_state->first_free_buffer);
+    SLLStackPop(r_d3d11_state->first_free_buffer);
   }
   D3D11_BUFFER_DESC d3d11_desc = {};
   UINT size = safe_u32_from_u64(desc.size);
@@ -361,7 +361,7 @@ r_destroy_buffer(R_Handle handle)
 {
   R_D3D11_Buffer *buffer = r_d3d11_state->first_free_buffer;
   buffer->buffer->Release();
-  sll_stack_push(r_d3d11_state->first_free_buffer, buffer);
+  SLLStackPush(r_d3d11_state->first_free_buffer, buffer);
 }
 
 static R_Handle
@@ -372,7 +372,7 @@ r_make_tex2d_from_bitmap(void *data, U32 width, U32 height, R_PixelFormat pixel_
   R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)r_d3d11_state->first_free_texture;
   if(d3d11_texture != 0)
   {
-    sll_stack_pop(r_d3d11_state->first_free_texture);
+    SLLStackPop(r_d3d11_state->first_free_texture);
   }
   else
   {
@@ -458,7 +458,7 @@ r_destroy_tex2d(R_Handle texture)
 {
   R_D3D11_Texture *d3d11_texture = (R_D3D11_Texture *)PtrFromInt(texture.u64[0]);
   d3d11_texture->view->Release();
-  sll_stack_push(r_d3d11_state->first_free_texture, d3d11_texture);
+  SLLStackPush(r_d3d11_state->first_free_texture, d3d11_texture);
 }
 
 static void

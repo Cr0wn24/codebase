@@ -124,7 +124,7 @@ struct TextAnalysisSink final : IDWriteTextAnalysisSink
       }
       else
       {
-        sll_stack_pop(f_dwrite_map_text_to_glyphs_state->first_text_analsys_sink_chunk);
+        SLLStackPop(f_dwrite_map_text_to_glyphs_state->first_text_analsys_sink_chunk);
         MemoryZeroStruct(chunk);
       }
       if(first_result_chunk == 0)
@@ -172,7 +172,7 @@ struct TextAnalysisSink final : IDWriteTextAnalysisSink
     for(TextAnalysisSinkResultChunk *chunk = first_result_chunk; chunk != 0; chunk = next_chunk)
     {
       next_chunk = chunk->next;
-      sll_stack_push(f_dwrite_map_text_to_glyphs_state->first_text_analsys_sink_chunk, chunk);
+      SLLStackPush(f_dwrite_map_text_to_glyphs_state->first_text_analsys_sink_chunk, chunk);
     }
   }
 };
@@ -306,14 +306,16 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
       TempArena function_scratch = GetScratch(0, 0);
 
       wchar_t *cstr16_base_family = cstr16_from_str16(function_scratch.arena, base_family);
+      wchar_t *cstr_text = cstr16_from_str16(function_scratch.arena, text);
+      U32 text_length_u32 = safe_u32_from_u64(text.size);
 
       HRESULT hr = 0;
 
-      for(U32 fallback_offset = 0; fallback_offset < text.size;)
+      for(U32 fallback_offset = 0; fallback_offset < text_length_u32;)
       {
         TempArena scratch = GetScratch(&function_scratch.arena, 1);
 
-        U32 max_glyph_indices_count = safe_u32_from_u64(text.size) * 256;
+        U32 max_glyph_indices_count = text_length_u32 * 256;
         U16 *glyph_indices = push_array_no_zero<U16>(scratch.arena, max_glyph_indices_count);
         DWRITE_SHAPING_GLYPH_PROPERTIES *glyph_props = push_array_no_zero<DWRITE_SHAPING_GLYPH_PROPERTIES>(scratch.arena, max_glyph_indices_count);
         U16 *cluster_map = push_array_no_zero<U16>(scratch.arena, max_glyph_indices_count);
@@ -326,7 +328,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
         U32 mapped_text_length = 0;
         {
           // NOTE(hampus): We need an analysis source that holds the text and the locale
-          TextAnalysisSource analysis_source{locale, (wchar_t *)text.data, safe_u32_from_u64(text.size)};
+          TextAnalysisSource analysis_source{locale, cstr_text, text_length_u32};
 
           // NOTE(hampus): This get the appropiate font required for rendering the text
           F32 scale = 0;
@@ -334,7 +336,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
             ProfileScope("MapCharacters()");
             hr = font_fallback->MapCharacters(&analysis_source,
                                               fallback_offset,
-                                              safe_u32_from_u64(text.size),
+                                              text_length_u32,
                                               font_collection,
                                               cstr16_base_family,
                                               0,
@@ -379,7 +381,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
         F_DWrite_GlyphArrayChunk *first_glyph_array_chunk = 0;
         F_DWrite_GlyphArrayChunk *last_glyph_array_chunk = 0;
 
-        const wchar_t *fallback_ptr = (wchar_t *)text.data + fallback_offset;
+        const wchar_t *fallback_ptr = cstr_text + fallback_offset;
         const wchar_t *fallback_opl = fallback_ptr + mapped_text_length;
         while(fallback_ptr < fallback_opl)
         {
@@ -583,7 +585,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
       slot->font_size = font_size;
       slot->base_family = str16_copy(f_dwrite_map_text_to_glyphs_state->arena, base_family);
       slot->v = result;
-      sll_stack_push_n(f_dwrite_map_text_to_glyphs_state->text_to_glyphs_result_map[slot_idx], slot, hash_next);
+      SLLStackPushN(f_dwrite_map_text_to_glyphs_state->text_to_glyphs_result_map[slot_idx], slot, hash_next);
     }
   }
 

@@ -237,10 +237,10 @@ ui_text_action_list_from_events(Arena *arena, OS_EventList *event_list)
 
     if(!MemoryMatch(&text_action, &text_action_zero, sizeof(UI_TextAction)))
     {
-      dll_remove(event_list->first, event_list->last, n);
+      DLLRemove(event_list->first, event_list->last, n);
       UI_TextActionNode *node = push_array<UI_TextActionNode>(arena, 1);
       node->action = text_action;
-      dll_push_back(result.first, result.last, node);
+      DLLPushBack(result.first, result.last, node);
     }
   }
   return result;
@@ -754,7 +754,7 @@ ui_box_alloc()
   if(!ui_box_is_nil(box))
   {
     ASAN_UNPOISON_MEMORY_REGION(box, sizeof(UI_Box));
-    sll_stack_pop(ui_state->first_free_box);
+    SLLStackPop(ui_state->first_free_box);
     MemoryZeroStruct(box);
   }
   else
@@ -827,7 +827,7 @@ ui_box_from_key(UI_Key key)
     if(ui_box_is_nil(box))
     {
       box = ui_box_alloc();
-      sll_stack_push_n(ui_state->box_map[slot_idx], box, hash_next);
+      SLLStackPushN(ui_state->box_map[slot_idx], box, hash_next);
       box->key = key;
       box->first_build_touched_idx = ui_state->build_idx;
     }
@@ -856,7 +856,7 @@ ui_box_make_from_key(UI_BoxFlags flags, UI_Key key)
   box->parent = parent;
   if(!ui_box_is_nil(parent))
   {
-    dll_push_back_npz(&ui_nil_box, parent->first, parent->last, box, next, prev);
+    DLLPushBackNPZ(&ui_nil_box, parent->first, parent->last, box, next, prev);
   }
 
   // hampus: Equip per build info
@@ -1058,7 +1058,7 @@ ui_comm_from_box__touch(UI_Box *box)
             {
               ui_state->focus_key = box->key;
             }
-            dll_remove(event_list->first, event_list->last, n);
+            DLLRemove(event_list->first, event_list->last, n);
           }
         }
         break;
@@ -1067,7 +1067,7 @@ ui_comm_from_box__touch(UI_Box *box)
           if(box->flags & UI_BoxFlag_Clickable)
           {
             result.released = true;
-            dll_remove(event_list->first, event_list->last, n);
+            DLLRemove(event_list->first, event_list->last, n);
             // NOTE(hampus): We are comparing to the prev_active_key because we will
             // zero the current active key in ui_begin_build() if there was a tap
             // release
@@ -1088,7 +1088,7 @@ ui_comm_from_box__touch(UI_Box *box)
           if(box->flags & UI_BoxFlag_ViewScroll)
           {
             ui_state->hot_key = box->key;
-            dll_remove(event_list->first, event_list->last, n);
+            DLLRemove(event_list->first, event_list->last, n);
           }
         }
         break;
@@ -1101,7 +1101,7 @@ ui_comm_from_box__touch(UI_Box *box)
           if(box->flags & UI_BoxFlag_Clickable)
           {
             result.double_clicked = true;
-            dll_remove(event_list->first, event_list->last, n);
+            DLLRemove(event_list->first, event_list->last, n);
           }
         }
         break;
@@ -1112,7 +1112,7 @@ ui_comm_from_box__touch(UI_Box *box)
           {
             result.scroll.x += event->scroll.x;
             result.scroll.y += event->scroll.y;
-            dll_remove(event_list->first, event_list->last, n);
+            DLLRemove(event_list->first, event_list->last, n);
           }
         }
         break;
@@ -1121,7 +1121,7 @@ ui_comm_from_box__touch(UI_Box *box)
           if(box->flags & UI_BoxFlag_FlingX)
           {
             result.fling_side[Axis2_X] = event->fling_side;
-            dll_remove(event_list->first, event_list->last, n);
+            DLLRemove(event_list->first, event_list->last, n);
           }
         }
         break;
@@ -1131,7 +1131,7 @@ ui_comm_from_box__touch(UI_Box *box)
           if(box->flags & UI_BoxFlag_FlingY)
           {
             result.fling_side[Axis2_Y] = event->fling_side;
-            dll_remove(event_list->first, event_list->last, n);
+            DLLRemove(event_list->first, event_list->last, n);
           }
         }
         break;
@@ -1200,7 +1200,7 @@ ui_comm_from_box__mouse(UI_Box *box)
             if(event->key == OS_Key_MouseLeft)
             {
               result.released = true;
-              dll_remove(event_list->first, event_list->last, node);
+              DLLRemove(event_list->first, event_list->last, node);
               if(box->key == ui_state->prev_active_key)
               {
                 result.clicked = true;
@@ -1213,7 +1213,7 @@ ui_comm_from_box__mouse(UI_Box *box)
             else if(event->key == OS_Key_MouseRight)
             {
               result.right_released = true;
-              dll_remove(event_list->first, event_list->last, node);
+              DLLRemove(event_list->first, event_list->last, node);
             }
           }
           break;
@@ -1229,7 +1229,7 @@ ui_comm_from_box__mouse(UI_Box *box)
                 {
                   ui_state->focus_key = box->key;
                 }
-                dll_remove(event_list->first, event_list->last, node);
+                DLLRemove(event_list->first, event_list->last, node);
               }
             }
           }
@@ -1247,7 +1247,7 @@ ui_comm_from_box__mouse(UI_Box *box)
                 {
                   ui_state->focus_key = box->key;
                 }
-                dll_remove(event_list->first, event_list->last, node);
+                DLLRemove(event_list->first, event_list->last, node);
               }
             }
             else if(event->key == OS_Key_MouseRight)
@@ -1258,7 +1258,7 @@ ui_comm_from_box__mouse(UI_Box *box)
                 {
                   ui_state->focus_key = box->key;
                 }
-                dll_remove(event_list->first, event_list->last, node);
+                DLLRemove(event_list->first, event_list->last, node);
               }
             }
             else if(event->key == OS_Key_Return)
@@ -1266,7 +1266,7 @@ ui_comm_from_box__mouse(UI_Box *box)
               if(ui_box_is_focus(box) && (box->flags & UI_BoxFlag_Commitable))
               {
                 result.commit = true;
-                dll_remove(event_list->first, event_list->last, node);
+                DLLRemove(event_list->first, event_list->last, node);
               }
             }
           }
@@ -1277,7 +1277,7 @@ ui_comm_from_box__mouse(UI_Box *box)
             {
               result.scroll.x += -node->v.scroll.x;
               result.scroll.y += -node->v.scroll.y;
-              dll_remove(event_list->first, event_list->last, node);
+              DLLRemove(event_list->first, event_list->last, node);
             }
           }
           break;
@@ -1427,7 +1427,7 @@ ui_solve_other_axis_dependent_sizes(UI_Box *root, Axis2 axis)
     UI_Size size = ui_size_from_axis(root, axis);
     if(size.kind == UI_SizeKind_OtherAxis)
     {
-      root->fixed_size[axis] = root->fixed_size[axis_flip(axis)];
+      root->fixed_size[axis] = root->fixed_size[AxisFlip(axis)];
     }
   }
   for(UI_Box *child = root->first; !ui_box_is_nil(child);
@@ -1730,14 +1730,14 @@ ui_push_parent(UI_Box *box)
 {
   UI_ParentStackNode *n = push_array<UI_ParentStackNode>(ui_frame_arena(), 1);
   n->box = box;
-  sll_stack_push(ui_state->parent_stack, n);
+  SLLStackPush(ui_state->parent_stack, n);
 }
 
 static UI_Box *
 ui_pop_parent()
 {
   UI_Box *box = ui_top_parent();
-  sll_stack_pop(ui_state->parent_stack);
+  SLLStackPop(ui_state->parent_stack);
   return box;
 }
 
@@ -1753,13 +1753,13 @@ ui_push_seed(U64 seed)
 {
   UI_SeedNode *node = push_array<UI_SeedNode>(ui_frame_arena(), 1);
   node->seed = seed;
-  sll_stack_push(ui_state->seed_stack, node);
+  SLLStackPush(ui_state->seed_stack, node);
 }
 
 static void
 ui_pop_seed()
 {
-  sll_stack_pop(ui_state->seed_stack);
+  SLLStackPop(ui_state->seed_stack);
 }
 
 static U64
@@ -1872,7 +1872,7 @@ ui_pop_fixed_rect()
   {                                                                                       \
     ui_##name_upper##Node *node = push_array<ui_##name_upper##Node>(ui_frame_arena(), 1); \
     node->val = new_val;                                                                  \
-    sll_stack_push(ui_state->name_lower##_stack, node);                                   \
+    SLLStackPush(ui_state->name_lower##_stack, node);                                     \
     return ui_state->name_lower##_stack;                                                  \
   }                                                                                       \
                                                                                           \
@@ -1887,7 +1887,7 @@ ui_pop_fixed_rect()
   static ui_##name_upper##Node *                                                          \
   ui_pop_##name_lower()                                                                   \
   {                                                                                       \
-    sll_stack_pop(ui_state->name_lower##_stack);                                          \
+    SLLStackPop(ui_state->name_lower##_stack);                                            \
     return ui_state->name_lower##_stack;                                                  \
   }                                                                                       \
                                                                                           \

@@ -306,7 +306,7 @@ get_all_source_files_from_directory_recursively(Arena *arena, String8 directory,
         {
           SourceFileNode *n = push_array<SourceFileNode>(arena, 1);
           n->path = string;
-          dll_push_back(list->first, list->last, n);
+          DLLPushBack(list->first, list->last, n);
         }
       }
     }
@@ -426,7 +426,7 @@ os_entry_point(String8List args)
                         n->file_stream_handle = os_file_stream_open(editor_main_generated_file_path);
                       }
 
-                      StaticArray<U8, kilobytes(16)> buffer = {};
+                      StaticArray<U8, Kilobytes(16)> buffer = {};
                       U64 buffer_used_size = 0;
 
                       {
