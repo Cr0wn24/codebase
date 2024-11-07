@@ -308,8 +308,8 @@ typedef double F64;
 
 #define Kilobytes(n) ((n) * 1024LL)
 #define Megabytes(n) (1024LL * Kilobytes(n))
-#define Gigabytes(Sn) (1024LL * Megabytes(n))
-#define Terabytes(n) (1024LL * Gigabytes(Sn))
+#define Gigabytes(n) (1024LL * Megabytes(n))
+#define Terabytes(n) (1024LL * Gigabytes(n))
 
 #define Thousand(n) ((n) * 1000)
 #define Million(n) ((Thousand(n)) * 1000)

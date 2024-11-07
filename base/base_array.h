@@ -1,7 +1,7 @@
 #ifndef BASE_ARRAY_H
 #define BASE_ARRAY_H
 
-#define DYNAMIC_ARRAY_DEFAULT_RESERVE_SIZE Gigabytes(S1)
+#define DYNAMIC_ARRAY_DEFAULT_RESERVE_SIZE Gigabytes(1)
 #define DYNAMIC_ARRAY_DEFAULT_COMMIT_SIZE Megabytes(1)
 
 template <typename T>
