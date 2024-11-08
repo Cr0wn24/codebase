@@ -8,43 +8,43 @@ struct Arena;
 
 struct String8
 {
-  U8 *data;
-  U64 size;
+ U8 *data;
+ U64 size;
 
-  [[nodiscard]] U8 &
-  operator[](U64 idx)
-  {
-    Assert(idx < size);
-    U8 &result = data[idx];
-    return result;
-  }
+ [[nodiscard]] U8 &
+ operator[](U64 idx)
+ {
+  Assert(idx < size);
+  U8 &result = data[idx];
+  return result;
+ }
 };
 
 struct String16
 {
-  U16 *data;
-  U64 size;
+ U16 *data;
+ U64 size;
 
-  [[nodiscard]] U16 &
-  operator[](U64 idx)
-  {
-    Assert(idx < size);
-    U16 &result = data[idx];
-    return result;
-  }
+ [[nodiscard]] U16 &
+ operator[](U64 idx)
+ {
+  Assert(idx < size);
+  U16 &result = data[idx];
+  return result;
+ }
 };
 
 struct String32
 {
-  U32 *data;
-  U64 size;
-  [[nodiscard]] U32 &
-  operator[](U64 idx)
-  {
-    Assert(idx < size);
-    U32 &result = data[idx];
-    return result;
-  }
+ U32 *data;
+ U64 size;
+ [[nodiscard]] U32 &
+ operator[](U64 idx)
+ {
+  Assert(idx < size);
+  U32 &result = data[idx];
+  return result;
+ }
 };
 
 //////////////////////////////
@@ -52,32 +52,32 @@ struct String32
 
 struct String8Node
 {
-  String8Node *next;
-  String8Node *prev;
-  String8 v;
+ String8Node *next;
+ String8Node *prev;
+ String8 v;
 };
 
 struct String8List
 {
-  String8Node *first;
-  String8Node *last;
-  U64 count;
-  U64 total_size;
+ String8Node *first;
+ String8Node *last;
+ U64 count;
+ U64 total_size;
 };
 
 struct String32Node
 {
-  String32Node *next;
-  String32Node *prev;
-  String32 v;
+ String32Node *next;
+ String32Node *prev;
+ String32 v;
 };
 
 struct String32List
 {
-  String32Node *first;
-  String32Node *last;
-  U64 count;
-  U64 total_size;
+ String32Node *first;
+ String32Node *last;
+ U64 count;
+ U64 total_size;
 };
 
 //////////////////////////////
@@ -85,21 +85,26 @@ struct String32List
 
 struct StringDecode
 {
-  U32 codepoint;
-  U64 size;
+ U32 codepoint;
+ U64 size;
+};
+
+struct StringDecodeNode
+{
+ StringDecodeNode *next;
+ StringDecodeNode *prev;
+ StringDecode v;
 };
 
 //////////////////////////////
 // NOTE(hampus): String8
 
 #define Str8Lit(literal) str8((U8 *)(literal), sizeof(literal) - 1)
-#define str8_comp(literal)                             \
-  {                                                    \
-    .data = (U8 *)literal, .size = sizeof(literal) - 1 \
-  }
+#define Str8Comp(literal) (U8 *)literal, sizeof(literal) - 1
+
 #define str8_expand(string) safe_s32_from_u64(string.size), string.data
 #define str8_struct(s) \
-  (String8) { (U8 *)(s), sizeof(*s) }
+ (String8) { (U8 *)(s), sizeof(*s) }
 
 [[nodiscard]] static String8 str8(U8 *data, U64 size);
 [[nodiscard]] static String8 str8(Arena *arena, String8 string);
@@ -179,6 +184,7 @@ static U64 string_encode_utf16(wchar_t *dst, U32 codepoint);
 // NOTE(hampus): String to integers
 
 static U64 u64_hex_from_str8(String8 string, U64 *dst);
+static U32 u32_hex_from_str8(String8 string, U64 *dst);
 
 static U64 u64_from_str8(String8 string, U64 *dst);
 static U64 u32_from_str8(String8 string, U32 *dst);
