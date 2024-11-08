@@ -29,43 +29,43 @@
 #include <android/permission_manager.h>
 #include <jni.h>
 
-#define SETUP_FOR_JAVA_CALL_THREAD          \
-  JNIEnv *env = android_app->activity->env; \
-  JavaVM *vm = android_app->activity->vm;   \
-  vm->AttachCurrentThread(&env, 0);
+#define SETUP_FOR_JAVA_CALL_THREAD         \
+ JNIEnv *env = android_app->activity->env; \
+ JavaVM *vm = android_app->activity->vm;   \
+ vm->AttachCurrentThread(&env, 0);
 
 #define JAVA_CALL_DETACH_THREAD vm->DetachCurrentThread();
 
 struct OS_Android_State
 {
-  Arena *arena;
-  OS_CrashHandlerProc *crash_handler_proc;
+ Arena *arena;
+ OS_CrashHandlerProc *crash_handler_proc;
 };
 
 struct OS_Android_ThreadArgs
 {
-  ThreadProc *proc;
-  void *data;
+ ThreadProc *proc;
+ void *data;
 };
 
 struct OS_Android_Mutex
 {
-  pthread_mutex_t mutex;
+ pthread_mutex_t mutex;
 };
 
 struct OS_Android_Semaphore
 {
-  sem_t semaphore;
+ sem_t semaphore;
 };
 
 #define MAX_ADDRESS_COUNT 30
 
 struct OS_Android_BacktraceState
 {
-  const ucontext_t *signal_ucontext;
-  U64 address_count;
-  StaticArray<uintptr_t, MAX_ADDRESS_COUNT> addresses;
-  OS_Backtrace *backtrace;
+ const ucontext_t *signal_ucontext;
+ U64 address_count;
+ StaticArray<uintptr_t, MAX_ADDRESS_COUNT> addresses;
+ OS_Backtrace *backtrace;
 };
 
 static OS_Android_State *os_android_state;

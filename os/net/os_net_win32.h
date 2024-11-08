@@ -4,4 +4,4 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-#endif //OS_NET_WIN32_H
+#endif // OS_NET_WIN32_H

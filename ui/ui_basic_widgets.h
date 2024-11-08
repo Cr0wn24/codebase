@@ -3,16 +3,16 @@
 
 struct UI_LineEditState
 {
-  UI_TextEditState edit_state;
-  StaticArray<U8, 256> buffer;
-  U64 string_length;
+ UI_TextEditState edit_state;
+ StaticArray<U8, 256> buffer;
+ U64 string_length;
 };
 
 struct UI_LineEditStatePairNode
 {
-  UI_LineEditStatePairNode *next;
-  UI_LineEditStatePairNode *prev;
-  StaticArray<UI_LineEditState, 2> v;
+ UI_LineEditStatePairNode *next;
+ UI_LineEditStatePairNode *prev;
+ StaticArray<UI_LineEditState, 2> v;
 };
 
 static void ui_spacer(UI_Size size);

@@ -12,24 +12,24 @@
 
 struct OS_Win32_ThreadArgs
 {
-  ThreadProc *proc;
-  void *data;
+ ThreadProc *proc;
+ void *data;
 };
 
 struct OS_Win32_Entity
 {
-  OS_Win32_Entity *next;
-  HANDLE handle;
-  WIN32_FIND_DATAW find_data;
-  B32 done;
+ OS_Win32_Entity *next;
+ HANDLE handle;
+ WIN32_FIND_DATAW find_data;
+ B32 done;
 };
 
 struct OS_Win32_State
 {
-  Arena *perm_arena;
-  OS_Win32_Entity *first_free_entity;
-  DWORD tls_idx;
-  LARGE_INTEGER frequency;
+ Arena *perm_arena;
+ OS_Win32_Entity *first_free_entity;
+ DWORD tls_idx;
+ LARGE_INTEGER frequency;
 };
 
 DWORD os_win32_thread_proc(LPVOID data);

@@ -7,104 +7,104 @@
 
 struct F_Handle
 {
-  U64 u64[1];
+ U64 u64[1];
 };
 
 struct F_Tag
 {
-  String8 string;
+ String8 string;
 };
 
 struct F_FontMetrics
 {
-  F32 descent;
-  F32 ascent;
-  F32 line_gap;
+ F32 descent;
+ F32 ascent;
+ F32 line_gap;
 };
 
 struct F_GlyphMetrics
 {
-  F32 advance;
-  F32 left_bearing;
+ F32 advance;
+ F32 left_bearing;
 };
 
 struct F_GlyphNode
 {
-  F_GlyphNode *next;
-  F_GlyphNode *prev;
+ F_GlyphNode *next;
+ F_GlyphNode *prev;
 
-  // hampus: rasterization parameters
-  U16 idx;
-  U32 size;
-  IDWriteFontFace *font_face;
+ // hampus: rasterization parameters
+ U16 idx;
+ U32 size;
+ IDWriteFontFace *font_face;
 
-  // hampus: layouting
-  RectF32 region_uv;
-  F_GlyphMetrics metrics;
-  Vec2U64 bitmap_size;
+ // hampus: layouting
+ RectF32 region_uv;
+ F_GlyphMetrics metrics;
+ Vec2U64 bitmap_size;
 };
 
 struct F_GlyphRunNode
 {
-  F_GlyphRunNode *next;
-  F_GlyphRunNode *prev;
+ F_GlyphRunNode *next;
+ F_GlyphRunNode *prev;
 
-  RectF32 region_uv;
-  F_GlyphMetrics metrics;
-  Vec2U64 bitmap_size;
+ RectF32 region_uv;
+ F_GlyphMetrics metrics;
+ Vec2U64 bitmap_size;
 };
 
 struct F_GlyphRun
 {
-  F_GlyphRunNode *first;
-  F_GlyphRunNode *last;
+ F_GlyphRunNode *first;
+ F_GlyphRunNode *last;
 };
 
 struct F_Atlas
 {
-  Atlas atlas;
-  R_Handle handle;
+ Atlas atlas;
+ R_Handle handle;
 };
 
 struct F_DWrite_Font
 {
-  IDWriteFont *font;
-  IDWriteFontFace *font_face;
-  IDWriteFontFile *font_file;
+ IDWriteFont *font;
+ IDWriteFontFace *font_face;
+ IDWriteFontFile *font_file;
 };
 
 struct F_GlyphSlot
 {
-  F_GlyphNode *first;
-  F_GlyphNode *last;
+ F_GlyphNode *first;
+ F_GlyphNode *last;
 };
 
 struct F_D2D_State
 {
-  Arena *arena;
+ Arena *arena;
 
-  StaticArray<F_Handle, 6> dwrite_font_table;
-  StaticArray<F_Tag, 6> font_tag_table;
+ StaticArray<F_Handle, 6> dwrite_font_table;
+ StaticArray<F_Tag, 6> font_tag_table;
 
-  StaticArray<F_GlyphSlot, 256> glyph_slots;
-  F_Atlas atlas;
+ StaticArray<F_GlyphSlot, 256> glyph_slots;
+ F_Atlas atlas;
 
-  wchar_t locale[LOCALE_NAME_MAX_LENGTH];
+ wchar_t locale[LOCALE_NAME_MAX_LENGTH];
 
-  IDWriteRenderingParams *rendering_params;
+ IDWriteRenderingParams *rendering_params;
 
-  IDWriteFactory7 *dwrite_factory;
-  IDWriteFontFallback *font_fallback;
-  IDWriteFontFallback1 *font_fallback1;
-  IDWriteFontCollection *font_collection;
-  IDWriteTextAnalyzer *text_analyzer;
-  IDWriteTextAnalyzer1 *text_analyzer1;
+ IDWriteFactory7 *dwrite_factory;
+ IDWriteFontFallback *font_fallback;
+ IDWriteFontFallback1 *font_fallback1;
+ IDWriteFontCollection *font_collection;
+ IDWriteTextAnalyzer *text_analyzer;
+ IDWriteTextAnalyzer1 *text_analyzer1;
 
-  ID2D1Factory5 *d2d_factory;
-  ID2D1Device4 *d2d_device;
-  ID2D1DeviceContext4 *d2d_device_context;
-  ID2D1RenderTarget *d2d_render_target;
-  ID2D1SolidColorBrush *foreground_brush;
+ ID2D1Factory5 *d2d_factory;
+ ID2D1Device4 *d2d_device;
+ ID2D1DeviceContext4 *d2d_device_context;
+ ID2D1RenderTarget *d2d_render_target;
+ ID2D1SolidColorBrush *foreground_brush;
 };
 
 [[nodiscard]] static F_Handle f_handle_zero();

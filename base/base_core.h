@@ -13,129 +13,129 @@
 // NOTE(hampus): Context cracking
 
 #if defined(BUILDING_ANDROID)
-#  undef _WIN32
+# undef _WIN32
 
-#  ifndef __ANDROID__
-#    define __ANDROID__
-#  endif
+# ifndef __ANDROID__
+#  define __ANDROID__
+# endif
 
 #endif
 
 #if defined(__clang__)
-#  define COMPILER_CLANG 1
+# define COMPILER_CLANG 1
 
-#  if defined(_WIN32)
-#    define OS_WINDOWS 1
-#  elif defined(__gnu_linux__)
-#    define OS_LINUX 1
-#  elif defined(__APPLE__) && defined(__MACH__)
-#    define OS_MAC 1
-#  elif defined(__ANDROID__)
-#    define OS_ANDROID 1
-#  else
-#    error missing OS detection
-#  endif
+# if defined(_WIN32)
+#  define OS_WINDOWS 1
+# elif defined(__gnu_linux__)
+#  define OS_LINUX 1
+# elif defined(__APPLE__) && defined(__MACH__)
+#  define OS_MAC 1
+# elif defined(__ANDROID__)
+#  define OS_ANDROID 1
+# else
+#  error missing OS detection
+# endif
 
-#  if defined(__amd64__)
-#    define ARCH_X64 1
-#  elif defined(__i386__)
-#    define ARCH_X86 1
-#  elif defined(__arm__)
-#    define ARCH_ARM 1
-#  elif defined(__aarch64__)
-#    define ARCH_ARM64 1
-#  else
-#    error missing ARCH detection
-#  endif
+# if defined(__amd64__)
+#  define ARCH_X64 1
+# elif defined(__i386__)
+#  define ARCH_X86 1
+# elif defined(__arm__)
+#  define ARCH_ARM 1
+# elif defined(__aarch64__)
+#  define ARCH_ARM64 1
+# else
+#  error missing ARCH detection
+# endif
 
 #elif defined(_MSC_VER)
-#  define COMPILER_CL 1
+# define COMPILER_CL 1
 
-#  if defined(_WIN32)
-#    define OS_WINDOWS 1
-#  else
-#    error missing OS detection
-#  endif
+# if defined(_WIN32)
+#  define OS_WINDOWS 1
+# else
+#  error missing OS detection
+# endif
 
-#  if defined(_M_AMD64)
-#    define ARCH_X64 1
-#  elif defined(_M_IX86)
-#    define ARCH_X86 1
-#  elif defined(_M_ARM)
-#    define ARCH_ARM
-#  else
-#    error missing ARCH detection
-#  endif
+# if defined(_M_AMD64)
+#  define ARCH_X64 1
+# elif defined(_M_IX86)
+#  define ARCH_X86 1
+# elif defined(_M_ARM)
+#  define ARCH_ARM
+# else
+#  error missing ARCH detection
+# endif
 
 #elif defined(__GNUC__)
-#  define COMPILER_GCC 1
+# define COMPILER_GCC 1
 
-#  if defined(_WIN32)
-#    define OS_WINDOWS 1
-#  elif defined(__gnu_linux__)
-#    define OS_LINUX 1
-#  elif defined(__APPLE__) && defined(__MACH__)
-#    define OS_MAC 1
-#  else
-#    error missing OS detection
-#  endif
+# if defined(_WIN32)
+#  define OS_WINDOWS 1
+# elif defined(__gnu_linux__)
+#  define OS_LINUX 1
+# elif defined(__APPLE__) && defined(__MACH__)
+#  define OS_MAC 1
+# else
+#  error missing OS detection
+# endif
 
-#  if defined(__amd64__)
-#    define ARCH_X64 1
-#  elif defined(__i386__)
-#    define ARCH_X86 1
-#  elif defined(__arm__)
-#    define ARCH_ARM
-#  elif defined(__aarch64__)
-#    define ARCH_ARM64
-#  else
-#    error missing ARCH detection
-#  endif
+# if defined(__amd64__)
+#  define ARCH_X64 1
+# elif defined(__i386__)
+#  define ARCH_X86 1
+# elif defined(__arm__)
+#  define ARCH_ARM
+# elif defined(__aarch64__)
+#  define ARCH_ARM64
+# else
+#  error missing ARCH detection
+# endif
 
 #endif
 
 #if !defined(COMPILER_CL)
-#  define COMPILER_CL 0
+# define COMPILER_CL 0
 #endif
 
 #if !defined(COMPILER_CLANG)
-#  define COMPILER_CLANG 0
+# define COMPILER_CLANG 0
 #endif
 
 #if !defined(COMPILER_GCC)
-#  define COMPILER_GCC 0
+# define COMPILER_GCC 0
 #endif
 
 #if !defined(OS_WINDOWS)
-#  define OS_WINDOWS 0
+# define OS_WINDOWS 0
 #endif
 
 #if !defined(OS_LINUX)
-#  define OS_LINUX 0
+# define OS_LINUX 0
 #endif
 
 #if !defined(OS_MAC)
-#  define OS_MAC 0
+# define OS_MAC 0
 #endif
 
 #if !defined(OS_ANDROID)
-#  define OS_ANDROID 0
+# define OS_ANDROID 0
 #endif
 
 #if !defined(ARCH_X64)
-#  define ARCH_X64 0
+# define ARCH_X64 0
 #endif
 
 #if !defined(ARCH_X86)
-#  define ARCH_X86 0
+# define ARCH_X86 0
 #endif
 
 #if !defined(ARCH_ARM)
-#  define ARCH_ARM 0
+# define ARCH_ARM 0
 #endif
 
 #if !defined(ARCH_ARM64)
-#  define ARCH_ARM64 0
+# define ARCH_ARM64 0
 #endif
 
 static_assert(ARCH_ARM64 || ARCH_X64, "This architecture is not supported");
@@ -153,12 +153,12 @@ static_assert(ARCH_ARM64 || ARCH_X64, "This architecture is not supported");
 // NOTE(hampus): Read only macro
 
 #if COMPILER_CL || (COMPILER_CLANG && OS_WINDOWS)
-#  pragma section(".rdata$", read)
-#  define read_only __declspec(allocate(".rdata$"))
+# pragma section(".rdata$", read)
+# define read_only __declspec(allocate(".rdata$"))
 #elif COMPILER_CLANG
-#  define read_only __attribute__((section(".rodata")))
+# define read_only __attribute__((section(".rodata")))
 #else
-#  define read_only
+# define read_only
 #endif
 
 //////////////////////////////
@@ -179,34 +179,34 @@ static_assert(ARCH_ARM64 || ARCH_X64, "This architecture is not supported");
                                                            : ((p)->next->prev = (n))),                                 \
                                                           ((n)->next = (p)->next), ((p)->next = (n)), ((n)->prev = (p))))
 #define DLLPushBackNPZ(nil, f, l, n, next, prev) \
-  DLLInsertNPZ(nil, f, l, l, n, next, prev)
+ DLLInsertNPZ(nil, f, l, l, n, next, prev)
 #define DLLPushFrontNPZ(nil, f, l, n, next, prev) \
-  DLLInsertNPZ(nil, l, f, f, n, prev, next)
-#define DLLRemoveNPZ(nil, f, l, n, next, prev)                                 \
-  (((n) == (f) ? (f) = (n)->next : (0)), ((n) == (l) ? (l) = (l)->prev : (0)), \
-   (CheckNil(nil, (n)->prev) ? (0) : ((n)->prev->next = (n)->next)),           \
-   (CheckNil(nil, (n)->next) ? (0) : ((n)->next->prev = (n)->prev)))
+ DLLInsertNPZ(nil, l, f, f, n, prev, next)
+#define DLLRemoveNPZ(nil, f, l, n, next, prev)                                \
+ (((n) == (f) ? (f) = (n)->next : (0)), ((n) == (l) ? (l) = (l)->prev : (0)), \
+  (CheckNil(nil, (n)->prev) ? (0) : ((n)->prev->next = (n)->next)),           \
+  (CheckNil(nil, (n)->next) ? (0) : ((n)->next->prev = (n)->prev)))
 
-#define SLLQueuePushNZ(nil, f, l, n, next)                      \
-  (CheckNil(nil, f) ? ((f) = (l) = (n), SetNil(nil, (n)->next)) \
-                    : ((l)->next = (n), (l) = (n), SetNil(nil, (n)->next)))
-#define SLLQueuePushFrontNZ(nil, f, l, n, next)                 \
-  (CheckNil(nil, f) ? ((f) = (l) = (n), SetNil(nil, (n)->next)) \
-                    : ((n)->next = (f), (f) = (n)))
+#define SLLQueuePushNZ(nil, f, l, n, next)                     \
+ (CheckNil(nil, f) ? ((f) = (l) = (n), SetNil(nil, (n)->next)) \
+                   : ((l)->next = (n), (l) = (n), SetNil(nil, (n)->next)))
+#define SLLQueuePushFrontNZ(nil, f, l, n, next)                \
+ (CheckNil(nil, f) ? ((f) = (l) = (n), SetNil(nil, (n)->next)) \
+                   : ((n)->next = (f), (f) = (n)))
 #define SLLQueuePopNZ(nil, f, l, next) \
-  ((f) == (l) ? (SetNil(nil, f), SetNil(nil, l)) : ((f) = (f)->next))
+ ((f) == (l) ? (SetNil(nil, f), SetNil(nil, l)) : ((f) = (f)->next))
 
 #define SLLStackPushN(f, n, next) ((n)->next = (f), (f) = (n))
 #define SLLStackPopN(f, next) ((f) = (f)->next)
 
 #define DLLInsertNP(f, l, p, n, next, prev) \
-  DLLInsertNPZ(0, f, l, p, n, next, prev)
+ DLLInsertNPZ(0, f, l, p, n, next, prev)
 #define DLLPushBackNP(f, l, n, next, prev) \
-  DLLPushBackNPZ(0, f, l, n, next, prev)
+ DLLPushBackNPZ(0, f, l, n, next, prev)
 #define DLLPushFrontNP(f, l, n, next, prev) \
-  DLLPushFrontNPZ(0, f, l, n, next, pre, v)
+ DLLPushFrontNPZ(0, f, l, n, next, pre, v)
 #define DLLRemoveNP(f, l, n, next, prev) \
-  DLLRemoveNPZ(0, f, l, n, next, prev)
+ DLLRemoveNPZ(0, f, l, n, next, prev)
 #define DLLInsert(f, l, p, n) DLLInsertNPZ(0, f, l, p, n, next, prev)
 #define DLLPushBack(f, l, n) DLLPushBackNPZ(0, f, l, n, next, prev)
 #define DLLPushFront(f, l, n) DLLPushFrontNPZ(0, f, l, n, next, prev)
@@ -214,7 +214,7 @@ static_assert(ARCH_ARM64 || ARCH_X64, "This architecture is not supported");
 
 #define SLLQueuePushN(f, l, n, next) SLLQueuePushNZ(0, f, l, n, next)
 #define SLLQueuePushFrontN(f, l, n, next) \
-  SLLQueuePushFrontNZ(0, f, l, n, next)
+ SLLQueuePushFrontNZ(0, f, l, n, next)
 #define SLLQueuePopN(f, l, next) SLLQueuePopNZ(0, f, l, next)
 #define SLLQueuePush(f, l, n) SLLQueuePushNZ(0, f, l, n, next)
 #define SLLQueuePushFront(f, l, n) SLLQueuePushFrontNZ(0, f, l, n, next)
@@ -248,39 +248,39 @@ typedef double F64;
 // NOTE(hampus): Basic helper macros
 
 #if COMPILER_CLANG
-#  define debug_break() __builtin_debugtrap()
+# define debug_break() __builtin_debugtrap()
 #elif COMPILER_CL
-#  define debug_break() DebugBreak()
+# define debug_break() DebugBreak()
 #elif COMPILER_GCC
-#  define debug_break() __builtin_trap()
+# define debug_break() __builtin_trap()
 #else
-#  define debug_break() (*(volatile int *)0 = 0)
+# define debug_break() (*(volatile int *)0 = 0)
 #endif
 
 #if COMPILER_CL
-#  define per_thread __declspec(thread)
+# define per_thread __declspec(thread)
 #elif COMPILER_GCC
-#  define per_thread __thread
+# define per_thread __thread
 #elif COMPILER_CLANG
-#  define per_thread __thread
+# define per_thread __thread
 #else
-#  error no per_thread exists for this compiler
+# error no per_thread exists for this compiler
 #endif
 
 #define AssertAlways(expr) \
-  if(!(expr)) [[unlikely]] \
-    (*(volatile int *)0 = 0);
+ if(!(expr)) [[unlikely]]  \
+  (*(volatile int *)0 = 0);
 
 #define Assert(expr) \
-  if(!(expr))        \
-    (*(volatile int *)0 = 0);
+ if(!(expr))         \
+  (*(volatile int *)0 = 0);
 
-#define invalid_case         \
-  default:                   \
-  {                          \
-    Assert(!"Invalid case"); \
-  }                          \
-  break;
+#define invalid_case       \
+ default:                  \
+ {                         \
+  Assert(!"Invalid case"); \
+ }                         \
+ break;
 #define InvalidCodePath Assert(!"Invalid code path")
 #define NotImplemented Assert(!"Not implemented")
 
@@ -293,13 +293,13 @@ typedef double F64;
 #define IntFromPtr(p) (unsigned long long)((char *)(p) - (char *)0)
 #define PtrFromInt(n) (void *)((char *)0 + (n))
 
-#define DeferLoopChecked(begin, end)                                \
-  for(S32 Glue(_i_, __LINE__) = 2 * !(begin);                       \
-      Glue(_i_, __LINE__) == 2 ? ((end), 0) : !Glue(_i_, __LINE__); \
-      ++Glue(_i_, __LINE__), (end))
-#define DeferLoop(begin, end)                                       \
-  for(S32 Glue(_i_, __LINE__) = ((begin), 0); !Glue(_i_, __LINE__); \
-      ++Glue(_i_, __LINE__), (end))
+#define DeferLoopChecked(begin, end)                               \
+ for(S32 Glue(_i_, __LINE__) = 2 * !(begin);                       \
+     Glue(_i_, __LINE__) == 2 ? ((end), 0) : !Glue(_i_, __LINE__); \
+     ++Glue(_i_, __LINE__), (end))
+#define DeferLoop(begin, end)                                      \
+ for(S32 Glue(_i_, __LINE__) = ((begin), 0); !Glue(_i_, __LINE__); \
+     ++Glue(_i_, __LINE__), (end))
 
 #define ForEachEnumVal(e, var) for(e var = static_cast<e>(0); var < e##_COUNT; var = static_cast<e>(static_cast<int>(var) + 1))
 
@@ -318,123 +318,123 @@ typedef double F64;
 #define AxisFlip(axis) ((axis) == Axis2_X ? Axis2_Y : Axis2_X)
 enum Axis2
 {
-  Axis2_X,
-  Axis2_Y,
+ Axis2_X,
+ Axis2_Y,
 
-  Axis2_COUNT,
+ Axis2_COUNT,
 };
 
 enum Axis3
 {
-  Axis3_X,
-  Axis3_Y,
-  Axis3_Z,
+ Axis3_X,
+ Axis3_Y,
+ Axis3_Z,
 
-  Axis3_COUNT,
+ Axis3_COUNT,
 };
 
 enum Axis4
 {
-  Axis4_X,
-  Axis4_Y,
-  Axis4_Z,
-  Axis4_W,
+ Axis4_X,
+ Axis4_Y,
+ Axis4_Z,
+ Axis4_W,
 
-  Axis4_COUNT,
+ Axis4_COUNT,
 };
 
 #define SideFlip(side) (!(side))
 enum Side
 {
-  Side_Min,
-  Side_Max,
+ Side_Min,
+ Side_Max,
 
-  Side_COUNT,
+ Side_COUNT,
 };
 
 enum Corner
 {
-  Corner_TopLeft,
-  Corner_TopRight,
-  Corner_BottomLeft,
-  Corner_BottomRight,
+ Corner_TopLeft,
+ Corner_TopRight,
+ Corner_BottomLeft,
+ Corner_BottomRight,
 
-  Corner_COUNT,
+ Corner_COUNT,
 };
 
 enum OperatingSystem
 {
-  OperatingSystem_Null,
-  OperatingSystem_Windows,
-  OperatingSystem_Linux,
-  OperatingSystem_Mac,
+ OperatingSystem_Null,
+ OperatingSystem_Windows,
+ OperatingSystem_Linux,
+ OperatingSystem_Mac,
 
-  OperatingSystem_COUNT,
+ OperatingSystem_COUNT,
 };
 
 enum Architecture
 {
-  Architecture_Null,
-  Architecture_X64,
-  Architecture_X86,
-  Architecture_ARM,
-  Architecture_ARM64,
+ Architecture_Null,
+ Architecture_X64,
+ Architecture_X86,
+ Architecture_ARM,
+ Architecture_ARM64,
 
-  Architecture_COUNT,
+ Architecture_COUNT,
 };
 
 enum Month
 {
-  Month_Jan,
-  Month_Feb,
-  Month_Mar,
-  Month_Apr,
-  Month_May,
-  Month_Jun,
-  Month_Jul,
-  Month_Aug,
-  Month_Sep,
-  Month_Oct,
-  Month_Nov,
-  Month_Dec,
+ Month_Jan,
+ Month_Feb,
+ Month_Mar,
+ Month_Apr,
+ Month_May,
+ Month_Jun,
+ Month_Jul,
+ Month_Aug,
+ Month_Sep,
+ Month_Oct,
+ Month_Nov,
+ Month_Dec,
 
-  Month_COUNT
+ Month_COUNT
 };
 
 enum DayOfWeek
 {
-  DayOfWeek_Monday,
-  DayOfWeek_Tuesday,
-  DayOfWeek_Wednesday,
-  DayOfWeek_Thursday,
-  DayOfWeek_Friday,
-  DayOfWeek_Saturday,
-  DayOfWeek_Sunday,
+ DayOfWeek_Monday,
+ DayOfWeek_Tuesday,
+ DayOfWeek_Wednesday,
+ DayOfWeek_Thursday,
+ DayOfWeek_Friday,
+ DayOfWeek_Saturday,
+ DayOfWeek_Sunday,
 
-  DayOfWeek_COUNT,
+ DayOfWeek_COUNT,
 };
 
 struct DenseTime
 {
-  U64 time;
+ U64 time;
 };
 
 struct DateTime
 {
-  U16 millisecond;
-  U8 second;
-  U8 minute;
-  U8 hour;
-  U8 day;
-  U8 month;
-  S16 year;
+ U16 millisecond;
+ U8 second;
+ U8 minute;
+ U8 hour;
+ U8 day;
+ U8 month;
+ S16 year;
 };
 
 struct Date
 {
-  U8 day;
-  U8 month;
-  S16 year;
+ U8 day;
+ U8 month;
+ S16 year;
 };
 
 struct String8;
@@ -454,9 +454,9 @@ struct String8;
 
 struct MemorySize
 {
-  F64 amount;
-  U8 *unit;
-  U64 unit_length;
+ F64 amount;
+ U8 *unit;
+ U64 unit_length;
 };
 
 [[nodiscard]] static MemorySize memory_size_from_bytes(U64 bytes);

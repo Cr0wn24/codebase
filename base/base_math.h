@@ -7,10 +7,10 @@
 // NOTE(hampus): Basic macros
 
 #ifndef min
-#  define Min(a, b) ((a) < (b) ? (a) : (b))
+# define Min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 #ifndef max
-#  define max(a, b) ((a) > (b) ? (a) : (b))
+# define max(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
 #define clamp(a, val, b) max((a), Min((val), (b)))
@@ -50,421 +50,421 @@
 
 union Vec2F32
 {
-  struct
-  {
-    F32 x, y;
-  };
-  struct
-  {
-    F32 width, height;
-  };
-  struct
-  {
-    F32 min, max;
-  };
-  F32 v[2];
+ struct
+ {
+  F32 x, y;
+ };
+ struct
+ {
+  F32 width, height;
+ };
+ struct
+ {
+  F32 min, max;
+ };
+ F32 v[2];
 
-  [[nodiscard]] Vec2F32 operator+(Vec2F32 v);
-  Vec2F32 &operator+=(Vec2F32 v);
-  [[nodiscard]] Vec2F32 operator-(Vec2F32 v);
-  Vec2F32 &operator-=(Vec2F32 v);
-  [[nodiscard]] Vec2F32 operator*(F32 t);
-  Vec2F32 &operator*=(F32 t);
-  [[nodiscard]] Vec2F32 operator/(F32 t);
-  Vec2F32 &operator/=(F32 t);
+ [[nodiscard]] Vec2F32 operator+(Vec2F32 v);
+ Vec2F32 &operator+=(Vec2F32 v);
+ [[nodiscard]] Vec2F32 operator-(Vec2F32 v);
+ Vec2F32 &operator-=(Vec2F32 v);
+ [[nodiscard]] Vec2F32 operator*(F32 t);
+ Vec2F32 &operator*=(F32 t);
+ [[nodiscard]] Vec2F32 operator/(F32 t);
+ Vec2F32 &operator/=(F32 t);
 
-  F32 &operator[](U64 idx);
+ F32 &operator[](U64 idx);
 };
 
 union Vec3F32
 {
-  struct
-  {
-    F32 x, y, z;
-  };
-  struct
-  {
-    F32 r, g, b;
-  };
-  F32 v[3];
+ struct
+ {
+  F32 x, y, z;
+ };
+ struct
+ {
+  F32 r, g, b;
+ };
+ F32 v[3];
 
-  [[nodiscard]] Vec3F32 operator-(Vec3F32 v);
-  [[nodiscard]] Vec3F32 operator*(F32 t);
-  Vec3F32 &operator*=(F32 t);
-  [[nodiscard]] F32 &operator[](U64 idx);
+ [[nodiscard]] Vec3F32 operator-(Vec3F32 v);
+ [[nodiscard]] Vec3F32 operator*(F32 t);
+ Vec3F32 &operator*=(F32 t);
+ [[nodiscard]] F32 &operator[](U64 idx);
 };
 
 union Vec4F32
 {
-  struct
-  {
-    F32 x, y, z, w;
-  };
-  struct
-  {
-    F32 r, g, b, a;
-  };
-  struct
-  {
-    F32 ignored[2];
-    Vec2F32 zw;
-  };
-  struct
-  {
-    Vec3F32 rgb;
-  };
-  F32 v[4];
+ struct
+ {
+  F32 x, y, z, w;
+ };
+ struct
+ {
+  F32 r, g, b, a;
+ };
+ struct
+ {
+  F32 ignored[2];
+  Vec2F32 zw;
+ };
+ struct
+ {
+  Vec3F32 rgb;
+ };
+ F32 v[4];
 
-  [[nodiscard]] Vec4F32 operator+(Vec4F32 v);
-  [[nodiscard]] Vec4F32 operator*(F32 t);
-  Vec4F32 &operator*=(F32 t);
-  [[nodiscard]] Vec4F32 operator/(F32 t);
+ [[nodiscard]] Vec4F32 operator+(Vec4F32 v);
+ [[nodiscard]] Vec4F32 operator*(F32 t);
+ Vec4F32 &operator*=(F32 t);
+ [[nodiscard]] Vec4F32 operator/(F32 t);
 };
 
 // hampus: F64
 
 union Vec2F64
 {
-  struct
-  {
-    F64 x, y;
-  };
-  struct
-  {
-    F64 width, height;
-  };
-  struct
-  {
-    F64 min, max;
-  };
-  F64 v[2];
+ struct
+ {
+  F64 x, y;
+ };
+ struct
+ {
+  F64 width, height;
+ };
+ struct
+ {
+  F64 min, max;
+ };
+ F64 v[2];
 };
 
 union Vec3F64
 {
-  struct
-  {
-    F64 x, y, z;
-  };
-  struct
-  {
-    F64 r, g, b;
-  };
-  F64 v[3];
+ struct
+ {
+  F64 x, y, z;
+ };
+ struct
+ {
+  F64 r, g, b;
+ };
+ F64 v[3];
 };
 
 union Vec4F64
 {
-  struct
-  {
-    F64 x, y, z, w;
-  };
-  struct
-  {
-    F64 r, g, b, a;
-  };
-  struct
-  {
-    Vec3F64 rgb;
-  };
-  F64 v[4];
+ struct
+ {
+  F64 x, y, z, w;
+ };
+ struct
+ {
+  F64 r, g, b, a;
+ };
+ struct
+ {
+  Vec3F64 rgb;
+ };
+ F64 v[4];
 };
 
 // hampus: S8
 
 union Vec2S8
 {
-  struct
-  {
-    S8 x, y;
-  };
-  struct
-  {
-    S8 width, height;
-  };
-  S8 v[2];
+ struct
+ {
+  S8 x, y;
+ };
+ struct
+ {
+  S8 width, height;
+ };
+ S8 v[2];
 };
 
 union Vec3S8
 {
-  struct
-  {
-    S8 x, y, z;
-  };
-  S8 v[3];
+ struct
+ {
+  S8 x, y, z;
+ };
+ S8 v[3];
 };
 
 union Vec4S8
 {
-  struct
-  {
-    S8 x, y, z, w;
-  };
-  S8 v[4];
+ struct
+ {
+  S8 x, y, z, w;
+ };
+ S8 v[4];
 };
 
 // hampus: S16
 
 union Vec2S16
 {
-  struct
-  {
-    S16 x, y;
-  };
-  struct
-  {
-    S16 width, height;
-  };
-  S16 v[2];
+ struct
+ {
+  S16 x, y;
+ };
+ struct
+ {
+  S16 width, height;
+ };
+ S16 v[2];
 };
 
 union Vec3S16
 {
 
-  struct
-  {
-    S16 x, y, z;
-  };
-  S16 v[3];
+ struct
+ {
+  S16 x, y, z;
+ };
+ S16 v[3];
 };
 
 union Vec4S16
 {
-  struct
-  {
-    S16 x, y, z, w;
-  };
-  S16 v[4];
+ struct
+ {
+  S16 x, y, z, w;
+ };
+ S16 v[4];
 };
 
 // hampus: S32
 
 union Vec2S32
 {
-  struct
-  {
-    S32 x, y;
-  };
-  struct
-  {
-    S32 width, height;
-  };
-  S32 v[2];
+ struct
+ {
+  S32 x, y;
+ };
+ struct
+ {
+  S32 width, height;
+ };
+ S32 v[2];
 };
 
 union Vec3S32
 {
-  struct
-  {
-    S32 x, y, z;
-  };
-  S32 v[3];
+ struct
+ {
+  S32 x, y, z;
+ };
+ S32 v[3];
 };
 
 union Vec4S32
 {
-  struct
-  {
-    S32 x, y, z, w;
-  };
-  S32 v[4];
+ struct
+ {
+  S32 x, y, z, w;
+ };
+ S32 v[4];
 };
 
 // hampus: S64
 
 union Vec2S64
 {
-  struct
-  {
-    S64 x, y;
-  };
-  struct
-  {
-    S64 width, height;
-  };
-  struct
-  {
-    S64 min, max;
-  };
-  S64 v[2];
+ struct
+ {
+  S64 x, y;
+ };
+ struct
+ {
+  S64 width, height;
+ };
+ struct
+ {
+  S64 min, max;
+ };
+ S64 v[2];
 };
 
 union Vec3S64
 {
-  struct
-  {
-    S64 x, y, z;
-  };
-  S64 v[3];
+ struct
+ {
+  S64 x, y, z;
+ };
+ S64 v[3];
 };
 
 union Vec4S64
 {
-  struct
-  {
-    S64 x, y, z, w;
-  };
-  S64 v[4];
+ struct
+ {
+  S64 x, y, z, w;
+ };
+ S64 v[4];
 };
 
 // hampus: U8
 
 union Vec2U8
 {
-  struct
-  {
-    U8 x, y;
-  };
-  struct
-  {
-    U8 width, height;
-  };
-  U8 v[2];
+ struct
+ {
+  U8 x, y;
+ };
+ struct
+ {
+  U8 width, height;
+ };
+ U8 v[2];
 };
 
 union Vec3U8
 {
-  struct
-  {
-    U8 x, y, z;
-  };
-  U8 v[3];
+ struct
+ {
+  U8 x, y, z;
+ };
+ U8 v[3];
 };
 
 union Vec4U8
 {
-  struct
-  {
-    U8 x, y, z, w;
-  };
-  U8 v[4];
+ struct
+ {
+  U8 x, y, z, w;
+ };
+ U8 v[4];
 };
 
 // hampus: U16
 
 union Vec2U16
 {
-  struct
-  {
-    U16 x, y;
-  };
-  struct
-  {
-    U16 width, height;
-  };
-  U16 v[2];
+ struct
+ {
+  U16 x, y;
+ };
+ struct
+ {
+  U16 width, height;
+ };
+ U16 v[2];
 };
 
 union Vec3U16
 {
-  struct
-  {
-    U16 x, y, z;
-  };
-  U16 v[3];
+ struct
+ {
+  U16 x, y, z;
+ };
+ U16 v[3];
 };
 
 union Vec4U16
 {
-  struct
-  {
-    U16 x, y, z, w;
-  };
-  U16 v[4];
+ struct
+ {
+  U16 x, y, z, w;
+ };
+ U16 v[4];
 };
 
 // hampus: U32
 
 union Vec2U32
 {
-  struct
-  {
-    U32 x, y;
-  };
-  struct
-  {
-    U32 width, height;
-  };
-  U32 v[2];
+ struct
+ {
+  U32 x, y;
+ };
+ struct
+ {
+  U32 width, height;
+ };
+ U32 v[2];
 };
 
 union Vec3U32
 {
-  struct
-  {
-    U32 x, y, z;
-  };
-  U32 v[3];
+ struct
+ {
+  U32 x, y, z;
+ };
+ U32 v[3];
 };
 
 union Vec4U32
 {
-  struct
-  {
-    U32 x, y, z, w;
-  };
-  U32 v[4];
+ struct
+ {
+  U32 x, y, z, w;
+ };
+ U32 v[4];
 };
 
 // hampus: U64
 
 union Vec2U64
 {
-  struct
-  {
-    U64 x, y;
-  };
-  struct
-  {
-    U64 width, height;
-  };
-  struct
-  {
-    U64 min, max;
-  };
-  U64 v[2];
+ struct
+ {
+  U64 x, y;
+ };
+ struct
+ {
+  U64 width, height;
+ };
+ struct
+ {
+  U64 min, max;
+ };
+ U64 v[2];
 
-  B32 operator==(Vec2U64 other);
-  B32 operator!=(Vec2U64 other);
-  Vec2U64
-  operator+(Vec2U64 v);
+ B32 operator==(Vec2U64 other);
+ B32 operator!=(Vec2U64 other);
+ Vec2U64
+ operator+(Vec2U64 v);
 };
 
 union Vec3U64
 {
-  struct
-  {
-    U64 x, y, z;
-  };
-  U64 v[3];
+ struct
+ {
+  U64 x, y, z;
+ };
+ U64 v[3];
 };
 
 union Vec4U64
 {
-  struct
-  {
-    U64 x, y, z, w;
-  };
-  U64 v[4];
+ struct
+ {
+  U64 x, y, z, w;
+ };
+ U64 v[4];
 };
 
 // hampus: Matrices
 
 struct Mat2F32
 {
-  F32 m[2][2];
+ F32 m[2][2];
 };
 
 struct Mat3F32
 {
-  F32 m[3][3];
-  [[nodiscard]] Mat3F32 operator*(Mat3F32 m);
+ F32 m[3][3];
+ [[nodiscard]] Mat3F32 operator*(Mat3F32 m);
 };
 
 struct Mat4F32
 {
-  F32 m[4][4];
-  [[nodiscard]] Mat4F32 operator*(Mat4F32 m);
+ F32 m[4][4];
+ [[nodiscard]] Mat4F32 operator*(Mat4F32 m);
 };
 
 //////////////////////////////
@@ -474,146 +474,146 @@ struct Mat4F32
 
 union RectF32
 {
-  struct
-  {
-    Vec2F32 min, max;
-  };
-  struct
-  {
-    F32 x0, y0;
-    F32 x1, y1;
-  };
-  Vec2F32 s[2];
+ struct
+ {
+  Vec2F32 min, max;
+ };
+ struct
+ {
+  F32 x0, y0;
+  F32 x1, y1;
+ };
+ Vec2F32 s[2];
 };
 
 union RectF64
 {
-  struct
-  {
-    Vec2F64 min, max;
-  };
-  struct
-  {
-    F64 x0, y0;
-    F64 x1, y1;
-  };
-  Vec2F64 s[2];
+ struct
+ {
+  Vec2F64 min, max;
+ };
+ struct
+ {
+  F64 x0, y0;
+  F64 x1, y1;
+ };
+ Vec2F64 s[2];
 };
 
 // hampus: Signed integers
 
 union RectS8
 {
-  struct
-  {
-    Vec2S8 min, max;
-  };
-  struct
-  {
-    S8 x0, y0;
-    S8 x1, y1;
-  };
-  Vec2S8 v[2];
+ struct
+ {
+  Vec2S8 min, max;
+ };
+ struct
+ {
+  S8 x0, y0;
+  S8 x1, y1;
+ };
+ Vec2S8 v[2];
 };
 
 union RectS16
 {
-  struct
-  {
-    Vec2S16 min, max;
-  };
-  struct
-  {
-    S16 x0, y0;
-    S16 x1, y1;
-  };
-  Vec2S16 v[2];
+ struct
+ {
+  Vec2S16 min, max;
+ };
+ struct
+ {
+  S16 x0, y0;
+  S16 x1, y1;
+ };
+ Vec2S16 v[2];
 };
 
 union RectS32
 {
-  struct
-  {
-    Vec2S32 min, max;
-  };
-  struct
-  {
-    S32 x0, y0;
-    S32 x1, y1;
-  };
-  Vec2S32 v[2];
+ struct
+ {
+  Vec2S32 min, max;
+ };
+ struct
+ {
+  S32 x0, y0;
+  S32 x1, y1;
+ };
+ Vec2S32 v[2];
 };
 
 union RectS64
 {
-  struct
-  {
-    Vec2S64 min, max;
-  };
-  struct
-  {
-    S64 x0, y0;
-    S64 x1, y1;
-  };
-  Vec2S64 v[2];
+ struct
+ {
+  Vec2S64 min, max;
+ };
+ struct
+ {
+  S64 x0, y0;
+  S64 x1, y1;
+ };
+ Vec2S64 v[2];
 };
 
 // hampus: Unsigned integers
 
 union RectU8
 {
-  struct
-  {
-    Vec2U8 min, max;
-  };
-  struct
-  {
-    U8 x0, y0;
-    U8 x1, y1;
-  };
-  Vec2U8 v[2];
+ struct
+ {
+  Vec2U8 min, max;
+ };
+ struct
+ {
+  U8 x0, y0;
+  U8 x1, y1;
+ };
+ Vec2U8 v[2];
 };
 
 union RectU16
 {
-  struct
-  {
-    Vec2U16 min, max;
-  };
-  struct
-  {
-    U16 x0, y0;
-    U16 x1, y1;
-  };
-  Vec2U16 v[2];
+ struct
+ {
+  Vec2U16 min, max;
+ };
+ struct
+ {
+  U16 x0, y0;
+  U16 x1, y1;
+ };
+ Vec2U16 v[2];
 };
 
 union RectU32
 {
-  struct
-  {
-    Vec2U32 min, max;
-  };
-  struct
-  {
-    U32 x0, y0;
-    U32 x1, y1;
-  };
-  Vec2U32 v[2];
+ struct
+ {
+  Vec2U32 min, max;
+ };
+ struct
+ {
+  U32 x0, y0;
+  U32 x1, y1;
+ };
+ Vec2U32 v[2];
 };
 
 union RectU64
 {
-  struct
-  {
-    Vec2U64 min, max;
-  };
-  struct
-  {
-    U64 x0, y0;
-    U64 x1, y1;
-  };
-  Vec2U64 v[2];
+ struct
+ {
+  Vec2U64 min, max;
+ };
+ struct
+ {
+  U64 x0, y0;
+  U64 x1, y1;
+ };
+ Vec2U64 v[2];
 };
 
 //////////////////////////////
@@ -762,25 +762,25 @@ read_only static U32 F64_BIAS = 1023;
 
 #if COMPILER_CLANG || COMPILER_GCC
 
-#  define safe_u32_from_s64(x) ({ Assert((x) >= 0 && x <= U32_MAX); u32_from_s64(x); })
-#  define safe_u64_from_s64(x) ({ Assert((x) >= 0); u64_from_s64(x); })
-#  define safe_u32_from_u64(x) ({ Assert((x) <= U32_MAX); u32_from_u64(x); })
-#  define safe_s64_from_u64(x) ({ Assert((x) <= S64_MAX); s64_from_u64(x); })
-#  define safe_u32_from_s32(x) ({ Assert((x) >= 0); u32_from_s32(x); })
-#  define safe_s32_from_u64(x) ({ Assert((x) <= S32_MAX); s32_from_u64(x); })
-#  define safe_s32_from_u32(x) ({ Assert((x) <= S32_MAX); s32_from_u32(x); })
-#  define safe_u64_from_s32(x) ({ Assert((x) >= 0); u64_from_s32(x); })
+# define safe_u32_from_s64(x) ({ Assert((x) >= 0 && x <= U32_MAX); u32_from_s64(x); })
+# define safe_u64_from_s64(x) ({ Assert((x) >= 0); u64_from_s64(x); })
+# define safe_u32_from_u64(x) ({ Assert((x) <= U32_MAX); u32_from_u64(x); })
+# define safe_s64_from_u64(x) ({ Assert((x) <= S64_MAX); s64_from_u64(x); })
+# define safe_u32_from_s32(x) ({ Assert((x) >= 0); u32_from_s32(x); })
+# define safe_s32_from_u64(x) ({ Assert((x) <= S32_MAX); s32_from_u64(x); })
+# define safe_s32_from_u32(x) ({ Assert((x) <= S32_MAX); s32_from_u32(x); })
+# define safe_u64_from_s32(x) ({ Assert((x) >= 0); u64_from_s32(x); })
 
 #else
 
-#  define safe_u32_from_s64(x) u32_from_s64(x)
-#  define safe_u64_from_s64(x) u64_from_s64(x)
-#  define safe_u32_from_u64(x) u32_from_u64(x)
-#  define safe_s64_from_u64(x) s64_from_u64(x)
-#  define safe_u32_from_s32(x) u32_from_s32(x)
-#  define safe_s32_from_u64(x) s32_from_u64(x)
-#  define safe_s32_from_u32(x) s32_from_u32(x)
-#  define safe_u64_from_s32(x) u64_from_s32(x)
+# define safe_u32_from_s64(x) u32_from_s64(x)
+# define safe_u64_from_s64(x) u64_from_s64(x)
+# define safe_u32_from_u64(x) u32_from_u64(x)
+# define safe_s64_from_u64(x) s64_from_u64(x)
+# define safe_u32_from_s32(x) u32_from_s32(x)
+# define safe_s32_from_u64(x) s32_from_u64(x)
+# define safe_s32_from_u32(x) s32_from_u32(x)
+# define safe_u64_from_s32(x) u64_from_s32(x)
 
 #endif
 

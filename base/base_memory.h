@@ -2,14 +2,14 @@
 #define BASE_MEMORY_H
 
 #if COMPILER_CL
-#  pragma warning(push, 0)
+# pragma warning(push, 0)
 #elif COMPILER_CLANG
 #endif
 
 #include <sanitizer/asan_interface.h>
 
 #if COMPILER_CL
-#  pragma warning(pop)
+# pragma warning(pop)
 #elif COMPILER_CLANG
 #endif
 
@@ -24,18 +24,18 @@
 
 struct Arena
 {
-  U8 *memory;
-  U64 cap;
-  U64 pos;
-  U64 commit_pos;
+ U8 *memory;
+ U64 cap;
+ U64 pos;
+ U64 commit_pos;
 };
 
 struct TempArena
 {
-  Arena *arena;
-  U64 pos;
-  TempArena(Arena *_arena);
-  ~TempArena();
+ Arena *arena;
+ U64 pos;
+ TempArena(Arena *_arena);
+ ~TempArena();
 };
 
 //////////////////////////////
@@ -68,16 +68,16 @@ template <typename T>
 [[nodiscard]] static T *
 push_array(Arena *arena, U64 count)
 {
-  T *result = (T *)arena_push(arena, sizeof(T) * count);
-  return result;
+ T *result = (T *)arena_push(arena, sizeof(T) * count);
+ return result;
 }
 
 template <typename T>
 [[nodiscard]] static T *
 push_array_no_zero(Arena *arena, U64 count)
 {
-  T *result = (T *)arena_push_no_zero(arena, sizeof(T) * count);
-  return result;
+ T *result = (T *)arena_push_no_zero(arena, sizeof(T) * count);
+ return result;
 }
 
 #define MemoryZero(dst, size) memset((dst), 0, (size))

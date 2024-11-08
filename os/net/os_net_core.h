@@ -3,38 +3,38 @@
 
 enum OS_NetProtocol
 {
-  OS_NetProtocol_TCP,
-  OS_NetProtocol_UDP,
+ OS_NetProtocol_TCP,
+ OS_NetProtocol_UDP,
 };
 
 // TODO(hampus): INet6, UNIX, ...
 enum OS_NetAddressFamily
 {
-  OS_NetAddressFamily_INet,
+ OS_NetAddressFamily_INet,
 };
 
 struct OS_NetAddress
 {
-  U16 port;
-  union
-  {
-    U32 u32[1];
-    U8 u8[4];
-  } ip;
-  OS_NetAddressFamily address_family;
+ U16 port;
+ union
+ {
+  U32 u32[1];
+  U8 u8[4];
+ } ip;
+ OS_NetAddressFamily address_family;
 };
 
 struct OS_NetReceiveResult
 {
-  String8 data;
-  OS_NetAddress address;
+ String8 data;
+ OS_NetAddress address;
 };
 
 struct OS_NetAcceptResult
 {
-  OS_Handle socket;
-  OS_NetAddress address;
-  B32 succeeded;
+ OS_Handle socket;
+ OS_NetAddress address;
+ B32 succeeded;
 };
 
 [[nodiscard]] static OS_NetAddress os_net_address_from_str8(String8 string);
