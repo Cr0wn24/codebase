@@ -55,8 +55,8 @@ static void arena_align_no_zero(Arena *arena, U64 power);
 //////////////////////////////
 // NOTE(hampus): Ring
 
-#define ring_write_struct(b, sz, o, s) ring_write(b, sz, o, str8_struct(s))
-#define ring_read_struct(b, sz, o, s) ring_read(b, sz, o, str8_struct(s))
+#define ring_write_struct(b, sz, o, s) ring_write(b, sz, o, Str8Struct(s))
+#define ring_read_struct(b, sz, o, s) ring_read(b, sz, o, Str8Struct(s))
 
 [[nodiscard]] static U64 ring_write(U8 *base, U64 size, U64 offset, String8 string);
 [[nodiscard]] static U64 ring_read(U8 *base, U64 size, U64 offset, String8 string);

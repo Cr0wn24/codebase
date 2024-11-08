@@ -553,7 +553,7 @@ ui_draw()
  r_gles_set_uniform_4x4f32(Str8Lit("transform"), (U8 *)mats[1].m);
 #elif R_BACKEND_D3D11
  r_fill_buffer(renderer->uniform_buffer, (R_FillBufferDesc){
-                                           .data = str8_struct(&mats),
+                                           .data = Str8Struct(&mats),
                                          });
  r_apply_uniform_buffer(renderer->uniform_buffer);
 #endif

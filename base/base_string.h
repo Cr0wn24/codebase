@@ -103,7 +103,7 @@ struct StringDecodeNode
 #define Str8Comp(literal) (U8 *)literal, sizeof(literal) - 1
 
 #define str8_expand(string) safe_s32_from_u64(string.size), string.data
-#define str8_struct(s) \
+#define Str8Struct(s) \
  (String8) { (U8 *)(s), sizeof(*s) }
 
 [[nodiscard]] static String8 str8(U8 *data, U64 size);
