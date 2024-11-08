@@ -688,12 +688,12 @@ string_decode_utf8(U8 *string, U64 cap)
 {
  static U8 length[] =
  {
-   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-   0, 0, 0, 0, 0, 0, 0, 0,
-   2, 2, 2, 2,
-   3, 3,
-   4,
-   5};
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  2, 2, 2, 2,
+  3, 3,
+  4,
+  5};
 
  static U32 first_byte_mask[] = {0, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF, 0x01FF, 0x03FF};
  static U8 final_shift[] = {0, 18, 12, 6, 0};
@@ -1337,4 +1337,21 @@ cstr_length(char *cstr)
   ++result;
  }
  return result;
+}
+
+//////////////////////////////
+// NOTE(hampus): Hash
+
+static U64
+hash_from_string(String8 string)
+{
+ U64 hash = 1;
+ if(string.size != 0)
+ {
+  for(U64 i = 0; i < string.size; ++i)
+  {
+   hash = ((hash << 5) + hash) + string[i];
+  }
+ }
+ return hash;
 }

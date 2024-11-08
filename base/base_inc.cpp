@@ -5,3 +5,4 @@
 #include "base/base_string.cpp"
 #include "base/base_thread_ctx.cpp"
 #include "base/base_atlas.cpp"
+#include "base/base_text.cpp"

@@ -739,6 +739,13 @@ main(S32 argc, char **argv)
  os_win32_state->perm_arena = win32_perm_arena;
  QueryPerformanceFrequency(&os_win32_state->frequency);
  ThreadCtx *tctx = thread_ctx_init(Str8Lit("Main"));
+
+ {
+  TempArena scratch = GetScratch(0, 0);
+  String8 grapheme_break_property_file_data = os_file_read(scratch.arena, Str8Lit("../GraphemeBreakProperty.txt"));
+  grapheme_break_kind_trie_init(win32_perm_arena, grapheme_break_property_file_data);
+ }
+
  // NOTE(hampus): 'command_line' handed to WinMain doesn't include the program name
  LPSTR command_line_with_exe_path = GetCommandLineA();
  String8List argument_list = str8_split_by_codepoints(os_win32_state->perm_arena, str8_cstr(command_line_with_exe_path), Str8Lit(" "));

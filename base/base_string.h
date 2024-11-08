@@ -184,7 +184,7 @@ static U64 string_encode_utf16(wchar_t *dst, U32 codepoint);
 // NOTE(hampus): String to integers
 
 static U64 u64_hex_from_str8(String8 string, U64 *dst);
-static U32 u32_hex_from_str8(String8 string, U64 *dst);
+static U32 u32_hex_from_str8(String8 string, U32 *dst);
 
 static U64 u64_from_str8(String8 string, U64 *dst);
 static U64 u32_from_str8(String8 string, U32 *dst);
@@ -211,5 +211,11 @@ static U64 f64_from_str8(String8 string, F64 *dst);
 
 static String8 cstr_format(U8 *buffer, U64 buffer_size, char *cstr, ...);
 [[nodiscard]] static U64 cstr_length(char *cstr);
+
+//////////////////////////////
+// NOTE(hampus): Hash
+
+[[nodiscard]] static U64 hash_from_string(String8 string);
+
 
 #endif // BASE_STRING_H
