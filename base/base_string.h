@@ -8,43 +8,43 @@ struct Arena;
 
 struct String8
 {
- U8 *data;
- U64 size;
+  U8 *data;
+  U64 size;
 
- [[nodiscard]] U8 &
- operator[](U64 idx)
- {
-  Assert(idx < size);
-  U8 &result = data[idx];
-  return result;
- }
+  [[nodiscard]] U8 &
+  operator[](U64 idx)
+  {
+    Assert(idx < size);
+    U8 &result = data[idx];
+    return result;
+  }
 };
 
 struct String16
 {
- U16 *data;
- U64 size;
+  U16 *data;
+  U64 size;
 
- [[nodiscard]] U16 &
- operator[](U64 idx)
- {
-  Assert(idx < size);
-  U16 &result = data[idx];
-  return result;
- }
+  [[nodiscard]] U16 &
+  operator[](U64 idx)
+  {
+    Assert(idx < size);
+    U16 &result = data[idx];
+    return result;
+  }
 };
 
 struct String32
 {
- U32 *data;
- U64 size;
- [[nodiscard]] U32 &
- operator[](U64 idx)
- {
-  Assert(idx < size);
-  U32 &result = data[idx];
-  return result;
- }
+  U32 *data;
+  U64 size;
+  [[nodiscard]] U32 &
+  operator[](U64 idx)
+  {
+    Assert(idx < size);
+    U32 &result = data[idx];
+    return result;
+  }
 };
 
 //////////////////////////////
@@ -52,32 +52,32 @@ struct String32
 
 struct String8Node
 {
- String8Node *next;
- String8Node *prev;
- String8 v;
+  String8Node *next;
+  String8Node *prev;
+  String8 v;
 };
 
 struct String8List
 {
- String8Node *first;
- String8Node *last;
- U64 count;
- U64 total_size;
+  String8Node *first;
+  String8Node *last;
+  U64 count;
+  U64 total_size;
 };
 
 struct String32Node
 {
- String32Node *next;
- String32Node *prev;
- String32 v;
+  String32Node *next;
+  String32Node *prev;
+  String32 v;
 };
 
 struct String32List
 {
- String32Node *first;
- String32Node *last;
- U64 count;
- U64 total_size;
+  String32Node *first;
+  String32Node *last;
+  U64 count;
+  U64 total_size;
 };
 
 //////////////////////////////
@@ -85,15 +85,15 @@ struct String32List
 
 struct StringDecode
 {
- U32 codepoint;
- U64 size;
+  U32 codepoint;
+  U64 size;
 };
 
 struct StringDecodeNode
 {
- StringDecodeNode *next;
- StringDecodeNode *prev;
- StringDecode v;
+  StringDecodeNode *next;
+  StringDecodeNode *prev;
+  StringDecode v;
 };
 
 //////////////////////////////
@@ -104,7 +104,7 @@ struct StringDecodeNode
 
 #define str8_expand(string) safe_s32_from_u64(string.size), string.data
 #define Str8Struct(s) \
- (String8) { (U8 *)(s), sizeof(*s) }
+  (String8) { (U8 *)(s), sizeof(*s) }
 
 [[nodiscard]] static String8 str8(U8 *data, U64 size);
 [[nodiscard]] static String8 str8(Arena *arena, String8 string);
@@ -216,6 +216,5 @@ static String8 cstr_format(U8 *buffer, U64 buffer_size, char *cstr, ...);
 // NOTE(hampus): Hash
 
 [[nodiscard]] static U64 hash_from_string(String8 string);
-
 
 #endif // BASE_STRING_H

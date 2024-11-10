@@ -3,112 +3,112 @@
 
 struct R_Handle
 {
- U64 u64[1];
+  U64 u64[1];
 };
 
 struct R_Tex2DSlice
 {
- R_Handle tex;
- RectF32 uv;
+  R_Handle tex;
+  RectF32 uv;
 };
 
 struct R_ShaderDesc
 {
- String8 vs_source;
- String8 ps_source;
- String8 vs_entry_point_name;
- String8 ps_entry_point_name;
+  String8 vs_source;
+  String8 ps_source;
+  String8 vs_entry_point_name;
+  String8 ps_entry_point_name;
 };
 
 enum R_AttributeKind
 {
- R_AttributeKind_Float,
- R_AttributeKind_Float2,
- R_AttributeKind_Float3,
- R_AttributeKind_Float4,
+  R_AttributeKind_Float,
+  R_AttributeKind_Float2,
+  R_AttributeKind_Float3,
+  R_AttributeKind_Float4,
 };
 
 enum R_InputSlotClass
 {
- R_InputSlotClass_PerVertex,
- R_InputSlotClass_PerInstance,
+  R_InputSlotClass_PerVertex,
+  R_InputSlotClass_PerInstance,
 };
 
 enum R_Topology
 {
- R_Topology_TriangleList,
- R_Topology_TriangleStrip,
+  R_Topology_TriangleList,
+  R_Topology_TriangleStrip,
 };
 
 enum R_SampleFilter
 {
- R_SampleFilter_Bilinear,
- R_SampleFilter_Nearest,
+  R_SampleFilter_Bilinear,
+  R_SampleFilter_Nearest,
 };
 
 enum R_PixelFormat
 {
- R_PixelFormat_RGBA,
- R_PixelFormat_BGRA,
+  R_PixelFormat_RGBA,
+  R_PixelFormat_BGRA,
 };
 
 typedef U32 R_TextureBindFlags;
 enum
 {
- R_TextureBindFlags_RenderTarget = (1 << 0),
+  R_TextureBindFlags_RenderTarget = (1 << 0),
 };
 
 struct R_InputLayoutAttribute
 {
- String8 name;
- R_AttributeKind kind;
- U64 offset;
- R_InputSlotClass slot_class;
- U64 semantic_index;
- U64 step_rate;
+  String8 name;
+  R_AttributeKind kind;
+  U64 offset;
+  R_InputSlotClass slot_class;
+  U64 semantic_index;
+  U64 step_rate;
 };
 
 struct R_InputLayoutDesc
 {
- StaticArray<R_InputLayoutAttribute, 32> attribs;
- U64 attribs_count;
+  StaticArray<R_InputLayoutAttribute, 32> attribs;
+  U64 attribs_count;
 };
 
 struct R_PipelineDesc
 {
- R_ShaderDesc shader;
- R_InputLayoutDesc input_layout;
- R_Topology topology;
- R_SampleFilter sample_filter;
- B32 enable_depth_buffering;
+  R_ShaderDesc shader;
+  R_InputLayoutDesc input_layout;
+  R_Topology topology;
+  R_SampleFilter sample_filter;
+  B32 enable_depth_buffering;
 };
 
 enum R_BufferKind
 {
- R_BufferKind_Uniform,
- R_BufferKind_Vertex,
+  R_BufferKind_Uniform,
+  R_BufferKind_Vertex,
 };
 
 struct R_BufferDesc
 {
- U64 size;
- R_BufferKind kind;
- U64 stride;
+  U64 size;
+  R_BufferKind kind;
+  U64 stride;
 };
 
 struct R_FillBufferDesc
 {
- String8 data;
+  String8 data;
 };
 
 struct R_AttributeDesc
 {
- String8 semantic_name;
- R_AttributeKind kind;
- U64 offset;
- R_InputSlotClass slot_class;
- U64 semantic_index;
- U64 step_rate;
+  String8 semantic_name;
+  R_AttributeKind kind;
+  U64 offset;
+  R_InputSlotClass slot_class;
+  U64 semantic_index;
+  U64 step_rate;
 };
 
 static R_Handle r_handle_zero();

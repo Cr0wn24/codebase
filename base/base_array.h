@@ -7,15 +7,15 @@
 template <typename T>
 struct Array
 {
- T *val;
- U64 count;
+  T *val;
+  U64 count;
 
- [[nodiscard]] T &
- operator[](U64 idx)
- {
-  Assert(idx < count);
-  return val[idx];
- }
+  [[nodiscard]] T &
+  operator[](U64 idx)
+  {
+    Assert(idx < count);
+    return val[idx];
+  }
 };
 
 template <typename T>
@@ -30,27 +30,27 @@ template <typename T>
 template <typename T, U64 N>
 struct StaticArray
 {
- T val[N];
+  T val[N];
 
- [[nodiscard]] T &
- operator[](U64 idx)
- {
-  AssertAlways(idx < N);
-  return val[idx];
- }
+  [[nodiscard]] T &
+  operator[](U64 idx)
+  {
+    AssertAlways(idx < N);
+    return val[idx];
+  }
 
- [[nodiscard]] volatile T &
- operator[](U64 idx) volatile
- {
-  AssertAlways(idx < N);
-  return val[idx];
- }
+  [[nodiscard]] volatile T &
+  operator[](U64 idx) volatile
+  {
+    AssertAlways(idx < N);
+    return val[idx];
+  }
 
- [[nodiscard]]
- operator Array<T>()
- {
-  return array_make<T>(val, N);
- }
+  [[nodiscard]]
+  operator Array<T>()
+  {
+    return array_make<T>(val, N);
+  }
 };
 
 template <typename T, U64 N>
@@ -62,30 +62,30 @@ template <typename T>
 template <typename T>
 struct DynamicArray
 {
- T *base;
- U64 pos;         // NOTE(hampus): In bytes
- U64 cap;         // NOTE(hampus): In bytes
- U64 commit_size; // NOTE(hampus): In bytes
+  T *base;
+  U64 pos;         // NOTE(hampus): In bytes
+  U64 cap;         // NOTE(hampus): In bytes
+  U64 commit_size; // NOTE(hampus): In bytes
 
- [[nodiscard]] T &
- operator[](U64 idx)
- {
-  Assert(idx < (pos / sizeof(T)));
-  return base[idx];
- }
+  [[nodiscard]] T &
+  operator[](U64 idx)
+  {
+    Assert(idx < (pos / sizeof(T)));
+    return base[idx];
+  }
 
- [[nodiscard]] const T &
- operator[](U64 idx) const
- {
-  Assert(idx < (pos / sizeof(T)));
-  return base[idx];
- }
+  [[nodiscard]] const T &
+  operator[](U64 idx) const
+  {
+    Assert(idx < (pos / sizeof(T)));
+    return base[idx];
+  }
 
- [[nodiscard]]
- operator Array<T>()
- {
-  return array_make<T>(base, pos / sizeof(T));
- }
+  [[nodiscard]]
+  operator Array<T>()
+  {
+    return array_make<T>(base, pos / sizeof(T));
+  }
 };
 
 template <typename T>

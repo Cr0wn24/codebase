@@ -6,13 +6,13 @@
 
 enum EOLMode
 {
- EOLMode_None = -1,
+  EOLMode_None = -1,
 
- EOLMode_CRLF,
- EOLMode_LF,
- EOLMode_CR,
+  EOLMode_CRLF,
+  EOLMode_LF,
+  EOLMode_CR,
 
- EOLMode_COUNT,
+  EOLMode_COUNT,
 };
 
 ////////////////////////////////////////////////////////////
@@ -20,40 +20,40 @@ enum EOLMode
 
 enum GraphemeClusterBreakKind
 {
- GraphemeClusterBreakKind_None = -1,
+  GraphemeClusterBreakKind_None = -1,
 
- GraphemeClusterBreakKind_Other,
- GraphemeClusterBreakKind_Control,
- GraphemeClusterBreakKind_CR,
- GraphemeClusterBreakKind_LF,
- GraphemeClusterBreakKind_Extend,
- GraphemeClusterBreakKind_Prepend,
- GraphemeClusterBreakKind_ZWJ,
- GraphemeClusterBreakKind_RI,
- GraphemeClusterBreakKind_L,
- GraphemeClusterBreakKind_V,
- GraphemeClusterBreakKind_T,
- GraphemeClusterBreakKind_LV,
- GraphemeClusterBreakKind_LVT,
- GraphemeClusterBreakKind_SpacingMark,
+  GraphemeClusterBreakKind_Other,
+  GraphemeClusterBreakKind_Control,
+  GraphemeClusterBreakKind_CR,
+  GraphemeClusterBreakKind_LF,
+  GraphemeClusterBreakKind_Extend,
+  GraphemeClusterBreakKind_Prepend,
+  GraphemeClusterBreakKind_ZWJ,
+  GraphemeClusterBreakKind_RI,
+  GraphemeClusterBreakKind_L,
+  GraphemeClusterBreakKind_V,
+  GraphemeClusterBreakKind_T,
+  GraphemeClusterBreakKind_LV,
+  GraphemeClusterBreakKind_LVT,
+  GraphemeClusterBreakKind_SpacingMark,
 
- GraphemeClusterBreakKind_COUNT
+  GraphemeClusterBreakKind_COUNT
 };
 
 #define BLOCK_SIZE 256
 
 struct GraphemeBreakKindTrieBlock
 {
- StaticArray<GraphemeClusterBreakKind, BLOCK_SIZE> kinds;
+  StaticArray<GraphemeClusterBreakKind, BLOCK_SIZE> kinds;
 };
 
 struct GraphemeBreakKindTrie
 {
- Array<U64> indices;
- Array<GraphemeBreakKindTrieBlock> blocks;
+  Array<U64> indices;
+  Array<GraphemeBreakKindTrieBlock> blocks;
 };
 
-////////////////////////////////////////////////////////////
+////////////////////////////,////////////////////////////////
 // hampus: EOL mode
 
 [[nodiscard]] static EOLMode get_eol_mode(String8 string);

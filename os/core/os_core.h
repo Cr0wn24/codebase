@@ -6,7 +6,7 @@
 
 struct OS_Handle
 {
- U64 u64[1];
+  U64 u64[1];
 };
 
 //////////////////////////////
@@ -14,15 +14,15 @@ struct OS_Handle
 
 enum OS_FileWriteMode
 {
- OS_FileWriteMode_CreateAlways,
- OS_FileWriteMode_OpenAlways,
+  OS_FileWriteMode_CreateAlways,
+  OS_FileWriteMode_OpenAlways,
 };
 
 struct OS_FileAttributes
 {
- B8 directory;
- B8 hidden;
- B8 writable;
+  B8 directory;
+  B8 hidden;
+  B8 writable;
 };
 
 //////////////////////////////
@@ -30,8 +30,8 @@ struct OS_FileAttributes
 
 struct OS_MemoryStats
 {
- MemorySize reserved;
- MemorySize commited;
+  MemorySize reserved;
+  MemorySize commited;
 };
 
 //////////////////////////////
@@ -39,14 +39,14 @@ struct OS_MemoryStats
 
 struct OS_BacktraceEntry
 {
- String8 module_path;
- U64 address;
+  String8 module_path;
+  U64 address;
 };
 
 struct OS_Backtrace
 {
- StaticArray<OS_BacktraceEntry, 64> entries;
- U64 entries_count;
+  StaticArray<OS_BacktraceEntry, 64> entries;
+  U64 entries_count;
 };
 
 //////////////////////////////
