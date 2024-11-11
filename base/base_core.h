@@ -167,6 +167,8 @@ static_assert(ARCH_ARM64 || ARCH_X64, "This architecture is not supported");
 #define CheckNil(nil, p) ((p) == 0 || (p) == nil)
 #define SetNil(nil, p) ((p) = nil)
 
+#define ArrayCount(arr) (sizeof(arr) / sizeof((arr)[0]))
+
 #define DLLInsertNPZ(nil, f, l, p, n, next, prev) (CheckNil(nil, f)                                                    \
                                                    ? ((f) = (l) = (n), SetNil(nil, (n)->next), SetNil(nil, (n)->prev)) \
                                                    : CheckNil(nil, p) ? ((n)->next = (f), (f)->prev = (n), (f) = (n),  \
@@ -275,7 +277,7 @@ typedef double F64;
   if(!(expr))        \
     (*(volatile int *)0 = 0);
 
-#define invalid_case         \
+#define InvalidCase          \
   default:                   \
   {                          \
     Assert(!"Invalid case"); \

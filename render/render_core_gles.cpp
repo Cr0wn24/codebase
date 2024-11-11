@@ -110,7 +110,7 @@ r_make_pipeline(R_PipelineDesc desc)
   {
     StaticArray<U8, 512> info_log = {};
     S32 info_log_length = 0;
-    GL_CALL(glGetShaderInfoLog(vertex_shader, array_count(info_log), &info_log_length, (GLchar *)info_log.val));
+    GL_CALL(glGetShaderInfoLog(vertex_shader, ArrayCount(info_log), &info_log_length, (GLchar *)info_log.val));
     os_print_debug_string("Vertex shader failed to compile: %S", str8((U8 *)info_log.val, (U64)info_log_length));
     Assert(false);
   }
@@ -124,7 +124,7 @@ r_make_pipeline(R_PipelineDesc desc)
   {
     StaticArray<U8, 512> info_log = {};
     S32 info_log_length = 0;
-    GL_CALL(glGetShaderInfoLog(fragment_shader, array_count(info_log), &info_log_length, (GLchar *)info_log.val));
+    GL_CALL(glGetShaderInfoLog(fragment_shader, ArrayCount(info_log), &info_log_length, (GLchar *)info_log.val));
     os_print_debug_string("Fragment shader failed to compile: %S", str8(info_log.val, (U64)info_log_length));
     Assert(false);
   }
@@ -139,7 +139,7 @@ r_make_pipeline(R_PipelineDesc desc)
   {
     StaticArray<U8, 512> info_log = {};
     S32 info_log_length = 0;
-    GL_CALL(glGetProgramInfoLog(pipeline->shader, array_count(info_log), &info_log_length, (GLchar *)info_log.val));
+    GL_CALL(glGetProgramInfoLog(pipeline->shader, ArrayCount(info_log), &info_log_length, (GLchar *)info_log.val));
     GL_CALL(os_print_debug_string("Shader program failed to link: %S", str8(info_log.val, (U64)info_log_length)));
     Assert(false);
   }
@@ -167,7 +167,7 @@ r_make_pipeline(R_PipelineDesc desc)
       pipeline->draw_mode = GL_TRIANGLES;
     }
     break;
-      invalid_case;
+      InvalidCase;
   }
 
   switch(desc.sample_filter)
@@ -182,7 +182,7 @@ r_make_pipeline(R_PipelineDesc desc)
       pipeline->sample_filter = GL_NEAREST;
     }
     break;
-      invalid_case;
+      InvalidCase;
   }
   result.u64[0] = IntFromPtr(pipeline);
   return result;
@@ -413,7 +413,7 @@ r_byte_size_from_attribute_kind(R_AttributeKind kind)
       result = 4;
     }
     break;
-      invalid_case;
+      InvalidCase;
   }
   return result;
 }

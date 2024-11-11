@@ -21,7 +21,7 @@ thread_ctx_alloc()
   Arena *arena = arena_alloc();
   ThreadCtx *result = push_array<ThreadCtx>(arena, 1);
   result->permanent_arena = arena;
-  for(U64 i = 0; i < array_count(result->scratch_arenas); ++i)
+  for(U64 i = 0; i < ArrayCount(result->scratch_arenas); ++i)
   {
     result->scratch_arenas[i] = arena_alloc();
   }
@@ -31,7 +31,7 @@ thread_ctx_alloc()
 static void
 thread_ctx_release(ThreadCtx *tctx)
 {
-  for(U64 i = 0; i < array_count(tctx->scratch_arenas); ++i)
+  for(U64 i = 0; i < ArrayCount(tctx->scratch_arenas); ++i)
   {
     arena_free(tctx->scratch_arenas[i]);
   }
@@ -54,8 +54,8 @@ static void
 set_thread_ctx_name(String8 string)
 {
   ThreadCtx *ctx = get_thread_ctx();
-  Assert(string.size + 1 <= array_count(ctx->name));
-  MemoryCopy(ctx->name.val, string.data, string.size);
+  Assert(string.size + 1 <= ArrayCount(ctx->name));
+  MemoryCopy(ctx->name, string.data, string.size);
   ctx->name[string.size] = 0;
   if(string.size != 0)
   {
@@ -67,7 +67,7 @@ static String8
 get_thread_ctx_name()
 {
   ThreadCtx *ctx = get_thread_ctx();
-  String8 result = str8_cstr((char *)ctx->name.val);
+  String8 result = str8_cstr((char *)ctx->name);
   return result;
 }
 
@@ -79,7 +79,7 @@ get_scratch_arena(Arena **conflicts, U32 count)
 {
   Arena *selected = 0;
   ThreadCtx *tctx = get_thread_ctx();
-  for(U64 i = 0; i < array_count(tctx->scratch_arenas); ++i)
+  for(U64 i = 0; i < ArrayCount(tctx->scratch_arenas); ++i)
   {
     Arena *arena = tctx->scratch_arenas[i];
 

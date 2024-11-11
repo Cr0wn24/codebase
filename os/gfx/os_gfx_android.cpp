@@ -353,7 +353,7 @@ os_android_input_callback(struct android_app *android_app, AInputEvent *event)
             if((event_time_us - current_motion_state->down_timestamp_us) < 300 * 1000)
             {
               Vec2F32 velocity_sum = {};
-              S64 sample_size = Min(array_count(current_motion_state->move_actions), current_motion_state->move_actions_pos);
+              S64 sample_size = Min(ArrayCount(current_motion_state->move_actions), current_motion_state->move_actions_pos);
               for(S64 move_action_idx = 0; move_action_idx < sample_size - 2; ++move_action_idx)
               {
                 S64 idx = current_motion_state->move_actions_pos - move_action_idx - 2;
@@ -405,7 +405,7 @@ os_android_input_callback(struct android_app *android_app, AInputEvent *event)
          */
         case AMOTION_EVENT_ACTION_MOVE:
         {
-          OS_Android_MoveAction *move_action = &current_motion_state->move_actions[current_motion_state->move_actions_pos % array_count(current_motion_state->move_actions)];
+          OS_Android_MoveAction *move_action = &current_motion_state->move_actions[current_motion_state->move_actions_pos % ArrayCount(current_motion_state->move_actions)];
           Vec2F32 oldest_pos = v2f32(AMotionEvent_getHistoricalX(event, 0, 0), AMotionEvent_getHistoricalY(event, 0, 0));
           move_action->pos = oldest_pos;
           move_action->timestamp_us = event_time_us;
@@ -557,7 +557,7 @@ os_android_input_callback(struct android_app *android_app, AInputEvent *event)
         {
         }
         break;
-          invalid_case;
+          InvalidCase;
       }
 
       return 1;

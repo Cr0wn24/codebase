@@ -195,17 +195,10 @@ str8_match(String8 a, String8 b)
   {
     if(a.data != b.data)
     {
-      U8 *a_ptr = a.data;
-      U8 *b_ptr = b.data;
-      U8 *a_opl = a.data + a.size;
-      U8 *b_opl = b.data + b.size;
-      while(a_ptr < a_opl && b_ptr < b_opl)
+      U64 clamped_max = Min(a.size, b.size);
+      for(U64 idx = 0; idx < clamped_max; ++idx)
       {
-        StringDecode a_decode = string_decode_utf8(a_ptr, (U64)(a_opl - a_ptr));
-        StringDecode b_decode = string_decode_utf8(b_ptr, (U64)(b_opl - b_ptr));
-        a_ptr += a_decode.size;
-        b_ptr += b_decode.size;
-        if(a_decode.codepoint != b_decode.codepoint)
+        if(a[idx] != b[idx])
         {
           result = false;
           break;
@@ -511,16 +504,16 @@ str32(U32 *data, U64 size)
 }
 
 static B32
-str32_contains_only(String32 string, Array<U32> slice)
+str32_contains_only(String32 string, U32 *cps, U64 cps_count)
 {
   B32 result = true;
   for(U64 idx = 0; idx < string.size; ++idx)
   {
     U32 u32 = string[idx];
     B32 is_part_of_array = false;
-    for(U64 array_idx = 0; array_idx < slice.count; ++array_idx)
+    for(U64 array_idx = 0; array_idx < cps_count; ++array_idx)
     {
-      if(u32 == slice[array_idx])
+      if(u32 == cps[array_idx])
       {
         is_part_of_array = true;
         break;

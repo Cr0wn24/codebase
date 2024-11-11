@@ -15,7 +15,7 @@ r_handle_match(R_Handle a, R_Handle b)
 static void
 r_add_input_layout_attribute(R_InputLayoutDesc *input_layout_desc, R_AttributeDesc desc)
 {
-  if(input_layout_desc->attribs_count < array_count(input_layout_desc->attribs))
+  if(input_layout_desc->attribs_count < ArrayCount(input_layout_desc->attribs))
   {
     R_InputLayoutAttribute *attrib = &input_layout_desc->attribs[input_layout_desc->attribs_count];
     attrib->name = desc.semantic_name;

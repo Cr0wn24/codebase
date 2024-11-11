@@ -109,7 +109,7 @@ atlas_region_free(Atlas *atlas, RectU64 region)
 {
   AtlasRegion *node = atlas->root;
 
-  // hampus: Find the region inside the atlas
+  // hampus: find the region inside the atlas
 
   for(;;)
   {
@@ -136,7 +136,7 @@ atlas_region_free(Atlas *atlas, RectU64 region)
     }
   }
 
-  // hampus: Update descendant flags of the parents and the max region size
+  // hampus: update descendant flags and max region size of the parent
 
   for(AtlasRegion *parent = node->parent; parent != 0; parent = parent->parent)
   {

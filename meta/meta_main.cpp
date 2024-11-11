@@ -426,11 +426,11 @@ os_entry_point(String8List args)
                         n->file_stream_handle = os_file_stream_open(editor_main_generated_file_path);
                       }
 
-                      StaticArray<U8, Kilobytes(16)> buffer = {};
+                      U8 buffer[Kilobytes(16)] = {};
                       U64 buffer_used_size = 0;
 
                       {
-                        String8 string = str8_push(scratch.arena, "\nStaticArray<U8, %" PRIU64 "> %S_data =\n{\n", file_data.size, generated_variable_name);
+                        String8 string = str8_push(scratch.arena, "\nU8 %S_data[%" PRIU64 "] =\n{\n", generated_variable_name, file_data.size);
                         AssertAlways(os_file_stream_write(n->file_stream_handle, string));
                       }
 
@@ -439,25 +439,25 @@ os_entry_point(String8List args)
                         String8 string = {};
                         if(idx % 20 == 0)
                         {
-                          string = cstr_format(buffer.val + buffer_used_size, array_count(buffer) - buffer_used_size, "0x%x,\n", file_data.data[idx]);
+                          string = cstr_format(buffer + buffer_used_size, ArrayCount(buffer) - buffer_used_size, "0x%x,\n", file_data.data[idx]);
                         }
                         else
                         {
-                          string = cstr_format(buffer.val + buffer_used_size, array_count(buffer) - buffer_used_size, "0x%x, ", file_data.data[idx]);
+                          string = cstr_format(buffer + buffer_used_size, ArrayCount(buffer) - buffer_used_size, "0x%x, ", file_data.data[idx]);
                         }
 
                         buffer_used_size += string.size;
-                        if((buffer_used_size + 6) > array_count(buffer))
+                        if((buffer_used_size + 6) > ArrayCount(buffer))
                         {
-                          AssertAlways(os_file_stream_write(n->file_stream_handle, str8(buffer.val, buffer_used_size)));
+                          AssertAlways(os_file_stream_write(n->file_stream_handle, str8(buffer, buffer_used_size)));
                           buffer_used_size = 0;
                         }
                       }
 
-                      AssertAlways(os_file_stream_write(n->file_stream_handle, str8(buffer.val, buffer_used_size)));
+                      AssertAlways(os_file_stream_write(n->file_stream_handle, str8(buffer, buffer_used_size)));
 
                       {
-                        String8 string = str8_push(scratch.arena, "\n};\nString8 %S = {.data = (U8 *)%S_data.val, .size = array_count(%S_data)};", generated_variable_name, generated_variable_name, generated_variable_name);
+                        String8 string = str8_push(scratch.arena, "\n};\nString8 %S = {.data = (U8 *)%S_data, .size = ArrayCount(%S_data)};", generated_variable_name, generated_variable_name, generated_variable_name);
                         AssertAlways(os_file_stream_write(n->file_stream_handle, string));
                       }
                     }

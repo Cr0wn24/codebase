@@ -88,7 +88,7 @@ struct F_DWrite_MapTextToGlyphsState
 {
   Arena *arena;
   TextAnalysisSinkResultChunk *first_text_analsys_sink_chunk;
-  StaticArray<F_DWrite_MapTextToGlyphsResultSlot *, 256> text_to_glyphs_result_map;
+  F_DWrite_MapTextToGlyphsResultSlot *text_to_glyphs_result_map[256];
 };
 
 static F_DWrite_MapTextToGlyphsResult f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontCollection *font_collection, IDWriteTextAnalyzer1 *text_analyzer, const wchar_t *locale, String16 base_family, const U32 font_size, String16 text);

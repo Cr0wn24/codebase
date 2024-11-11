@@ -78,7 +78,7 @@ os_socket_alloc(OS_NetProtocol protocol, OS_NetAddressFamily address_family)
       stream = SOCK_DGRAM;
     }
     break;
-      invalid_case;
+      InvalidCase;
   }
   S32 af = 0;
   switch(address_family)
@@ -88,7 +88,7 @@ os_socket_alloc(OS_NetProtocol protocol, OS_NetAddressFamily address_family)
       af = AF_INET;
     }
     break;
-      invalid_case;
+      InvalidCase;
   }
   SOCKET sock = socket(af, stream, ipproto);
   if(sock != INVALID_SOCKET)

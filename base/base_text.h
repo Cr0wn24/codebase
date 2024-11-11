@@ -2,23 +2,9 @@
 #define BASE_TEXT_H
 
 ////////////////////////////////////////////////////////////
-// hampus: EOL mode types
-
-enum EOLMode
-{
-  EOLMode_None = -1,
-
-  EOLMode_CRLF,
-  EOLMode_LF,
-  EOLMode_CR,
-
-  EOLMode_COUNT,
-};
-
-////////////////////////////////////////////////////////////
 // hampus: Grapheme clusters break types
 
-enum GraphemeClusterBreakKind
+enum GraphemeClusterBreakKind : S32
 {
   GraphemeClusterBreakKind_None = -1,
 
@@ -36,6 +22,7 @@ enum GraphemeClusterBreakKind
   GraphemeClusterBreakKind_LV,
   GraphemeClusterBreakKind_LVT,
   GraphemeClusterBreakKind_SpacingMark,
+  GraphemeClusterBreakKind_ExtPict,
 
   GraphemeClusterBreakKind_COUNT
 };
@@ -44,31 +31,21 @@ enum GraphemeClusterBreakKind
 
 struct GraphemeBreakKindTrieBlock
 {
-  StaticArray<GraphemeClusterBreakKind, BLOCK_SIZE> kinds;
+  GraphemeClusterBreakKind kinds[256];
 };
 
 struct GraphemeBreakKindTrie
 {
-  Array<U64> indices;
-  Array<GraphemeBreakKindTrieBlock> blocks;
+  U64 *indices;
+  U64 indices_count;
+  U64 blocks_count;
+  GraphemeBreakKindTrieBlock *blocks;
 };
-
-////////////////////////////,////////////////////////////////
-// hampus: EOL mode
-
-[[nodiscard]] static EOLMode get_eol_mode(String8 string);
-[[nodiscard]] static String8 get_eol_string(EOLMode mode);
-[[nodiscard]] static U64 get_eol_length(EOLMode mode);
-
-////////////////////////////////////////////////////////////
-// hampus: Line
-
-[[nodiscard]] static U64 get_next_line_length(String8 string, EOLMode eol_mode);
 
 ////////////////////////////////////////////////////////////
 // hampus: Grapheme clusters break
 
-[[nodiscard]] static GraphemeClusterBreakKind grapheme_cluster_kind_from_codepoint(U32 cp);
-static void grapheme_break_kind_trie_init(Arena *arena, String8 data);
+[[nodiscard]] static GraphemeClusterBreakKind grapheme_cluster_kind_from_codepoint(const GraphemeBreakKindTrie &trie, U32 cp);
+[[nodiscard]] static GraphemeBreakKindTrie grapheme_break_kind_trie_from_static_memory(U64 *indices, U64 indices_count, GraphemeClusterBreakKind *kinds, U64 kinds_count);
 
 #endif

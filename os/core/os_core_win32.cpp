@@ -432,9 +432,9 @@ static String8
 os_get_executable_path(Arena *arena)
 {
   String8 result = {};
-  StaticArray<WCHAR, 1024> buffer = {};
-  U64 length = GetModuleFileNameW(0, buffer.val, (DWORD)array_count(buffer));
-  result = str8_from_str16(arena, str16((U16 *)buffer.val, length));
+  WCHAR buffer[1024] = {};
+  U64 length = GetModuleFileNameW(0, buffer, (DWORD)ArrayCount(buffer));
+  result = str8_from_str16(arena, str16((U16 *)buffer, length));
   return result;
 }
 

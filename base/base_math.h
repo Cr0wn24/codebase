@@ -385,8 +385,14 @@ union Vec2U32
   {
     U32 width, height;
   };
+  struct
+  {
+    U32 min, max;
+  };
   U32 v[2];
 };
+
+typedef Vec2U32 Range2U32;
 
 union Vec3U32
 {

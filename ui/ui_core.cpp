@@ -4,7 +4,7 @@
 static Arena *
 ui_frame_arena()
 {
-  Arena *arena = ui_state->frame_arenas[ui_state->build_idx % array_count(ui_state->frame_arenas)];
+  Arena *arena = ui_state->frame_arenas[ui_state->build_idx % ArrayCount(ui_state->frame_arenas)];
   return arena;
 }
 
@@ -436,7 +436,7 @@ ui_init()
   ui_state = push_array<UI_State>(arena, 1);
   ui_state->arena = arena;
 
-  for(U64 i = 0; i < array_count(ui_state->frame_arenas); ++i)
+  for(U64 i = 0; i < ArrayCount(ui_state->frame_arenas); ++i)
   {
     ui_state->frame_arenas[i] = arena_alloc();
   }
@@ -455,7 +455,7 @@ ui_init()
    0x2713,
   };
 
-  for(U64 i = 0; i < array_count(ui_state->icon_to_string_table); ++i)
+  for(U64 i = 0; i < ArrayCount(ui_state->icon_to_string_table); ++i)
   {
     U32 cp = codepoints[i];
     String32 string32 = {&cp, 1};
@@ -468,7 +468,7 @@ ui_destroy()
 {
   arena_free(ui_state->arena);
 
-  for(U64 i = 0; i < array_count(ui_state->frame_arenas); ++i)
+  for(U64 i = 0; i < ArrayCount(ui_state->frame_arenas); ++i)
   {
     arena_free(ui_state->frame_arenas[i]);
   }
@@ -575,17 +575,17 @@ ui_begin_build(OS_Handle window, OS_EventList *os_events, F64 dt)
 
   // hampus: Prune old boxes
 
-  for(U64 i = 0; i < array_count(ui_state->box_map); ++i)
+  for(U64 i = 0; i < ArrayCount(ui_state->box_slots); ++i)
   {
-    UI_Box *box = ui_state->box_map[i];
+    UI_Box *box = ui_state->box_slots[i];
     while(!ui_box_is_nil(box))
     {
       UI_Box *next = box->hash_next;
       if(box->last_build_touched_idx < (ui_state->build_idx - 1))
       {
-        if(box == ui_state->box_map[i])
+        if(box == ui_state->box_slots[i])
         {
-          ui_state->box_map[i] = box->hash_next;
+          ui_state->box_slots[i] = box->hash_next;
         }
 
         if(!ui_box_is_nil(box->hash_next))
@@ -811,10 +811,10 @@ static UI_Box *
 ui_box_from_key(UI_Key key)
 {
   UI_Box *box = &ui_nil_box;
-  U64 slot_idx = key.u64[0] % array_count(ui_state->box_map);
+  U64 slot_idx = key.u64[0] % ArrayCount(ui_state->box_slots);
   if(key != ui_key_zero())
   {
-    box = ui_state->box_map[slot_idx];
+    box = ui_state->box_slots[slot_idx];
     while(!ui_box_is_nil(box))
     {
       if(box->key == key)
@@ -827,7 +827,7 @@ ui_box_from_key(UI_Key key)
     if(ui_box_is_nil(box))
     {
       box = ui_box_alloc();
-      SLLStackPushN(ui_state->box_map[slot_idx], box, hash_next);
+      SLLStackPushN(ui_state->box_slots[slot_idx], box, hash_next);
       box->key = key;
       box->first_build_touched_idx = ui_state->build_idx;
     }

@@ -291,7 +291,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
     // hampus: lookup text to glyph mapping in cache
     F_DWrite_MapTextToGlyphsResultSlot *slot = 0;
     U64 hash = f_dwrite_hash_from_string(text);
-    U64 slot_idx = hash % array_count(f_dwrite_map_text_to_glyphs_state->text_to_glyphs_result_map);
+    U64 slot_idx = hash % ArrayCount(f_dwrite_map_text_to_glyphs_state->text_to_glyphs_result_map);
     {
       for(slot = f_dwrite_map_text_to_glyphs_state->text_to_glyphs_result_map[slot_idx]; slot != 0; slot = slot->hash_next)
       {
@@ -349,13 +349,20 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
           F32 scale = 0;
           {
             ProfileScope("MapCharacters()");
+            DWRITE_FONT_AXIS_VALUE font_axis_values[] =
+            {
+             {DWRITE_FONT_AXIS_TAG_WEIGHT, 400},
+             {DWRITE_FONT_AXIS_TAG_WIDTH, 100},
+             {DWRITE_FONT_AXIS_TAG_SLANT, 0},
+             {DWRITE_FONT_AXIS_TAG_ITALIC, 0},
+            };
             hr = font_fallback->MapCharacters(&analysis_source,
                                               fallback_offset,
                                               text_length_u32,
                                               font_collection,
                                               cstr16_base_family,
-                                              0,
-                                              0,
+                                              font_axis_values,
+                                              4,
                                               &mapped_text_length,
                                               &scale,
                                               &mapped_font_face);

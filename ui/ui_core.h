@@ -294,11 +294,11 @@ struct UI_RendererState;
 struct UI_State
 {
   Arena *arena;
-  StaticArray<Arena *, 2> frame_arenas;
+  Arena *frame_arenas[2];
 
   UI_RendererState *renderer;
-
-  StaticArray<UI_Box *, 4096> box_map;
+  
+  UI_Box *box_slots[4096];
   UI_FreeBox *first_free_box;
 
   UI_Key active_key;
@@ -331,7 +331,7 @@ struct UI_State
   OS_EventList *os_events;
   OS_Handle os_window;
 
-  StaticArray<String8, UI_Icon_COUNT> icon_to_string_table;
+  String8 icon_to_string_table[UI_Icon_COUNT];
 
   Vec2F32 mouse_pos;
   Vec2F32 prev_mouse_pos;

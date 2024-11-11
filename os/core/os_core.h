@@ -7,6 +7,20 @@
 struct OS_Handle
 {
   U64 u64[1];
+
+  [[nodiscard]] B32
+  operator==(OS_Handle other)
+  {
+    B32 result = u64[0] == other.u64[0];
+    return result;
+  }
+  
+  [[nodiscard]] B32
+  operator!=(OS_Handle other)
+  {
+    B32 result = !(other == *this);
+    return result;
+  }
 };
 
 //////////////////////////////
@@ -45,7 +59,7 @@ struct OS_BacktraceEntry
 
 struct OS_Backtrace
 {
-  StaticArray<OS_BacktraceEntry, 64> entries;
+  OS_BacktraceEntry entries[64];
   U64 entries_count;
 };
 

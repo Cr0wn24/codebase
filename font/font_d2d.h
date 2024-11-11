@@ -83,10 +83,10 @@ struct F_D2D_State
 {
   Arena *arena;
 
-  StaticArray<F_Handle, 6> dwrite_font_table;
-  StaticArray<F_Tag, 6> font_tag_table;
+  F_Handle dwrite_font_table[6];
+  F_Tag font_tag_table[6];
 
-  StaticArray<F_GlyphSlot, 256> glyph_slots;
+  F_GlyphSlot glyph_slots[256];
   F_Atlas atlas;
 
   wchar_t locale[LOCALE_NAME_MAX_LENGTH];

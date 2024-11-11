@@ -5,62 +5,7 @@
 #define DYNAMIC_ARRAY_DEFAULT_COMMIT_SIZE Megabytes(1)
 
 template <typename T>
-struct Array
-{
-  T *val;
-  U64 count;
-
-  [[nodiscard]] T &
-  operator[](U64 idx)
-  {
-    Assert(idx < count);
-    return val[idx];
-  }
-};
-
-template <typename T>
-[[nodiscard]] static Array<T> array_make(T *val, U64 count);
-
-template <typename T>
-[[nodiscard]] static Array<T> array_make(Arena *arena, U64 count);
-
-template <typename T>
-[[nodiscard]] static Array<T> array_make_no_zero(Arena *arena, U64 count);
-
-template <typename T, U64 N>
-struct StaticArray
-{
-  T val[N];
-
-  [[nodiscard]] T &
-  operator[](U64 idx)
-  {
-    AssertAlways(idx < N);
-    return val[idx];
-  }
-
-  [[nodiscard]] volatile T &
-  operator[](U64 idx) volatile
-  {
-    AssertAlways(idx < N);
-    return val[idx];
-  }
-
-  [[nodiscard]]
-  operator Array<T>()
-  {
-    return array_make<T>(val, N);
-  }
-};
-
-template <typename T, U64 N>
-[[nodiscard]] static U64 array_count(StaticArray<T, N> array);
-
-template <typename T>
-[[nodiscard]] static U64 array_count(Array<T> array);
-
-template <typename T>
-struct DynamicArray
+struct DArray
 {
   T *base;
   U64 pos;         // NOTE(hampus): In bytes
@@ -80,36 +25,30 @@ struct DynamicArray
     Assert(idx < (pos / sizeof(T)));
     return base[idx];
   }
-
-  [[nodiscard]]
-  operator Array<T>()
-  {
-    return array_make<T>(base, pos / sizeof(T));
-  }
 };
 
 template <typename T>
-[[nodiscard]] static DynamicArray<T> dynamic_array_alloc();
+[[nodiscard]] static DArray<T> dynamic_array_alloc();
 
 template <typename T>
-[[nodiscard]] static DynamicArray<T> dynamic_array_alloc(U64 size);
+[[nodiscard]] static DArray<T> dynamic_array_alloc(U64 size);
 
 template <typename T>
-static void dynamic_array_free(DynamicArray<T> &array);
+static void dynamic_array_free(DArray<T> &array);
 
 template <typename T>
-[[nodiscard]] static U64 array_count(DynamicArray<T> &array);
+[[nodiscard]] static U64 darray_count(DArray<T> &array);
 
 template <typename T>
-[[nodiscard]] static U64 array_count(const DynamicArray<T> &array);
+[[nodiscard]] static U64 darray_count(const DArray<T> &array);
 
 template <typename T>
-static void dynamic_array_insert(DynamicArray<T> &array, U64 idx, T *val, U64 count);
+static void dynamic_array_insert(DArray<T> &array, U64 idx, T *val, U64 count);
 
 template <typename T>
-static void dynamic_array_resize(DynamicArray<T> &array, U64 new_count);
+static void dynamic_array_resize(DArray<T> &array, U64 new_count);
 
 template <typename T>
-static void dynamic_array_move_memory(DynamicArray<T> &array, U64 dst_idx, U64 src_idx, U64 count);
+static void dynamic_array_move_memory(DArray<T> &array, U64 dst_idx, U64 src_idx, U64 count);
 
 #endif // BASE_ARRAY_H

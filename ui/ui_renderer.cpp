@@ -477,7 +477,7 @@ ui_draw_box_hierarchy(UI_Box *root)
                            root->fixed_rect.min.y + height_left / 2);
         }
         break;
-          invalid_case;
+          InvalidCase;
       }
       Vec4F32 text_color = root->text_color;
       text_color.rgb *= text_color.a;

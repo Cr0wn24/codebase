@@ -114,7 +114,7 @@ ui_check(B32 b32, char *fmt, ...)
 }
 
 static String8
-ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, Array<U8> buffer, String8 replace_str)
+ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, U8 *buffer, U64 buffer_size, String8 replace_str)
 {
   U64 min_range = (U64)(range.min);
   U64 max_range = (U64)(range.max);
@@ -145,7 +145,7 @@ ui_push_replace_string(Arena *arena, String8 edit_str, Vec2S64 range, Array<U8> 
   {
     MemoryCopy(new_buffer.data + min_range + replace_str.size, after_range.data, after_range.size);
   }
-  new_buffer.size = Min(new_buffer.size, array_count(buffer));
+  new_buffer.size = Min(new_buffer.size, buffer_size);
   return (new_buffer);
 }
 
@@ -184,13 +184,13 @@ ui_codepoint_index_from_mouse_pos(UI_Box *box, String8 edit_str)
 }
 
 static UI_Comm
-ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length, String8 string)
+ui_line_edit(UI_TextEditState *edit_state, U8 *buffer, U64 buffer_size, U64 *string_length, String8 string)
 {
   UI_Comm comm = {};
   TempArena scratch = GetScratch(0, 0);
   ui_seed(ui_hash_from_seed_string(ui_top_seed(), string))
   {
-    String8 buffer_str8 = str8(buffer.val, array_count(buffer));
+    String8 buffer_str8 = str8(buffer, buffer_size);
     ui_next_child_layout_axis(Axis2_X);
     ui_next_hover_cursor(OS_Cursor_Beam);
     UI_Box *box = ui_box_make(UI_BoxFlag_DrawBackground |
@@ -205,7 +205,7 @@ ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length,
                               UI_BoxFlag_Commitable,
                               string);
 
-    String8 edit_str = (String8){buffer.val, *string_length};
+    String8 edit_str = (String8){buffer, *string_length};
 
     comm = ui_comm_from_box(box);
     if(comm.pressed)
@@ -231,8 +231,8 @@ ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length,
           os_set_clipboard(op.copy_string);
         }
 
-        String8 new_str = ui_push_replace_string(scratch.arena, edit_str, op.range, buffer, op.replace_string);
-        MemoryCopy(buffer.val, new_str.data, new_str.size);
+        String8 new_str = ui_push_replace_string(scratch.arena, edit_str, op.range, buffer, buffer_size, op.replace_string);
+        MemoryCopy(buffer, new_str.data, new_str.size);
         *string_length = new_str.size;
         edit_str.size = new_str.size;
 
@@ -312,12 +312,12 @@ ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length,
   return (comm);
 }
 static UI_Comm
-ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length, char *fmt, ...)
+ui_line_edit(UI_TextEditState *edit_state, U8 *buffer, U64 buffer_size, U64 *string_length, char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
   String8 string = str8_push(ui_frame_arena(), fmt, args);
-  UI_Comm comm = ui_line_edit(edit_state, buffer, string_length, string);
+  UI_Comm comm = ui_line_edit(edit_state, buffer, buffer_size, string_length, string);
   va_end(args);
   return (comm);
 }

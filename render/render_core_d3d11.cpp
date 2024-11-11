@@ -139,13 +139,13 @@ r_make_pipeline(R_PipelineDesc desc)
   R_ShaderDesc *shader_desc = &desc.shader;
 
   Assert(shader_desc->vs_entry_point_name.size < 256);
-  StaticArray<U8, 256> vs_target_buffer_cstr = {};
-  cstr_format(vs_target_buffer_cstr.val, array_count(vs_target_buffer_cstr), (char *)"%S_5_0", shader_desc->vs_entry_point_name);
+  U8 vs_target_buffer_cstr[256] = {};
+  cstr_format(vs_target_buffer_cstr, ArrayCount(vs_target_buffer_cstr), (char *)"%S_5_0", shader_desc->vs_entry_point_name);
 
   char *vs_entry_point_cstr = cstr_from_str8(scratch.arena, shader_desc->vs_entry_point_name);
 
   ID3DBlob *vblob = 0;
-  hr = D3DCompile((LPCSTR)shader_desc->vs_source.data, shader_desc->vs_source.size, 0, 0, 0, (LPCSTR)vs_entry_point_cstr, (LPCSTR)vs_target_buffer_cstr.val, flags, 0, &vblob, &error);
+  hr = D3DCompile((LPCSTR)shader_desc->vs_source.data, shader_desc->vs_source.size, 0, 0, 0, (LPCSTR)vs_entry_point_cstr, (LPCSTR)vs_target_buffer_cstr, flags, 0, &vblob, &error);
   if(FAILED(hr))
   {
     const char *message = (const char *)error->GetBufferPointer();
@@ -154,14 +154,14 @@ r_make_pipeline(R_PipelineDesc desc)
   }
 
   Assert(shader_desc->ps_entry_point_name.size < 256);
-  StaticArray<U8, 256> ps_target_buffer_cstr = {};
-  cstr_format(ps_target_buffer_cstr.val, array_count(ps_target_buffer_cstr), (char *)"%S_5_0", shader_desc->ps_entry_point_name);
+  U8 ps_target_buffer_cstr[256] = {};
+  cstr_format(ps_target_buffer_cstr, ArrayCount(ps_target_buffer_cstr), (char *)"%S_5_0", shader_desc->ps_entry_point_name);
 
   char *ps_entry_point_cstr = cstr_from_str8(scratch.arena, shader_desc->ps_entry_point_name);
 
   ID3DBlob *pblob = 0;
 
-  hr = D3DCompile((LPCSTR)shader_desc->ps_source.data, shader_desc->ps_source.size, 0, 0, 0, (LPCSTR)ps_entry_point_cstr, (LPCSTR)ps_target_buffer_cstr.val, flags, 0, &pblob, &error);
+  hr = D3DCompile((LPCSTR)shader_desc->ps_source.data, shader_desc->ps_source.size, 0, 0, 0, (LPCSTR)ps_entry_point_cstr, (LPCSTR)ps_target_buffer_cstr, flags, 0, &pblob, &error);
   if(FAILED(hr))
   {
     const char *message = (const char *)error->GetBufferPointer();
@@ -202,7 +202,7 @@ r_make_pipeline(R_PipelineDesc desc)
         format = DXGI_FORMAT_R32G32B32A32_FLOAT;
       }
       break;
-        invalid_case;
+        InvalidCase;
     }
     switch(attrib->slot_class)
     {
@@ -216,7 +216,7 @@ r_make_pipeline(R_PipelineDesc desc)
         slot_class = D3D11_INPUT_PER_VERTEX_DATA;
       }
       break;
-        invalid_case;
+        InvalidCase;
     }
     d3d11_input_layout_desc[attrib_idx].SemanticName = cstr_from_str8(scratch.arena, attrib->name);
     d3d11_input_layout_desc[attrib_idx].Format = format;
@@ -254,7 +254,7 @@ r_make_pipeline(R_PipelineDesc desc)
         sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
       }
       break;
-        invalid_case;
+        InvalidCase;
     }
 
     r_d3d11_state->device->CreateSamplerState(&sampler_desc, &pipeline->sampler_state);

@@ -302,7 +302,7 @@ f_handle_from_tag(F_Tag tag)
 
   // hampus: Cache lookup
 
-  for(U64 i = 0; i < array_count(f_d2d_state->font_tag_table); ++i)
+  for(U64 i = 0; i < ArrayCount(f_d2d_state->font_tag_table); ++i)
   {
     if(f_handle_match(f_d2d_state->dwrite_font_table[i], f_handle_zero()) &&
        cold_idx == U64_MAX)
@@ -346,7 +346,7 @@ f_dwrite_lookup_glyph(U32 glyph_idx, IDWriteFontFace *font_face, U32 size)
   ProfileFunction();
 
   F_GlyphNode *result = 0;
-  U64 slot_idx = glyph_idx % array_count(f_d2d_state->glyph_slots);
+  U64 slot_idx = glyph_idx % ArrayCount(f_d2d_state->glyph_slots);
   F_GlyphSlot *slot = &f_d2d_state->glyph_slots[slot_idx];
   for(result = slot->first;
       result != 0;
@@ -526,7 +526,7 @@ f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
 
       // hampus: fill in glyph data
 
-      U64 slot_idx = glyph_idx % array_count(f_d2d_state->glyph_slots);
+      U64 slot_idx = glyph_idx % ArrayCount(f_d2d_state->glyph_slots);
       F_GlyphSlot *slot = &f_d2d_state->glyph_slots[slot_idx];
 
       glyph_node = push_array<F_GlyphNode>(f_d2d_state->arena, 1);
@@ -633,7 +633,7 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
 
         // hampus: fill in glyph data
 
-        U64 slot_idx = glyph_idx % array_count(f_d2d_state->glyph_slots);
+        U64 slot_idx = glyph_idx % ArrayCount(f_d2d_state->glyph_slots);
         F_GlyphSlot *slot = &f_d2d_state->glyph_slots[slot_idx];
 
         glyph_node = push_array<F_GlyphNode>(f_d2d_state->arena, 1);

@@ -99,7 +99,7 @@ string_from_os(OperatingSystem os)
       result = Str8Lit("Mac");
     }
     break;
-      invalid_case;
+      InvalidCase;
   }
   return result;
 }
@@ -135,7 +135,7 @@ string_from_arch(Architecture arc)
       result = Str8Lit("ARM64");
     }
     break;
-      invalid_case;
+      InvalidCase;
   }
 
   return result;
@@ -182,7 +182,7 @@ string_from_day_of_week(DayOfWeek day)
       result = Str8Lit("Sunday");
     }
     break;
-      invalid_case;
+      InvalidCase;
   }
   return result;
 }
@@ -253,7 +253,7 @@ string_from_month(Month month)
       result = Str8Lit("Dec");
     }
     break;
-      invalid_case;
+      InvalidCase;
   }
   return result;
 }
@@ -308,7 +308,7 @@ date_match(Date a, Date b)
 static MemorySize
 memory_size_from_bytes(U64 bytes)
 {
-  StaticArray<String8, 4> units =
+  String8 units[] =
   {
    Str8Lit("KB"),
    Str8Lit("MB"),
@@ -320,7 +320,7 @@ memory_size_from_bytes(U64 bytes)
   result.amount = (F64)bytes;
   result.unit = (U8 *)"B";
   result.unit_length = 1;
-  for(U64 i = 0; i < array_count(units) && result.amount > 2048.0f; ++i)
+  for(U64 i = 0; i < ArrayCount(units) && result.amount > 2048.0f; ++i)
   {
     result.amount /= 1024.0f;
     result.unit = units[i].data;

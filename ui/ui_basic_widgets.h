@@ -4,7 +4,7 @@
 struct UI_LineEditState
 {
   UI_TextEditState edit_state;
-  StaticArray<U8, 256> buffer;
+  U8 buffer[256];
   U64 string_length;
 };
 
@@ -12,7 +12,7 @@ struct UI_LineEditStatePairNode
 {
   UI_LineEditStatePairNode *next;
   UI_LineEditStatePairNode *prev;
-  StaticArray<UI_LineEditState, 2> v;
+  UI_LineEditState v[2];
 };
 
 static void ui_spacer(UI_Size size);
@@ -25,8 +25,8 @@ static UI_Comm ui_button(char *fmt, ...);
 static UI_Comm ui_check(B32 b32, String8 string);
 static UI_Comm ui_check(B32 b32, char *fmt, ...);
 
-static UI_Comm ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length, String8 string);
-static UI_Comm ui_line_edit(UI_TextEditState *edit_state, Array<U8> buffer, U64 *string_length, char *fmt, ...);
+static UI_Comm ui_line_edit(UI_TextEditState *edit_state, U8 *buffer, U64 buffer_size, U64 *string_length, String8 string);
+static UI_Comm ui_line_edit(UI_TextEditState *edit_state, U8 *buffer, U64 buffer_size, U64 *string_length, char *fmt, ...);
 
 static UI_Box *ui_begin_named_row(String8 string);
 static void ui_end_named_row();
