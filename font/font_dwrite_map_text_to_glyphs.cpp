@@ -375,7 +375,14 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
             // replace these characters with a missing glyph.
           }
         }
-
+#if 0
+        U64 test = 0;
+        {
+          TempArena scratch = GetScratch(0, 0);
+          String8 string8 = str8_from_str16(scratch.arena, text);
+          test = get_next_grapheme_width_in_bytes(string8);
+        }
+#endif
         mapping->text_offset = fallback_offset;
         mapping->text_length = mapped_text_length;
         mapping->font_face = mapped_font_face;

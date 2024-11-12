@@ -1,23 +1,23 @@
+static GraphemeBreakKindTrie grapheme_break_trie;
+
 ////////////////////////////////////////////////////////////
 // hampus: Grapheme clusters break
 
 static GraphemeClusterBreakKind
-grapheme_cluster_kind_from_codepoint(const GraphemeBreakKindTrie &trie, U32 cp)
+grapheme_cluster_kind_from_codepoint(U32 cp)
 {
   GraphemeClusterBreakKind result = GraphemeClusterBreakKind_None;
-  U64 block_offset = trie.indices[cp / BLOCK_SIZE];
-  result = trie.blocks[block_offset].kinds[cp % BLOCK_SIZE];
+  U64 block_offset = grapheme_break_trie.indices[cp / BLOCK_SIZE];
+  result = grapheme_break_trie.blocks[block_offset].kinds[cp % BLOCK_SIZE];
   return result;
 }
 
-static GraphemeBreakKindTrie
-grapheme_break_kind_trie_from_static_memory(U64 *indices, U64 indices_count, GraphemeClusterBreakKind *kinds, U64 kinds_count)
+static void
+init_grapheme_break_trie(U64 *indices, U64 indices_count, GraphemeClusterBreakKind *kinds, U64 kinds_count)
 {
-  GraphemeBreakKindTrie result = {};
-  result.indices = indices;
-  result.blocks_count = kinds_count / BLOCK_SIZE;
-  result.blocks = (GraphemeBreakKindTrieBlock *)kinds;
-  return result;
+  grapheme_break_trie.indices = indices;
+  grapheme_break_trie.blocks_count = kinds_count / BLOCK_SIZE;
+  grapheme_break_trie.blocks = (GraphemeBreakKindTrieBlock *)kinds;
 }
 
 struct GraphemeClusterBoundaryRule
@@ -28,7 +28,7 @@ struct GraphemeClusterBoundaryRule
 };
 
 static U64
-get_next_grapheme_width_in_bytes(const GraphemeBreakKindTrie &trie, String8 string)
+get_next_grapheme_width_in_bytes(String8 string)
 {
   TempArena scratch = GetScratch(0, 0);
 
@@ -72,7 +72,7 @@ get_next_grapheme_width_in_bytes(const GraphemeBreakKindTrie &trie, String8 stri
 
    // hampus: GB9b
    {GraphemeClusterBreakKind_Prepend, GraphemeClusterBreakKind_Any, true},
-   
+
    // hampus: GB11
    {GraphemeClusterBreakKind_Extend, GraphemeClusterBreakKind_ZWJ, true},
    {GraphemeClusterBreakKind_ZWJ, GraphemeClusterBreakKind_ExtPict, true},
@@ -89,16 +89,16 @@ get_next_grapheme_width_in_bytes(const GraphemeBreakKindTrie &trie, String8 stri
     if(string.size != 0)
     {
       StringDecode leading_decode = string_decode_utf8(string.data, string.size);
-      leading_break_kind = grapheme_cluster_kind_from_codepoint(trie, leading_decode.codepoint);
+      leading_break_kind = grapheme_cluster_kind_from_codepoint(leading_decode.codepoint);
       result += leading_decode.size;
       string = str8_skip(string, leading_decode.size);
     }
- 
+
     GraphemeClusterBreakKind trailing_break_kind = GraphemeClusterBreakKind_None;
     if(string.size != 0)
     {
       StringDecode trailing_decode = string_decode_utf8(string.data, string.size);
-      trailing_break_kind = grapheme_cluster_kind_from_codepoint(trie, trailing_decode.codepoint);
+      trailing_break_kind = grapheme_cluster_kind_from_codepoint(trailing_decode.codepoint);
     }
 
     if(trailing_break_kind != GraphemeClusterBreakKind_None && trailing_break_kind != GraphemeClusterBreakKind_None)

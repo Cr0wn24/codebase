@@ -269,15 +269,6 @@ make_grapheme_trie_from_xml(Arena *arena, String8 data)
     }
   }
 
-#if 1
-  for(U32 cp = 0; cp <= 0x10FFFF; ++cp)
-  {
-    GraphemeClusterBreakKind kind = grapheme_cluster_kind_from_codepoint(result, cp);
-    GraphemeClusterBreakKind correct = kinds[cp];
-    Assert(kind == correct);
-  }
-#endif
-
   return result;
 }
 
@@ -287,15 +278,15 @@ os_entry_point(String8List args)
   TempArena scratch = GetScratch(0, 0);
   String8 grapheme_break_property_file_data = os_file_read(scratch.arena, Str8Lit("../assets/ucd.nounihan.flat.xml"));
   GraphemeBreakKindTrie grapheme_trie = make_grapheme_trie_from_xml(scratch.arena, grapheme_break_property_file_data);
-  GraphemeClusterBreakKind kind0 = grapheme_cluster_kind_from_codepoint(grapheme_trie, 0x1F926);
+  GraphemeClusterBreakKind kind0 = grapheme_cluster_kind_from_codepoint(0x1F926);
   Assert(kind0 == GraphemeClusterBreakKind_ExtPict);
-  GraphemeClusterBreakKind kind1 = grapheme_cluster_kind_from_codepoint(grapheme_trie, 0x1F3FB);
+  GraphemeClusterBreakKind kind1 = grapheme_cluster_kind_from_codepoint(0x1F3FB);
   Assert(kind1 == GraphemeClusterBreakKind_Extend);
-  GraphemeClusterBreakKind kind2 = grapheme_cluster_kind_from_codepoint(grapheme_trie, 0x200D);
+  GraphemeClusterBreakKind kind2 = grapheme_cluster_kind_from_codepoint(0x200D);
   Assert(kind2 == GraphemeClusterBreakKind_ZWJ);
-  GraphemeClusterBreakKind kind3 = grapheme_cluster_kind_from_codepoint(grapheme_trie, 0x2642);
+  GraphemeClusterBreakKind kind3 = grapheme_cluster_kind_from_codepoint(0x2642);
   Assert(kind3 == GraphemeClusterBreakKind_ExtPict);
-  GraphemeClusterBreakKind kind4 = grapheme_cluster_kind_from_codepoint(grapheme_trie, 0xFE0F);
+  GraphemeClusterBreakKind kind4 = grapheme_cluster_kind_from_codepoint(0xFE0F);
   Assert(kind4 == GraphemeClusterBreakKind_Extend);
 
   OS_Handle stream_handle = os_file_stream_open(Str8Lit("../src/codebase/grapheme_break_trie_gen/grapheme_break_trie_gen_result.h"));

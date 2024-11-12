@@ -58,7 +58,7 @@ static void
 dynamic_array_insert(DArray<T> &array, U64 idx, T *val, U64 count)
 {
   ProfileFunction();
-  U64 clamped_dst_idx = Min(darray_count(array), idx);
+  U64 clamped_dst_idx = Min(darray_count(array)-1, idx);
   U64 clamped_count = Min(darray_count(array) - clamped_dst_idx, count);
   U64 clamped_size = clamped_count * sizeof(T);
   T *dst = &array.base[clamped_dst_idx];
