@@ -631,6 +631,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
           fill_segment_with_glyph_array_chunks(f_dwrite_map_text_to_glyphs_state->arena, segment, first_glyph_array_chunk, last_glyph_array_chunk);
         }
       }
+
       // hampus: insert slot into cache
       slot = push_array<F_DWrite_MapTextToGlyphsResultSlot>(f_dwrite_map_text_to_glyphs_state->arena, 1);
       slot->text = str16_copy(f_dwrite_map_text_to_glyphs_state->arena, text);

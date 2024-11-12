@@ -802,34 +802,14 @@ string_encode_utf8(U8 *dst, U32 codepoint)
 static StringDecode
 string_decode_utf16(U16 *string, U64 size)
 {
-  StringDecode result = {};
-  result.codepoint = 0xFFFD;
-  result.size = 0;
-
-  if(size == 0)
+  StringDecode result = {1, U32_MAX};
+  result.codepoint = string[0];
+  result.size = 1;
+  if(size > 1 && 0xD800 <= string[0] && string[0] < 0xDC00 && 0xDC00 <= string[1] && string[1] < 0xE000)
   {
-    return result;
+    result.codepoint = (U32)(((string[0] - 0xD800) << 10) | ((string[1] - 0xDC00) + 0x10000));
+    result.size = 2;
   }
-
-  U16 code_unit = *string++;
-  ++result.size;
-
-  if(code_unit < 0xD800 || 0xDFFF < code_unit)
-  {
-    result.codepoint = code_unit;
-  }
-  else if(size >= 2)
-  {
-    U16 lead_surrogate = code_unit;
-    code_unit = *string++;
-
-    if(0xD800 <= lead_surrogate && lead_surrogate <= 0xDBFF && 0xDC00 <= code_unit && code_unit <= 0xDFFF)
-    {
-      result.codepoint = (U32)(0x10000 + ((lead_surrogate - 0xD800) << 10) + (code_unit - 0xDC00));
-      ++result.size;
-    }
-  }
-
   return result;
 }
 
@@ -849,7 +829,7 @@ string_encode_utf16(wchar_t *dst, U32 codepoint)
     dst[1] = 0xDC00 + (adjusted_codepoint & 0x03FF);
     size = 2;
   }
-  return (size);
+  return size;
 }
 
 //////////////////////////////

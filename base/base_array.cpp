@@ -58,8 +58,8 @@ static void
 dynamic_array_insert(DArray<T> &array, U64 idx, T *val, U64 count)
 {
   ProfileFunction();
-  U64 clamped_dst_idx = Min(ArrayCount(array), idx);
-  U64 clamped_count = Min(ArrayCount(array) - clamped_dst_idx, count);
+  U64 clamped_dst_idx = Min(darray_count(array), idx);
+  U64 clamped_count = Min(darray_count(array) - clamped_dst_idx, count);
   U64 clamped_size = clamped_count * sizeof(T);
   T *dst = &array.base[clamped_dst_idx];
   MemoryCopy(dst, val, clamped_size);
@@ -106,8 +106,8 @@ static void
 dynamic_array_move_memory(DArray<T> &array, U64 dst_idx, U64 src_idx, U64 count)
 {
   ProfileFunction();
-  U64 clamped_dst_idx = Min(ArrayCount(array), dst_idx);
-  U64 clamped_src_idx = Min(ArrayCount(array), src_idx);
+  U64 clamped_dst_idx = Min(darray_count(array), dst_idx);
+  U64 clamped_src_idx = Min(darray_count(array), src_idx);
   T *dst = &array.base[clamped_dst_idx];
   T *src = &array.base[clamped_src_idx];
   MemoryMove(dst, src, count * sizeof(T));

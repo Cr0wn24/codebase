@@ -1,5 +1,5 @@
-#ifndef BASE_TEXT_H
-#define BASE_TEXT_H
+#ifndef BASE_GRAHPEME_H
+#define BASE_GRAHPEME_H
 
 ////////////////////////////////////////////////////////////
 // hampus: Grapheme clusters break types
@@ -23,6 +23,8 @@ enum GraphemeClusterBreakKind : S32
   GraphemeClusterBreakKind_LVT,
   GraphemeClusterBreakKind_SpacingMark,
   GraphemeClusterBreakKind_ExtPict,
+  
+  GraphemeClusterBreakKind_Any,
 
   GraphemeClusterBreakKind_COUNT
 };
@@ -47,5 +49,6 @@ struct GraphemeBreakKindTrie
 
 [[nodiscard]] static GraphemeClusterBreakKind grapheme_cluster_kind_from_codepoint(const GraphemeBreakKindTrie &trie, U32 cp);
 [[nodiscard]] static GraphemeBreakKindTrie grapheme_break_kind_trie_from_static_memory(U64 *indices, U64 indices_count, GraphemeClusterBreakKind *kinds, U64 kinds_count);
+[[nodiscard]] static U64 get_next_grapheme_width_in_bytes(const GraphemeBreakKindTrie &trie, String8 string);
 
-#endif
+#endif // BASE_GRAHPEME_H

@@ -11,6 +11,6 @@
 #include "base/base_atomic.h"
 #include "base/base_markup.h"
 #include "base/base_meta.h"
-#include "base/base_text.h"
+#include "base/base_grapheme.h"
 
 #endif // BASE_INC_H
