@@ -387,7 +387,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
             {
               // TODO(hampus): We might want to check that the font actually contains
               // the rest of the grapheme's codepoints
-              if(mapped_font_face != 0 && offset != (fallback_offset+mapped_text_length))
+              if(mapped_font_face != 0 && offset != (fallback_offset + mapped_text_length))
               {
                 IDWriteLocalizedStrings *localized_strings = 0;
                 mapped_font_face->GetFamilyNames(&localized_strings);
@@ -408,7 +408,10 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
                                                     &mapped_text_length,
                                                     &scale,
                                                     &second_mapped_font_face);
-                  Assert(mapped_font_face == second_mapped_font_face);
+                  if(mapped_font_face != second_mapped_font_face)
+                  {
+                    mapped_font_face = 0;
+                  }
                 }
                 mapped_text_length = offset - fallback_offset;
                 Assert(SUCCEEDED(hr));
