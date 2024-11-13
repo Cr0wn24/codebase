@@ -22,7 +22,7 @@ str8(U8 *data, U64 size)
 }
 
 static String8
-str8(Arena *arena, String8 string)
+str8_copy(Arena *arena, String8 string)
 {
   String8 result = {};
   result.size = string.size;

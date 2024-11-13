@@ -258,22 +258,8 @@ fill_segment_with_glyph_array_chunks(Arena *arena, F_DWrite_TextToGlyphsSegment 
   }
 }
 
-static U64
-f_dwrite_hash_from_string(String16 string)
-{
-  U64 hash = 1;
-  if(string.size != 0)
-  {
-    for(U64 i = 0; i < string.size; ++i)
-    {
-      hash = ((hash << 5) + hash) + string[i];
-    }
-  }
-  return hash;
-}
-
 static F_DWrite_MapTextToGlyphsResult
-f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontCollection *font_collection, IDWriteTextAnalyzer1 *text_analyzer, const wchar_t *locale, String16 base_family, U32 font_size, String16 text)
+f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontCollection *font_collection, IDWriteTextAnalyzer1 *text_analyzer, const wchar_t *locale, String16 base_family, U32 font_size, String8 string)
 {
   ProfileFunction();
 
@@ -286,19 +272,19 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
     f_dwrite_map_text_to_glyphs_state->arena = state_arena;
   }
 
-  if(text.size != 0)
+  if(string.size != 0)
   {
     // hampus: lookup text to glyph mapping in cache
     F_DWrite_MapTextToGlyphsResultSlot *slot = 0;
-    U64 hash = f_dwrite_hash_from_string(text);
+    U64 hash = hash_from_string(string);
     U64 slot_idx = hash % ArrayCount(f_dwrite_map_text_to_glyphs_state->text_to_glyphs_result_map);
     {
       for(slot = f_dwrite_map_text_to_glyphs_state->text_to_glyphs_result_map[slot_idx]; slot != 0; slot = slot->hash_next)
       {
-        if(slot->text.size == text.size && slot->base_family.size == base_family.size)
+        if(slot->string.size == string.size && slot->base_family.size == base_family.size)
         {
-          if(MemoryMatch(text.data, slot->text.data, slot->text.size * sizeof(U16)) &&
-             MemoryMatch(base_family.data, slot->base_family.data, slot->base_family.size * sizeof(U16)) &&
+          if(MemoryMatchTyped(string.data, slot->string.data, slot->string.size) &&
+             MemoryMatchTyped(base_family.data, slot->base_family.data, slot->base_family.size) &&
              slot->font_size == font_size)
           {
             result = slot->v;
@@ -314,8 +300,8 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
       TempArena function_scratch = GetScratch(0, 0);
 
       wchar_t *cstr16_base_family = cstr16_from_str16(function_scratch.arena, base_family);
-      wchar_t *cstr_text = cstr16_from_str16(function_scratch.arena, text);
-      U32 text_length_u32 = safe_u32_from_u64(text.size);
+      wchar_t *cstr_text = cstr16_from_str8(function_scratch.arena, string);
+      U32 text_length_u32 = safe_u32_from_u64(wcslen(cstr_text));
 
       HRESULT hr = 0;
 
@@ -376,8 +362,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
         {
           U32 offset = 0;
           TempArena scratch = GetScratch(0, 0);
-          String8 str8 = str8_from_str16(scratch.arena, text);
-          GraphemeList *grapheme_list = grapheme_list_from_str8(scratch.arena, str8);
+          GraphemeList *grapheme_list = grapheme_list_from_str8(scratch.arena, string);
           for(GraphemeNode *n = grapheme_list->first; n != 0; n = n->next)
           {
             String16 str16 = str16_from_str8(scratch.arena, n->string);
@@ -679,7 +664,7 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
 
       // hampus: insert slot into cache
       slot = push_array<F_DWrite_MapTextToGlyphsResultSlot>(f_dwrite_map_text_to_glyphs_state->arena, 1);
-      slot->text = str16_copy(f_dwrite_map_text_to_glyphs_state->arena, text);
+      slot->string = str8_copy(f_dwrite_map_text_to_glyphs_state->arena, string);
       slot->font_size = font_size;
       slot->base_family = str16_copy(f_dwrite_map_text_to_glyphs_state->arena, base_family);
       slot->v = result;

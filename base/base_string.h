@@ -107,7 +107,7 @@ struct StringDecodeNode
   (String8) { (U8 *)(s), sizeof(*s) }
 
 [[nodiscard]] static String8 str8(U8 *data, U64 size);
-[[nodiscard]] static String8 str8(Arena *arena, String8 string);
+[[nodiscard]] static String8 str8_copy(Arena *arena, String8 string);
 [[nodiscard]] static String8 str8_range(U8 *start, U8 *opl);
 [[nodiscard]] static String8 str8_cstr(char *data);
 [[nodiscard]] static String8 str8_lower(Arena *arena, String8 string);

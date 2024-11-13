@@ -118,14 +118,10 @@ struct F_D2D_State
 [[nodiscard]] static F_Handle f_open_font(Arena *arena, String8 name);
 [[nodiscard]] static F_Handle f_open_font_file(Arena *arena, String8 path);
 
-[[nodiscard]] static F_GlyphRun f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
 [[nodiscard]] static F_GlyphRun f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
-[[nodiscard]] static F_GlyphRun f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32);
 [[nodiscard]] static F_GlyphRun f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string);
 
-[[nodiscard]] static F32 f_get_advance(F_Tag tag, U32 size, String32 string);
 [[nodiscard]] static F32 f_get_advance(F_Tag tag, U32 size, String8 string);
-[[nodiscard]] static F32 f_get_advance(F_Tag tag, U32 size, U32 cp);
 [[nodiscard]] static F32 f_line_height_from_tag_size(F_Tag tag, U32 size);
 
 static void f_destroy();

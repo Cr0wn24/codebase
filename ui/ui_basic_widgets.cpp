@@ -160,13 +160,15 @@ ui_codepoint_index_from_mouse_pos(UI_Box *box, String8 edit_str)
     result = S64_MIN;
   }
 
+  GraphemeList *grapheme_list = grapheme_list_from_str8(scratch.arena, edit_str);
+
   UI_Size spacing = ui_em(0.3f, 1);
   F32 x = -box->scroll.x + box->fixed_rect.x0 + spacing.value;
-  for(U64 i = 0; i < edit_str.size;)
+  U64 i = 0;
+  for(GraphemeNode *n = grapheme_list->first; n != 0; n = n->next)
   {
-    StringDecode decode = string_decode_utf8(edit_str.data + i, edit_str.size - i);
     Vec2F32 dim = {};
-    dim.x = f_get_advance(ui_top_font_tag(), ui_top_font_size(), decode.codepoint);
+    dim.x = f_get_advance(ui_top_font_tag(), ui_top_font_size(), n->string);
     dim.y = f_line_height_from_tag_size(ui_top_font_tag(), ui_top_font_size());
     RectF32 character_rect = box->fixed_rect;
     character_rect.min.x = x;
@@ -178,7 +180,7 @@ ui_codepoint_index_from_mouse_pos(UI_Box *box, String8 edit_str)
     }
 
     x += dim.x;
-    i += decode.size;
+    i += n->string.size;
   }
   return result;
 }

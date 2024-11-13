@@ -478,11 +478,14 @@ f_dwrite_raster_glyph(DWRITE_GLYPH_RUN dwrite_glyph_run, IDWriteFontFace *font_f
 }
 
 static F_GlyphRun
-f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
+f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
 {
   ProfileFunction();
 
   TempArena scratch = GetScratch(0, 0);
+
+  String32 str32 = str32_from_str8(arena, string);
+
   F_GlyphRun result = {};
   F_Handle f_handle = f_handle_from_tag(tag);
   F_DWrite_Font *dw_font = f_dwrite_font_from_handle(f_handle);
@@ -554,16 +557,7 @@ f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
 }
 
 static F_GlyphRun
-f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
-{
-  TempArena scratch = GetScratch(&arena, 1);
-  String32 str32 = str32_from_str8(scratch.arena, string);
-  F_GlyphRun result = f_make_simple_glyph_run(arena, tag, size, str32);
-  return result;
-}
-
-static F_GlyphRun
-f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
+f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
 {
   ProfileFunction();
 
@@ -575,7 +569,6 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
   IDWriteFontFace *last_available_font_face = dw_font->font_face;
 
   TempArena scratch = GetScratch(&arena, 1);
-  String16 str16 = str16_from_str32(scratch.arena, str32);
   String16 tag_str16 = str16_from_str8(scratch.arena, tag.string);
 
   F_DWrite_MapTextToGlyphsResult map_text_to_glyphs_result = f_dwrite_map_text_to_glyphs(f_d2d_state->font_fallback1,
@@ -583,7 +576,7 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
                                                                                          f_d2d_state->text_analyzer1,
                                                                                          f_d2d_state->locale,
                                                                                          tag_str16,
-                                                                                         size, str16);
+                                                                                         size, string);
 
   for(F_DWrite_TextToGlyphsSegmentNode *n = map_text_to_glyphs_result.first_segment; n != 0; n = n->next)
   {
@@ -662,28 +655,6 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String32 str32)
   return result;
 }
 
-static F_GlyphRun
-f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
-{
-  TempArena scratch = GetScratch(&arena, 1);
-  String32 str32 = str32_from_str8(scratch.arena, string);
-  F_GlyphRun result = f_make_complex_glyph_run(arena, tag, size, str32);
-  return result;
-}
-
-static F32
-f_get_advance(F_Tag tag, U32 size, String32 string)
-{
-  F32 result = {};
-  TempArena scratch = GetScratch(0, 0);
-  F_GlyphRun glyph_run = f_make_complex_glyph_run(scratch.arena, tag, size, string);
-  for(F_GlyphRunNode *n = glyph_run.first; n != 0; n = n->next)
-  {
-    result += n->metrics.advance;
-  }
-  return result;
-}
-
 static F32
 f_get_advance(F_Tag tag, U32 size, String8 string)
 {
@@ -695,16 +666,6 @@ f_get_advance(F_Tag tag, U32 size, String8 string)
   {
     result += n->metrics.advance;
   }
-  return result;
-}
-
-static F32
-f_get_advance(F_Tag tag, U32 size, U32 cp)
-{
-  F32 result = {};
-  TempArena scratch = GetScratch(0, 0);
-  F_GlyphRun glyph_run = f_make_complex_glyph_run(scratch.arena, tag, size, str32(&cp, 1));
-  result = glyph_run.first->metrics.advance;
   return result;
 }
 

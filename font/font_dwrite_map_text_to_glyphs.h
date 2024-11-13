@@ -77,7 +77,7 @@ struct F_DWrite_MapTextToGlyphsResultSlot
   F_DWrite_MapTextToGlyphsResultSlot *hash_next;
   F_DWrite_MapTextToGlyphsResultSlot *hash_prev;
 
-  String16 text;
+  String8 string;
   U32 font_size;
   String16 base_family;
 
@@ -91,6 +91,6 @@ struct F_DWrite_MapTextToGlyphsState
   F_DWrite_MapTextToGlyphsResultSlot *text_to_glyphs_result_map[256];
 };
 
-static F_DWrite_MapTextToGlyphsResult f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontCollection *font_collection, IDWriteTextAnalyzer1 *text_analyzer, const wchar_t *locale, String16 base_family, const U32 font_size, String16 text);
+static F_DWrite_MapTextToGlyphsResult f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontCollection *font_collection, IDWriteTextAnalyzer1 *text_analyzer, const wchar_t *locale, String16 base_family, const U32 font_size, String8 string);
 
 #endif
