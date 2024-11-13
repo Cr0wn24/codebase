@@ -328,17 +328,17 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
         IDWriteFontFace5 *mapped_font_face = 0;
         U32 mapped_text_length = 0;
 
-        // NOTE(hampus): We need an analysis source that holds the text and the locale
-        TextAnalysisSource analysis_source{locale, cstr_text, text_length_u32};
         {
+          // NOTE(hampus): We need an analysis source that holds the text and the locale
+          TextAnalysisSource analysis_source{locale, cstr_text + fallback_offset, text_length_u32 - fallback_offset};
           // NOTE(hampus): This get the appropiate font required for rendering the text
           {
             ProfileScope("MapCharacters()");
 
             F32 scale = 0;
             hr = font_fallback->MapCharacters(&analysis_source,
-                                              fallback_offset,
-                                              text_length_u32,
+                                              0,
+                                              text_length_u32 - fallback_offset,
                                               font_collection,
                                               cstr16_base_family,
                                               0,
@@ -361,11 +361,10 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
         if(mapped_text_length != text_length_u32)
         {
           U32 offset = 0;
-          TempArena scratch = GetScratch(0, 0);
-          GraphemeList *grapheme_list = grapheme_list_from_str8(scratch.arena, string);
+          GraphemeList *grapheme_list = grapheme_list_from_str8(function_scratch.arena, string);
           for(GraphemeNode *n = grapheme_list->first; n != 0; n = n->next)
           {
-            String16 str16 = str16_from_str8(scratch.arena, n->string);
+            String16 str16 = str16_from_str8(function_scratch.arena, n->string);
             offset += safe_u32_from_u64(str16.size);
 
             if(offset >= (fallback_offset + mapped_text_length))
@@ -379,13 +378,14 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
                 WCHAR buffer[512] = {};
                 localized_strings->GetString(0, buffer, 512);
                 {
+                  TextAnalysisSource analysis_source{locale, cstr_text, text_length_u32};
                   ProfileScope("Second MapCharacters()");
 
                   F32 scale = 0;
                   IDWriteFontFace5 *second_mapped_font_face = 0;
                   hr = font_fallback->MapCharacters(&analysis_source,
                                                     fallback_offset,
-                                                    text_length_u32,
+                                                    text_length_u32 - fallback_offset,
                                                     font_collection,
                                                     buffer,
                                                     0,
