@@ -325,8 +325,8 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
         MappedText *prev;
 
         IDWriteFontFace5 *font_face;
-        uint32_t text_offset;
-        uint32_t text_length;
+        U32 text_offset;
+        U32 text_length;
       };
 
       MappedText *first_mapping = 0;
@@ -341,28 +341,22 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
 
         IDWriteFontFace5 *mapped_font_face = 0;
         U32 mapped_text_length = 0;
-        {
-          // NOTE(hampus): We need an analysis source that holds the text and the locale
-          TextAnalysisSource analysis_source{locale, cstr_text, text_length_u32};
 
+        // NOTE(hampus): We need an analysis source that holds the text and the locale
+        TextAnalysisSource analysis_source{locale, cstr_text, text_length_u32};
+        {
           // NOTE(hampus): This get the appropiate font required for rendering the text
-          F32 scale = 0;
           {
             ProfileScope("MapCharacters()");
-            DWRITE_FONT_AXIS_VALUE font_axis_values[] =
-            {
-             {DWRITE_FONT_AXIS_TAG_WEIGHT, 400},
-             {DWRITE_FONT_AXIS_TAG_WIDTH, 100},
-             {DWRITE_FONT_AXIS_TAG_SLANT, 0},
-             {DWRITE_FONT_AXIS_TAG_ITALIC, 0},
-            };
+
+            F32 scale = 0;
             hr = font_fallback->MapCharacters(&analysis_source,
                                               fallback_offset,
                                               text_length_u32,
                                               font_collection,
                                               cstr16_base_family,
-                                              font_axis_values,
-                                              4,
+                                              0,
+                                              0,
                                               &mapped_text_length,
                                               &scale,
                                               &mapped_font_face);
@@ -375,14 +369,55 @@ f_dwrite_map_text_to_glyphs(IDWriteFontFallback1 *font_fallback, IDWriteFontColl
             // replace these characters with a missing glyph.
           }
         }
-#if 0
-        U64 test = 0;
+
+        // NOTE(hampus): DirectWrite can actually split graphemes even though the mapped font
+        // face contains all the codepoints needed for the grapheme so we have to fix it manually.
+        if(mapped_text_length != text_length_u32)
         {
+          U32 offset = 0;
           TempArena scratch = GetScratch(0, 0);
-          String8 string8 = str8_from_str16(scratch.arena, text);
-          test = get_next_grapheme_width_in_bytes(string8);
+          String8 str8 = str8_from_str16(scratch.arena, text);
+          GraphemeList *grapheme_list = grapheme_list_from_str8(scratch.arena, str8);
+          for(GraphemeNode *n = grapheme_list->first; n != 0; n = n->next)
+          {
+            String16 str16 = str16_from_str8(scratch.arena, n->string);
+            offset += safe_u32_from_u64(str16.size);
+
+            if(offset >= (fallback_offset + mapped_text_length))
+            {
+              // TODO(hampus): We might want to check that the font actually contains
+              // the rest of the grapheme's codepoints
+              if(mapped_font_face != 0 && offset != (fallback_offset+mapped_text_length))
+              {
+                IDWriteLocalizedStrings *localized_strings = 0;
+                mapped_font_face->GetFamilyNames(&localized_strings);
+                WCHAR buffer[512] = {};
+                localized_strings->GetString(0, buffer, 512);
+                {
+                  ProfileScope("Second MapCharacters()");
+
+                  F32 scale = 0;
+                  IDWriteFontFace5 *second_mapped_font_face = 0;
+                  hr = font_fallback->MapCharacters(&analysis_source,
+                                                    fallback_offset,
+                                                    text_length_u32,
+                                                    font_collection,
+                                                    buffer,
+                                                    0,
+                                                    0,
+                                                    &mapped_text_length,
+                                                    &scale,
+                                                    &second_mapped_font_face);
+                  Assert(mapped_font_face == second_mapped_font_face);
+                }
+                mapped_text_length = offset - fallback_offset;
+                Assert(SUCCEEDED(hr));
+                localized_strings->Release();
+              }
+              break;
+            }
+          }
         }
-#endif
         mapping->text_offset = fallback_offset;
         mapping->text_length = mapped_text_length;
         mapping->font_face = mapped_font_face;

@@ -20,16 +20,32 @@ init_grapheme_break_trie(U64 *indices, U64 indices_count, GraphemeClusterBreakKi
   grapheme_break_trie.blocks = (GraphemeBreakKindTrieBlock *)kinds;
 }
 
-struct GraphemeClusterBoundaryRule
+static GraphemeList *
+grapheme_list_from_str8(Arena *arena, String8 string)
 {
-  GraphemeClusterBreakKind lhs;
-  GraphemeClusterBreakKind rhs;
-  B32 should_join;
-};
+  GraphemeList *result = push_array<GraphemeList>(arena, 1);
+  while(string.size != 0)
+  {
+    U64 next_grapheme_byte_width = get_next_grapheme_width_in_bytes(string);
+    GraphemeNode *n = push_array<GraphemeNode>(arena, 1);
+    n->string = str8_prefix(string, next_grapheme_byte_width);
+    DLLPushBack(result->first, result->last, n);
+    string = str8_skip(string, next_grapheme_byte_width);
+    result->count += 1;
+  }
+  return result;
+}
 
 static U64
 get_next_grapheme_width_in_bytes(String8 string)
 {
+  struct GraphemeClusterBoundaryRule
+  {
+    GraphemeClusterBreakKind lhs;
+    GraphemeClusterBreakKind rhs;
+    B32 should_join;
+  };
+
   TempArena scratch = GetScratch(0, 0);
 
   GraphemeClusterBoundaryRule rules[] =

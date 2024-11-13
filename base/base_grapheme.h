@@ -31,6 +31,20 @@ enum GraphemeClusterBreakKind : S32
 
 #define BLOCK_SIZE 256
 
+struct GraphemeNode
+{
+  GraphemeNode *next;
+  GraphemeNode *prev;
+  String8 string;
+};
+
+struct GraphemeList
+{
+  GraphemeNode *first;
+  GraphemeNode *last;
+  U64 count;
+};
+
 struct GraphemeBreakKindTrieBlock
 {
   GraphemeClusterBreakKind kinds[256];
@@ -48,7 +62,8 @@ struct GraphemeBreakKindTrie
 // hampus: Grapheme clusters break
 
 [[nodiscard]] static GraphemeClusterBreakKind grapheme_cluster_kind_from_codepoint(U32 cp);
-[[nodiscard]] static void init_grapheme_break_trie(U64 *indices, U64 indices_count, GraphemeClusterBreakKind *kinds, U64 kinds_count);
+static void init_grapheme_break_trie(U64 *indices, U64 indices_count, GraphemeClusterBreakKind *kinds, U64 kinds_count);
 [[nodiscard]] static U64 get_next_grapheme_width_in_bytes(String8 string);
+[[nodiscard]] static GraphemeList *grapheme_list_from_str8(Arena *arena, String8 string);
 
 #endif // BASE_GRAHPEME_H
