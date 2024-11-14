@@ -44,6 +44,7 @@ get_next_grapheme_width_in_bytes(String8 string)
     GraphemeClusterBreakKind lhs;
     GraphemeClusterBreakKind rhs;
     B32 should_join;
+    B32 no_more_join;
   };
 
   TempArena scratch = GetScratch(0, 0);
@@ -92,52 +93,68 @@ get_next_grapheme_width_in_bytes(String8 string)
    // hampus: GB11
    {GraphemeClusterBreakKind_Extend, GraphemeClusterBreakKind_ZWJ, true},
    {GraphemeClusterBreakKind_ZWJ, GraphemeClusterBreakKind_ExtPict, true},
+
+   // hampus: GB12 and GB13
+   {GraphemeClusterBreakKind_RI, GraphemeClusterBreakKind_RI, true, true},
+
+   // hampus: GB999
+   {GraphemeClusterBreakKind_Any, GraphemeClusterBreakKind_Any, false},
   };
 
   U64 result = 0;
+  U64 ri_count = 0;
 
-  B32 should_join = true;
-  while(should_join)
+  for(;;)
   {
-    should_join = false;
-
+    StringDecode leading_decode = {};
     GraphemeClusterBreakKind leading_break_kind = GraphemeClusterBreakKind_None;
     if(string.size != 0)
     {
-      StringDecode leading_decode = string_decode_utf8(string.data, string.size);
+      leading_decode = string_decode_utf8(string.data, string.size);
       leading_break_kind = grapheme_cluster_kind_from_codepoint(leading_decode.codepoint);
       result += leading_decode.size;
       string = str8_skip(string, leading_decode.size);
     }
 
+    StringDecode trailing_decode = {};
     GraphemeClusterBreakKind trailing_break_kind = GraphemeClusterBreakKind_None;
     if(string.size != 0)
     {
-      StringDecode trailing_decode = string_decode_utf8(string.data, string.size);
+      trailing_decode = string_decode_utf8(string.data, string.size);
       trailing_break_kind = grapheme_cluster_kind_from_codepoint(trailing_decode.codepoint);
     }
 
+    B32 should_join = true;
     if(trailing_break_kind != GraphemeClusterBreakKind_None && trailing_break_kind != GraphemeClusterBreakKind_None)
     {
+      B32 no_more_join = false;
       for(U64 rule_idx = 0; rule_idx < ArrayCount(rules); ++rule_idx)
       {
         const GraphemeClusterBoundaryRule &rule = rules[rule_idx];
-        if(rule.lhs == leading_break_kind && rule.rhs == GraphemeClusterBreakKind_Any)
+        if(rule.lhs == leading_break_kind && rule.rhs == GraphemeClusterBreakKind_Any ||
+           rule.lhs == GraphemeClusterBreakKind_Any && rule.rhs == trailing_break_kind ||
+           rule.lhs == leading_break_kind && rule.rhs == trailing_break_kind)
         {
           should_join = rule.should_join;
-          break;
-        }
-        else if(rule.lhs == GraphemeClusterBreakKind_Any && rule.rhs == trailing_break_kind)
-        {
-          should_join = rule.should_join;
-          break;
-        }
-        else if(rule.lhs == leading_break_kind && rule.rhs == trailing_break_kind)
-        {
-          should_join = rule.should_join;
+          no_more_join = rule.no_more_join;
           break;
         }
       }
+      if(no_more_join)
+      {
+        string = str8_skip(string, trailing_decode.size);
+        result += trailing_decode.size;
+        should_join = false;
+      }
+    }
+    else
+    {
+      should_join = false;
+    }
+
+    if(!should_join)
+    {
+      break;
     }
   }
 

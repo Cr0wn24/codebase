@@ -26,6 +26,7 @@ struct F_GlyphMetrics
 {
   F32 advance;
   F32 left_bearing;
+  F32 top_bearing;
 };
 
 struct F_GlyphNode
@@ -58,6 +59,7 @@ struct F_GlyphRun
 {
   F_GlyphRunNode *first;
   F_GlyphRunNode *last;
+  F_FontMetrics font_metrics;
 };
 
 struct F_Atlas

@@ -366,6 +366,7 @@ struct F_DWrite_RasterResult
   B32 is_whitespace;
   RectU64 atlas_region;
   Vec2U64 bitmap_dim;
+  F32 top_bearing;
 };
 
 static F_DWrite_RasterResult
@@ -395,9 +396,9 @@ f_dwrite_raster_glyph(DWRITE_GLYPH_RUN dwrite_glyph_run, IDWriteFontFace *font_f
     ProfileScope("rasterize glyph");
     F_FontMetrics font_metrics = f_dwrite_get_font_metrics(font_face, size);
     f_d2d_state->d2d_device_context->BeginDraw();
-    bitmap_dim = v2u64((U64)(glyph_world_bounds.right - glyph_world_bounds.left), (U64)(font_metrics.ascent + font_metrics.descent + font_metrics.line_gap));
+    bitmap_dim = v2u64((U64)(glyph_world_bounds.right - glyph_world_bounds.left), (U64)(glyph_world_bounds.bottom - glyph_world_bounds.top));
     atlas_region = atlas_region_alloc(f_d2d_state->arena, &f_d2d_state->atlas.atlas, bitmap_dim);
-    D2D1_POINT_2F baseline = {(FLOAT)atlas_region.x0 - glyph_world_bounds.left, (FLOAT)atlas_region.y1 - font_metrics.descent};
+    D2D1_POINT_2F baseline = {(FLOAT)atlas_region.x0 - glyph_world_bounds.left, (FLOAT)atlas_region.y0 - glyph_world_bounds.top};
     IDWriteColorGlyphRunEnumerator1 *run_enumerator = 0;
     const DWRITE_GLYPH_IMAGE_FORMATS desired_glyph_image_formats = DWRITE_GLYPH_IMAGE_FORMATS_TRUETYPE |
                                                                    DWRITE_GLYPH_IMAGE_FORMATS_CFF |
@@ -473,6 +474,7 @@ f_dwrite_raster_glyph(DWRITE_GLYPH_RUN dwrite_glyph_run, IDWriteFontFace *font_f
   result.is_whitespace = is_whitespace;
   result.atlas_region = atlas_region;
   result.bitmap_dim = bitmap_dim;
+  result.top_bearing = -glyph_world_bounds.top;
 
   return result;
 }
@@ -538,6 +540,7 @@ f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
       glyph_node->bitmap_size = raster_result.bitmap_dim;
       glyph_node->metrics.advance = round_f32(glyph_advances[idx]);
       glyph_node->metrics.left_bearing = raster_result.glyph_world_bounds.left;
+      glyph_node->metrics.top_bearing = -raster_result.glyph_world_bounds.top;
       glyph_node->size = size;
       glyph_node->region_uv = r4f32((F32)raster_result.atlas_region.x0 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y0 / (F32)f_d2d_state->atlas.atlas.dim.y,
                                     (F32)raster_result.atlas_region.x1 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y1 / (F32)f_d2d_state->atlas.atlas.dim.y);
@@ -553,6 +556,7 @@ f_make_simple_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
 
     DLLPushBack(result.first, result.last, glyph_run_node);
   }
+  result.font_metrics = f_dwrite_get_font_metrics(dw_font->font_face, size);
   return result;
 }
 
@@ -635,6 +639,7 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
         glyph_node->bitmap_size = raster_result.bitmap_dim;
         glyph_node->metrics.advance = round_f32(segment.glyph_advances[idx]);
         glyph_node->metrics.left_bearing = raster_result.glyph_world_bounds.left;
+        glyph_node->metrics.top_bearing = raster_result.top_bearing;
         glyph_node->size = size;
         glyph_node->region_uv = r4f32((F32)raster_result.atlas_region.x0 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y0 / (F32)f_d2d_state->atlas.atlas.dim.y,
                                       (F32)raster_result.atlas_region.x1 / (F32)f_d2d_state->atlas.atlas.dim.x, (F32)raster_result.atlas_region.y1 / (F32)f_d2d_state->atlas.atlas.dim.y);
@@ -651,6 +656,8 @@ f_make_complex_glyph_run(Arena *arena, F_Tag tag, U32 size, String8 string)
       DLLPushBack(result.first, result.last, glyph_run_node);
     }
   }
+
+  result.font_metrics = f_dwrite_get_font_metrics(dw_font->font_face, size);
 
   return result;
 }

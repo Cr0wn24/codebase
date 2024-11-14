@@ -225,7 +225,7 @@ ui_draw_glyph_run(Vec2F32 pos, Vec4F32 color, F_GlyphRun glyph_run)
   for(F_GlyphRunNode *node = glyph_run.first; node != 0; node = node->next)
   {
     F32 xpos = advance + node->metrics.left_bearing;
-    F32 ypos = pos.y;
+    F32 ypos = pos.y + glyph_run.font_metrics.ascent - node->metrics.top_bearing;
     F32 width = (F32)node->bitmap_size.x;
     F32 height = (F32)node->bitmap_size.y;
 
