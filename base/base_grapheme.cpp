@@ -133,7 +133,8 @@ get_next_grapheme_width_in_bytes(String8 string)
         const GraphemeClusterBoundaryRule &rule = rules[rule_idx];
         if(rule.lhs == leading_break_kind && rule.rhs == GraphemeClusterBreakKind_Any ||
            rule.lhs == GraphemeClusterBreakKind_Any && rule.rhs == trailing_break_kind ||
-           rule.lhs == leading_break_kind && rule.rhs == trailing_break_kind)
+           rule.lhs == leading_break_kind && rule.rhs == trailing_break_kind ||
+           rule.lhs == GraphemeClusterBreakKind_Any && rule.rhs == GraphemeClusterBreakKind_Any)
         {
           should_join = rule.should_join;
           no_more_join = rule.no_more_join;
