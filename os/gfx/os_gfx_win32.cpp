@@ -1,5 +1,6 @@
 #pragma comment(lib, "gdi32")
 #pragma comment(lib, "user32")
+#pragma comment(lib, "imm32")
 
 //////////////////////////////
 // NOTE(hampus): Globals
@@ -25,8 +26,7 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
   OS_EventList fallback_list = {};
   OS_EventList *event_list = os_win32_event_list;
 
-  if(os_win32_event_list == 0 ||
-     os_win32_event_arena == 0)
+  if(os_win32_event_list == 0 || os_win32_event_arena == 0)
   {
     event_arena = scratch.arena;
     event_list = &fallback_list;
@@ -38,6 +38,56 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
   OS_EventNode *event_node = 0;
   switch(message)
   {
+    case WM_IME_COMPOSITION:
+    {
+      HIMC himc = {};
+      himc = ImmGetContext(hwnd);
+
+      WCHAR buffer[512] = {};
+      LONG bytes = ImmGetCompositionStringW(himc, GCS_RESULTSTR, (void *)buffer, 512);
+
+      U16 high_surrogate = 0;
+      U16 low_surrogate = 0;
+      for(S64 buffer_idx = 0; buffer_idx < bytes / 2; buffer_idx += 1)
+      {
+        if(IS_HIGH_SURROGATE(buffer[buffer_idx]))
+        {
+          high_surrogate = (U16)buffer[buffer_idx];
+        }
+        else if(IS_LOW_SURROGATE(buffer[buffer_idx]))
+        {
+          low_surrogate = (U16)buffer[buffer_idx];
+        }
+        else
+        {
+          if(buffer[buffer_idx] >= 32)
+          {
+            event_node = push_array<OS_EventNode>(event_arena, 1);
+            event_node->v.kind = OS_EventKind_Char;
+            event_node->v.cp = (U32)buffer[buffer_idx];
+            DLLPushBack(event_list->first, event_list->last, event_node);
+
+            high_surrogate = 0;
+            low_surrogate = 0;
+          }
+        }
+
+        if(IS_SURROGATE_PAIR(high_surrogate, low_surrogate))
+        {
+          U32 cp = (0x10000 + (((U32)high_surrogate & 0x3FF) << 10) + ((U32)low_surrogate & 0x3FF));
+          event_node = push_array<OS_EventNode>(event_arena, 1);
+          event_node->v.kind = OS_EventKind_Char;
+          event_node->v.cp = cp;
+          DLLPushBack(event_list->first, event_list->last, event_node);
+          high_surrogate = 0;
+          low_surrogate = 0;
+        }
+      }
+      event_node = 0;
+
+      ImmReleaseContext(hwnd, himc);
+    }
+    break;
     case WM_CLOSE:
     case WM_QUIT:
     case WM_DESTROY:
@@ -89,7 +139,7 @@ os_win32_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
           event_node->v.cp = (U32)wparam;
 
           high_surrogate = 0;
-          high_surrogate = 0;
+          low_surrogate = 0;
         }
       }
 
